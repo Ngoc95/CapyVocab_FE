@@ -41,6 +41,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -58,6 +59,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    // Accompanist (Hỗ trợ UI nâng cao)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
     // Arrow
     implementation("io.arrow-kt:arrow-core:1.2.0")
