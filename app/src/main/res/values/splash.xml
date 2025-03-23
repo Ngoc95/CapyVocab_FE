@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="App.Starting.Theme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#D5EEFF</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_splash_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.CapyVocab_FE</item>
+    </style>
+</resources>
