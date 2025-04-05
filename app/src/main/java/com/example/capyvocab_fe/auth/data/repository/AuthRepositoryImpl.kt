@@ -1,0 +1,45 @@
+package com.example.capyvocab_fe.auth.data.repository
+
+import android.util.Log
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.right
+import com.example.capyvocab_fe.auth.data.mapper.toDomain
+import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
+import com.example.capyvocab_fe.auth.data.remote.AuthApi
+import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
+import com.example.capyvocab_fe.auth.domain.model.AuthFailure
+import com.example.capyvocab_fe.auth.domain.model.User
+import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
+import javax.inject.Inject
+
+class AuthRepositoryImpl @Inject constructor(
+    private val authApi: AuthApi
+): AuthRepository {
+
+    override suspend fun login(username: String, password: String): Either<AuthFailure, User> {
+        return Either.catch {
+            val response = authApi.login(LoginRequest(username, password))
+            response.metaData.toDomain()
+        }.mapLeft {
+            Log.e("LoginError", "Login failed", it)
+            it.toAuthFailure() }
+    }
+
+
+    override suspend fun logout() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getUserInfo(): Either<AuthFailure, User?> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun register(
+        email: String,
+        username: String,
+        password: String
+    ): Either<AuthFailure, User> {
+        TODO("Not yet implemented")
+    }
+}
