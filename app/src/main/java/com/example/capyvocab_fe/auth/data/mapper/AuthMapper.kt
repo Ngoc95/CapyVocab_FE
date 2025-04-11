@@ -12,7 +12,6 @@ fun UserData.toDomain(): User {
         username = this.username,
         fullName = this.fullName,
         avatar = this.avatar ?: "",
-        status = this.status,
        // role = UserRole.from(this.role)
     )
 }

@@ -33,7 +33,6 @@ class LoginViewModel @Inject constructor(
 
     fun login() {
         viewModelScope.launch {
-            viewModelScope.launch {
                 _state.update { it.copy(isLoading = true, errorMessage = "") }
 
                 authRepository.login(_state.value.username, _state.value.password)
@@ -48,7 +47,7 @@ class LoginViewModel @Inject constructor(
                             )
                         }
                     }
-            }
+
         }
     }
 }

@@ -20,9 +20,8 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(username: String, password: String): Either<AuthFailure, User> {
         return Either.catch {
             val response = authApi.login(LoginRequest(username, password))
-            response.metaData.toDomain()
+            response.metaData.user.toDomain()
         }.mapLeft {
-            Log.e("LoginError", "Login failed", it)
             it.toAuthFailure() }
     }
 
