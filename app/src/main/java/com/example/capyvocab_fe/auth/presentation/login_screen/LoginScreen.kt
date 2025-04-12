@@ -70,6 +70,7 @@ internal fun LoginScreen(
         onPasswordChanged = { viewModel.onPasswordChanged(it) },
         onTogglePasswordVisibility = { viewModel.onTogglePasswordVisibility() },
         onLoginClick = { viewModel.login() },
+        onRegisterClick = { },
         onGoogleLoginClick = {
 
         }
@@ -93,6 +94,7 @@ fun LoginScreenPreview() {
         onPasswordChanged = { /* Handle password change */ },
         onTogglePasswordVisibility = {},
         onLoginClick = { /* Handle login click */ },
+        onRegisterClick = { },
         onGoogleLoginClick = { /* Handle Google login click */ }
     )
 }
@@ -103,6 +105,7 @@ fun LoginContent(
     onPasswordChanged: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
     onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
     onGoogleLoginClick: () -> Unit
 ){
     LoadingDialog(isLoading = state.isLoading)
@@ -144,7 +147,6 @@ fun LoginContent(
                     unfocusedPlaceholderColor = Color.Gray
                 ),
                 singleLine = true,
-                maxLines = 1,
                 shape = RoundedCornerShape(15.dp)
             )
 
@@ -174,7 +176,6 @@ fun LoginContent(
                     unfocusedPlaceholderColor = Color.Gray
                 ),
                 singleLine = true,
-                maxLines = 1,
                 shape = RoundedCornerShape(15.dp)
             )
 
@@ -211,11 +212,11 @@ fun LoginContent(
 
             // Register Button
             OutlinedButton(
-                onClick = { /* Handle register */ },
+                onClick = onRegisterClick,
                 modifier = Modifier.width(250.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White, // Màu nền của nút
-                    contentColor = Color.Gray // Màu chữ
+                    containerColor = Color.White,
+                    contentColor = Color.Gray
                 )
             ) {
                 Text("Đăng ký")
@@ -253,7 +254,7 @@ fun LoginContent(
                 modifier = Modifier.size(48.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.google_ic), // Use your Google icon
+                    painter = painterResource(id = R.drawable.google_ic),
                     contentDescription = "Google Sign In",
                     modifier = Modifier.size(36.dp)
                 )
@@ -265,7 +266,7 @@ fun LoginContent(
                 Text(
                     text = state.errorMessage,
                     color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }
