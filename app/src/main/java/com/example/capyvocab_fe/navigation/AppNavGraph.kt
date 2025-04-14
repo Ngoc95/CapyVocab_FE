@@ -10,6 +10,8 @@ import androidx.navigation.navigation
 import com.example.capyvocab_fe.admin.navigator.AdminNavigator
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginScreen
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginViewModel
+import com.example.capyvocab_fe.auth.presentation.register_screen.RegisterScreen
+import com.example.capyvocab_fe.auth.presentation.register_screen.RegisterViewModel
 import com.example.capyvocab_fe.user.navigator.UserNavigator
 
 @Composable
@@ -28,14 +30,19 @@ fun AppNavGraph(
             //login screen
             composable(route = Route.LoginScreen.route) {
                 val viewModel: LoginViewModel = hiltViewModel()
-                LoginScreen(viewModel)
+                LoginScreen(
+                    viewModel = viewModel,
+                    navController = navController
+                )
             }
-
             //register screen
             composable(route = Route.RegisterScreen.route) {
-                //TODO: navigate to register screen
+                val viewModel: RegisterViewModel = hiltViewModel()
+                RegisterScreen(
+                    viewModel = viewModel,
+                    navController = navController
+                )
             }
-
         }
         //admin
         navigation(
@@ -46,7 +53,7 @@ fun AppNavGraph(
                 AdminNavigator()
             }
         }
-
+        //user
         navigation(
             route = Route.UserNavigation.route,
             startDestination = Route.UserNavigator.route
