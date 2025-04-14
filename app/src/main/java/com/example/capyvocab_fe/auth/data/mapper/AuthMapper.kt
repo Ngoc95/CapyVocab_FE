@@ -2,7 +2,6 @@ package com.example.capyvocab_fe.auth.data.mapper
 
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.domain.model.UserRole
-import com.example.capyvocab_fe.auth.domain.model.UserStatus
 import com.example.capyvocab_fe.core.data.model.UserData
 
 fun UserData.toDomain(): User {
@@ -12,7 +11,6 @@ fun UserData.toDomain(): User {
         username = this.username,
         fullName = this.fullName,
         avatar = this.avatar ?: "",
-        status = this.status,
        // role = UserRole.from(this.role)
     )
 }

@@ -33,22 +33,30 @@ class LoginViewModel @Inject constructor(
 
     fun login() {
         viewModelScope.launch {
-            viewModelScope.launch {
                 _state.update { it.copy(isLoading = true, errorMessage = "") }
 
                 authRepository.login(_state.value.username, _state.value.password)
                     .onRight {
                         _state.update { it.copy(isLoading = false, isLoggedIn = true) }
                     }
-                    .onLeft {
+                    .onLeft { failure ->
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = "Invalid credentials"
+                                errorMessage = failure.message ?: "Đã xảy ra lỗi"
                             )
                         }
                     }
-            }
         }
     }
+    fun clearForm() {
+        _state.update { current ->
+            current.copy(
+                username = "",
+                password = "",
+                isPasswordVisible = false
+            )
+        }
+    }
+
 }

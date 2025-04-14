@@ -6,10 +6,9 @@ data class UserData(
     val id: Int,
     val email: String,
     val username: String,
-    @SerializedName("full_name")
     val fullName: String,
     val avatar: String?,
-    val status: Int
+
     //val role: RoleData
 )
 
