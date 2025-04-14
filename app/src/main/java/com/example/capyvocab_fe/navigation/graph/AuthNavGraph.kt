@@ -7,6 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginScreen
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginViewModel
+import com.example.capyvocab_fe.auth.presentation.register_screen.RegisterScreen
+import com.example.capyvocab_fe.auth.presentation.register_screen.RegisterViewModel
 import com.example.capyvocab_fe.navigation.Route
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
@@ -17,12 +19,19 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
         //login screen
         composable(route = Route.LoginScreen.route) {
             val viewModel: LoginViewModel = hiltViewModel()
-            LoginScreen(viewModel)
+            LoginScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
         }
 
         //register screen
         composable(route = Route.RegisterScreen.route) {
-            //TODO: navigate to register screen
+            val viewModel: RegisterViewModel = hiltViewModel()
+            RegisterScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
         }
 
     }

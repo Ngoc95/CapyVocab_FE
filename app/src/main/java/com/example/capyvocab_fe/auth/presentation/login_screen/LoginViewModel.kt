@@ -39,14 +39,24 @@ class LoginViewModel @Inject constructor(
                     .onRight {
                         _state.update { it.copy(isLoading = false, isLoggedIn = true) }
                     }
-                    .onLeft {
+                    .onLeft { failure ->
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = "Invalid credentials"
+                                errorMessage = failure.message ?: "Đã xảy ra lỗi"
                             )
                         }
                     }
         }
     }
+    fun clearForm() {
+        _state.update { current ->
+            current.copy(
+                username = "",
+                password = "",
+                isPasswordVisible = false
+            )
+        }
+    }
+
 }

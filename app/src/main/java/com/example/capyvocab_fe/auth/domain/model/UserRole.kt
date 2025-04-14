@@ -4,14 +4,14 @@ import com.example.capyvocab_fe.core.data.model.RoleData
 
 
 enum class UserRole {
-    ADMIN, PREMIUM, FREE;
+    ADMIN, PREMIUM, USER;
 
     companion object {
         fun from(roleData: RoleData): UserRole {
             return when (roleData.name.uppercase()) {
                 "ADMIN" -> ADMIN
                 "PREMIUM" -> PREMIUM
-                else -> FREE
+                else -> USER
             }
         }
     }

@@ -11,19 +11,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.navBarBackground
 
 @Composable
 fun BottomNavigation(
@@ -33,8 +32,7 @@ fun BottomNavigation(
 ) {
     NavigationBar(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.background,
-        tonalElevation = 10.dp
+        containerColor = MaterialTheme.colorScheme.navBarBackground,
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -48,14 +46,16 @@ fun BottomNavigation(
                             modifier = Modifier.size(34.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = item.text, style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = item.text,
+                            fontSize = (if (selected == index) 14.sp else 12.sp),
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = Color(0xFF49454F),
-                    unselectedIconColor = colorResource(R.color.body),
-                    unselectedTextColor = colorResource(R.color.body),
+                    unselectedIconColor = MaterialTheme.colorScheme.tertiary,
                     indicatorColor = MaterialTheme.colorScheme.background
                 )
             )
@@ -78,7 +78,7 @@ private fun BottomNavigationPreview() {
             BottomNavigationItem(icon = R.drawable.admin_home, selectedIcon = R.drawable.admin_selected_home, text = "Trang chủ"),
             BottomNavigationItem(icon = R.drawable.admin_course, selectedIcon = R.drawable.admin_selected_course, text = "Khoá học"),
             BottomNavigationItem(icon = R.drawable.admin_user,selectedIcon = R.drawable.admin_selected_user, text = "Người dùng"),
-            BottomNavigationItem(icon = R.drawable.admin_setting,selectedIcon = R.drawable.admin_selected_setting, text = "Cài đặt")
+            BottomNavigationItem(icon = R.drawable.ic_setting,selectedIcon = R.drawable.ic_selected_setting, text = "Cài đặt")
         ), selected = 0, onItemClick = {}
         )
     }

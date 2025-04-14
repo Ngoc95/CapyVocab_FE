@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,17 +47,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.LoadingDialog
+import com.example.capyvocab_fe.navigation.Route
 
 
 @Composable
 internal fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
+    navController: NavController
    // onLoginSuccess: () -> Unit
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    // Clear form mỗi lần LoginScreen hiển thị
+    LaunchedEffect(Unit) {
+        viewModel.clearForm()
+    }
 //    // Navigate when login is successful
 //    LaunchedEffect(state.isLoggedIn) {
 //        if (state.isLoggedIn) {
@@ -70,7 +79,9 @@ internal fun LoginScreen(
         onPasswordChanged = { viewModel.onPasswordChanged(it) },
         onTogglePasswordVisibility = { viewModel.onTogglePasswordVisibility() },
         onLoginClick = { viewModel.login() },
-        onRegisterClick = { },
+        onRegisterClick = {
+            navController.navigate(Route.RegisterScreen.route)
+        },
         onGoogleLoginClick = {
 
         }
@@ -137,15 +148,7 @@ fun LoginContent(
                 label = { Text("Tên đăng nhập") },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    cursorColor = Color.Black,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedBorderColor = Color(0xFF0866FF),
-                    focusedTextColor = Color.Black,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    unfocusedPlaceholderColor = Color.Gray
-                ),
+                colors = defaultTextFieldColors(),
                 singleLine = true,
                 shape = RoundedCornerShape(15.dp)
             )
@@ -166,15 +169,7 @@ fun LoginContent(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    cursorColor = Color.Black,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedBorderColor = Color(0xFF0866FF),
-                    focusedTextColor = Color.Black,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    unfocusedPlaceholderColor = Color.Gray
-                ),
+                colors = defaultTextFieldColors(),
                 singleLine = true,
                 shape = RoundedCornerShape(15.dp)
             )
