@@ -1,7 +1,9 @@
 package com.example.capyvocab_fe.admin.navigator.components
 
 import android.content.res.Configuration
+import android.widget.ImageView
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,7 +54,7 @@ fun BottomNavigation(
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = Color(0xFF49454F),
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
                     unselectedIconColor = colorResource(R.color.body),
                     unselectedTextColor = colorResource(R.color.body),
                     indicatorColor = MaterialTheme.colorScheme.background
@@ -69,8 +70,8 @@ data class BottomNavigationItem(
     val text: String
 )
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
+@Preview(showBackground = true,uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun BottomNavigationPreview() {
     CapyVocab_FETheme {
@@ -79,7 +80,7 @@ private fun BottomNavigationPreview() {
             BottomNavigationItem(icon = R.drawable.admin_course, selectedIcon = R.drawable.admin_selected_course, text = "Khoá học"),
             BottomNavigationItem(icon = R.drawable.admin_user,selectedIcon = R.drawable.admin_selected_user, text = "Người dùng"),
             BottomNavigationItem(icon = R.drawable.admin_setting,selectedIcon = R.drawable.admin_selected_setting, text = "Cài đặt")
-        ), selected = 0, onItemClick = {}
+        ), selected = 1, onItemClick = {}
         )
     }
 }
