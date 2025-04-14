@@ -40,8 +40,8 @@ fun AdminNavigator() {
                 text = "Người dùng"
             ),
             BottomNavigationItem(
-                icon = R.drawable.admin_setting,
-                selectedIcon = R.drawable.admin_selected_setting,
+                icon = R.drawable.ic_setting,
+                selectedIcon = R.drawable.ic_selected_setting,
                 text = "Cài đặt"
             )
         )
