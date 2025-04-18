@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.admin.user.presentation.users_screen.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
 fun UserFormDialog(
@@ -67,7 +69,6 @@ fun UserFormDialog(
     var password by remember { mutableStateOf(user?.password ?: "") }
     var email by remember { mutableStateOf(user?.email ?: "") }
     var isPremium by remember { mutableStateOf((user?.status ?: 0) == 1) }
-    var passwordVisible by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -206,7 +207,7 @@ fun UserFormFields(
         OutlinedTextField(
             value = username,
             onValueChange = onUsernameChange,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
+            modifier = Modifier.fillMaxWidth(),
             colors = defaultTextFieldColors(),
             singleLine = true,
             shape = RoundedCornerShape(15.dp)
@@ -225,7 +226,7 @@ fun UserFormFields(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth().height(50.dp),
+            modifier = Modifier.fillMaxWidth(),
             colors = defaultTextFieldColors(),
             singleLine = true,
             shape = RoundedCornerShape(15.dp)
@@ -235,7 +236,7 @@ fun UserFormFields(
         OutlinedTextField(
             value = email,
             onValueChange = onEmailChange,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
+            modifier = Modifier.fillMaxWidth(),
             colors = defaultTextFieldColors(),
             singleLine = true,
             shape = RoundedCornerShape(15.dp)
@@ -341,6 +342,7 @@ fun UserInfoStats(
 
 
 @Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun UserFormModalPreview() {
     val sampleUser = User(
@@ -357,11 +359,12 @@ private fun UserFormModalPreview() {
         totalMasteredCard = 70,
         roleId = 1
     )
-
-    UserFormDialog(
-        user = sampleUser,
-        onDismiss = {},
-        onSave = {},
-        onDelete = {}
-    )
+    CapyVocab_FETheme {
+        UserFormDialog(
+            user = sampleUser,
+            onDismiss = {},
+            onSave = {},
+            onDelete = {}
+        )
+    }
 }

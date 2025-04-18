@@ -51,7 +51,8 @@ fun UserCard(
     user: User,
     isFree: Boolean,
     isExpanded: Boolean,
-    onExpandToggle: () -> Unit
+    onExpandToggle: () -> Unit,
+    onEditClick:() -> Unit
 ) {
     var expanded by remember { mutableStateOf(isExpanded) }
 
@@ -138,7 +139,7 @@ fun UserCard(
                             contentDescription = "Edit",
                             modifier = Modifier
                                 .size(18.dp)
-                                .clickable { /* handle edit */ }
+                                .clickable { onEditClick() }
                         )
                     }
                     InfoRow("Chuỗi", "${user.streak} ngày")
@@ -189,7 +190,8 @@ private fun UserCardPreview() {
             ),
             isFree = true,
             isExpanded = true,
-            onExpandToggle = {}
+            onExpandToggle = {},
+            onEditClick = {}
         )
     }
 }

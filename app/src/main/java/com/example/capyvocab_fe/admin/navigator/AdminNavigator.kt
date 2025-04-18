@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,6 +20,7 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigation
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.admin.user.presentation.users_screen.UserScreen
+import com.example.capyvocab_fe.admin.user.presentation.users_screen.UserScreenContent
 import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.User
 import com.example.capyvocab_fe.navigation.Route
 
@@ -119,51 +121,68 @@ fun AdminNavigator() {
             }
             //user screen
             composable(route = Route.UsersScreen.route) {
-                val users = listOf(
-                    User(
-                        id = 1,
-                        email = "alice@gmail.com",
-                        username = "Alice",
-                        password = "123456",
-                        avatar = "https://randomuser.me/api/portraits/women/68.jpg",
-                        status = 1,
-                        streak = 10,
-                        lastStudyDate = "12/04/2025",
-                        totalStudyDay = 15,
-                        totalLearnedCard = 120,
-                        totalMasteredCard = 80,
-                        roleId = 1
-                    ),
-                    User(
-                        id = 2,
-                        email = "bob@gmail.com",
-                        username = "Bob",
-                        password = "123456",
-                        avatar = "https://randomuser.me/api/portraits/men/45.jpg",
-                        status = 1,
-                        streak = 20,
-                        lastStudyDate = "14/04/2025",
-                        totalStudyDay = 30,
-                        totalLearnedCard = 200,
-                        totalMasteredCard = 150,
-                        roleId = 2
-                    ),
-                    User(
-                        id = 3,
-                        email = "carol@gmail.com",
-                        username = "Carol",
-                        password = "123456",
-                        avatar = "https://randomuser.me/api/portraits/women/12.jpg",
-                        status = 1,
-                        streak = 5,
-                        lastStudyDate = "09/04/2025",
-                        totalStudyDay = 7,
-                        totalLearnedCard = 50,
-                        totalMasteredCard = 20,
-                        roleId = 1
+                val usersState = remember {
+                    mutableStateListOf(
+                        User(
+                            id = 1,
+                            email = "alice@gmail.com",
+                            username = "Alice",
+                            password = "123456",
+                            avatar = "https://randomuser.me/api/portraits/women/68.jpg",
+                            status = 1,
+                            streak = 10,
+                            lastStudyDate = "12/04/2025",
+                            totalStudyDay = 15,
+                            totalLearnedCard = 120,
+                            totalMasteredCard = 80,
+                            roleId = 1
+                        ),
+                        User(
+                            id = 2,
+                            email = "bob@gmail.com",
+                            username = "Bob",
+                            password = "123456",
+                            avatar = "https://randomuser.me/api/portraits/men/45.jpg",
+                            status = 1,
+                            streak = 20,
+                            lastStudyDate = "14/04/2025",
+                            totalStudyDay = 30,
+                            totalLearnedCard = 200,
+                            totalMasteredCard = 150,
+                            roleId = 2
+                        ),
+                        User(
+                            id = 3,
+                            email = "carol@gmail.com",
+                            username = "Carol",
+                            password = "123456",
+                            avatar = "https://randomuser.me/api/portraits/women/12.jpg",
+                            status = 1,
+                            streak = 5,
+                            lastStudyDate = "09/04/2025",
+                            totalStudyDay = 7,
+                            totalLearnedCard = 50,
+                            totalMasteredCard = 20,
+                            roleId = 1
+                        )
                     )
+                }
+                UserScreen(
+                    users = usersState,
+                    onUserExpandToggle = { user -> /* toggle logic nếu muốn */ },
+                    onUserSave = { updatedUser ->
+                        val index = usersState.indexOfFirst { it.id == updatedUser.id }
+                        if (index != -1) {
+                            usersState[index] = updatedUser
+                        } else {
+                            val newId = (usersState.maxOfOrNull { it.id } ?: 0) + 1
+                            usersState.add(updatedUser.copy(id = newId))
+                        }
+                    },
+                    onUserDelete = { userToDelete ->
+                        usersState.remove(userToDelete)
+                    }
                 )
-                UserScreen(users = users)
             }
             //setting screen
             composable(route = Route.SettingScreen.route) {
