@@ -1,8 +1,7 @@
 package com.example.capyvocab_fe.auth.data.mapper
 
 import com.example.capyvocab_fe.auth.domain.model.User
-import com.example.capyvocab_fe.auth.domain.model.UserRole
-import com.example.capyvocab_fe.core.data.model.UserData
+import com.example.capyvocab_fe.auth.data.remote.model.UserData
 
 fun UserData.toDomain(): User {
     return User(

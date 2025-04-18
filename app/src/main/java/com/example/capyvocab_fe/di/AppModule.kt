@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.di
 
+import com.example.capyvocab_fe.admin.user.data.remote.AdminUserApi
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
 import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
@@ -23,6 +24,15 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(AuthApi::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideAdminUserApi(): AdminUserApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AdminUserApi::class.java)
     }
 
 //    @Provides

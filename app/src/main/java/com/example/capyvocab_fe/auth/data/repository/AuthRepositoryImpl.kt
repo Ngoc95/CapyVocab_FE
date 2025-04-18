@@ -5,7 +5,7 @@ import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
 import com.example.capyvocab_fe.auth.data.mapper.toDomain
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
-import com.example.capyvocab_fe.auth.domain.model.AuthFailure
+import com.example.capyvocab_fe.auth.domain.error.AuthFailure
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import javax.inject.Inject

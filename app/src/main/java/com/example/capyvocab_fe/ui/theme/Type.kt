@@ -26,9 +26,9 @@ val Roboto = FontFamily(
 // Set of Material typography styles to start with
 val Typography = Typography(
     titleLarge = TextStyle(
-        fontFamily = TitanOne,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Bold,
-        fontSize = 58.sp,
+        fontSize = 30.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.7.sp,
         color = Color(0xFF463737),
