@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                         .fillMaxSize()
                 ) {
-                    AppNavGraph(startDestination = Route.AdminNavigation.route)
+                    AppNavGraph(startDestination = Route.AuthNavigation.route)
                 }
             }
         }

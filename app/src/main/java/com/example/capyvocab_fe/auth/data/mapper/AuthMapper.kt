@@ -10,6 +10,9 @@ fun UserData.toDomain(): User {
         username = this.username,
         fullName = this.fullName,
         avatar = this.avatar ?: "",
+
+        //sửa sau
+        roleId = 1,
        // role = UserRole.from(this.role)
     )
 }

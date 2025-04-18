@@ -6,8 +6,15 @@ data class User(
     val username: String,
     val email: String,
     val fullName: String,
+    val password: String,
     val avatar: String?,
-    val status: String
+    val status: String,
+    val streak: Int,
+    val lastStudyDate: String,
+    val totalStudyDay: Int,
+    val totalLearnedCard: Int,
+    val totalMasteredCard: Int,
+    val roleId: Int
     //val role: UserRole
 )
 //enum class UserRole {

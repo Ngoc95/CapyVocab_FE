@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
@@ -125,22 +126,24 @@ fun UserFormDialog(
                     onSave = {
                         val updatedUser = user?.copy(
                             username = username,
-                            password = password,
+//                            password = password,
                             email = email,
-                            status = if (isPremium) 1 else 0
+                            roleId = if (isPremium) 1 else 0
                         ) ?: User(
                             id = 0,
                             username = username,
-                            password = password,
+//                            password = password,
                             email = email,
                             avatar = "",
-                            status = if (isPremium) 1 else 0,
+                            roleId = if (isPremium) 1 else 0,
                             streak = 0,
                             lastStudyDate = "",
                             totalStudyDay = 0,
                             totalLearnedCard = 0,
                             totalMasteredCard = 0,
-                            roleId = 2
+                            status = "NOT_VERIFIED",
+                            fullName = "",
+                            password = "",
                         )
                         onSave(updatedUser)
                     }
@@ -330,7 +333,7 @@ fun UserInfoStats(
         Text(
             buildAnnotatedString{
                 withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold, color = Color.Black)) {
-                    append("Tổng thẻ thành tạo: ")
+                    append("Tổng thẻ thành thạo: ")
                 }
                 withStyle(style = SpanStyle(color = Color.DarkGray)) {
                     append("$totalMasteredCard")
@@ -351,13 +354,14 @@ private fun UserFormModalPreview() {
         username = "Snoopy",
         password = "hehehe",
         avatar = "https://example.com/avatar.png",
-        status = 1,
+        status = "VERIFIED",
         streak = 20,
         lastStudyDate = "10/04/2025",
         totalStudyDay = 20,
         totalLearnedCard = 100,
         totalMasteredCard = 70,
-        roleId = 1
+        roleId = 1,
+        fullName = "Nguyen Van A"
     )
     CapyVocab_FETheme {
         UserFormDialog(

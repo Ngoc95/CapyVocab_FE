@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
@@ -180,13 +181,14 @@ private fun UserCardPreview() {
                 username = "Snoopy",
                 password = "123456",
                 avatar = "https://i.pinimg.com/736x/50/f4/fb/50f4fb7f863bfcfa8afcf424882d216c.jpg", // dùng placeholder
-                status = 1,
+                status = "VERIFIED",
                 streak = 20,
                 lastStudyDate = "10/04/2025",
                 totalStudyDay = 20,
                 totalLearnedCard = 100,
                 totalMasteredCard = 70,
-                roleId = 1
+                roleId = 1,
+                fullName = "Nguyễn Văn A"
             ),
             isFree = true,
             isExpanded = true,
@@ -197,17 +199,17 @@ private fun UserCardPreview() {
 }
 
 
-data class User(
-    val id: Int,
-    val email: String,
-    val username: String,
-    val password: String,
-    val avatar: String,
-    val status: Int,
-    val streak: Int,
-    val lastStudyDate: String, // hoặc LocalDate nếu xử lý bằng Java time API
-    val totalStudyDay: Int,
-    val totalLearnedCard: Int,
-    val totalMasteredCard: Int,
-    val roleId: Int
-)
+//data class User(
+//    val id: Int,
+//    val email: String,
+//    val username: String,
+//    val password: String,
+//    val avatar: String,
+//    val status: Int,
+//    val streak: Int,
+//    val lastStudyDate: String, // hoặc LocalDate nếu xử lý bằng Java time API
+//    val totalStudyDay: Int,
+//    val totalLearnedCard: Int,
+//    val totalMasteredCard: Int,
+//    val roleId: Int
+//)

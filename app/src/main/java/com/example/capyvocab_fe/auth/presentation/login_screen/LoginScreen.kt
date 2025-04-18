@@ -62,6 +62,12 @@ internal fun LoginScreen(
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    //điều hướng khi login thành công
+    LaunchedEffect(viewModel) {
+        viewModel.navigateToAdmin.collect {
+            navController.navigate(Route.AdminNavigation.route)
+        }
+    }
     // Clear form mỗi lần LoginScreen hiển thị
     LaunchedEffect(Unit) {
         viewModel.clearForm()
