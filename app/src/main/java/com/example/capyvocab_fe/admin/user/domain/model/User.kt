@@ -5,8 +5,6 @@ data class User(
     val id: Int,
     val username: String,
     val email: String,
-    val fullName: String,
-    val password: String,
     val avatar: String?,
     val status: String,
     val streak: Int,

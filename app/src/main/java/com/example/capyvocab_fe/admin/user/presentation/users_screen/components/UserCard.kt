@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +51,6 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 @Composable
 fun UserCard(
     user: User,
-    isFree: Boolean,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
     onEditClick:() -> Unit
@@ -90,19 +90,24 @@ fun UserCard(
 
                             Spacer(modifier = Modifier.width(10.dp))
 
-                            if (isFree) {
-                                Box(
-                                    modifier = Modifier
-                                        .shadow(4.dp, RoundedCornerShape(20.dp), clip = false)
-                                        .background(Color(0xFF0DFF00), RoundedCornerShape(20.dp))
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(
-                                        text = "Miễn phí",
-                                        color = Color(0xFF125C00),
-                                        fontSize = 12.sp
-                                    )
-                                }
+                            val (bgColor, text, textColor) = when (user.roleId) {
+                                1 -> Triple(Color.Gray, "Admin", Color.White)
+                                2 -> Triple(Color(0xFF0DFF00), "Miễn phí", Color(0xFF125C00))
+                                3 -> Triple(Color(0xFFFFE0F0), "Premium", Color(0xFFDF1E71))
+                                else -> Triple(Color.LightGray, "Không rõ", Color.Black)
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .shadow(4.dp, RoundedCornerShape(20.dp), clip = false)
+                                    .background(bgColor, RoundedCornerShape(20.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = text,
+                                    color = textColor,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
                             }
                         }
                         Text(text = "#${user.id}", fontSize = 14.sp, color = Color.DarkGray)
@@ -179,7 +184,6 @@ private fun UserCardPreview() {
                 id = 1,
                 email = "duongkhanhngoc@gmail.com",
                 username = "Snoopy",
-                password = "123456",
                 avatar = "https://i.pinimg.com/736x/50/f4/fb/50f4fb7f863bfcfa8afcf424882d216c.jpg", // dùng placeholder
                 status = "VERIFIED",
                 streak = 20,
@@ -187,10 +191,8 @@ private fun UserCardPreview() {
                 totalStudyDay = 20,
                 totalLearnedCard = 100,
                 totalMasteredCard = 70,
-                roleId = 1,
-                fullName = "Nguyễn Văn A"
+                roleId = 2,
             ),
-            isFree = true,
             isExpanded = true,
             onExpandToggle = {},
             onEditClick = {}
