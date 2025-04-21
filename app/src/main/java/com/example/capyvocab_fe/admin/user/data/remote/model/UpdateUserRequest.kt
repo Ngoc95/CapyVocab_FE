@@ -5,5 +5,6 @@ data class UpdateUserRequest(
     val email: String,
     //val password: String?, // nullable để chỉ gửi khi cần
     val status: String,
-    val roleId: Int
+    val roleId: Int,
+    val avatar: String?
 )

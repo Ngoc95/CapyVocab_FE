@@ -76,7 +76,10 @@ fun UserCard(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(R.drawable.default_avt),
+                        error = painterResource(R.drawable.default_avt),
+                        fallback = painterResource(R.drawable.default_avt)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -199,19 +202,3 @@ private fun UserCardPreview() {
         )
     }
 }
-
-
-//data class User(
-//    val id: Int,
-//    val email: String,
-//    val username: String,
-//    val password: String,
-//    val avatar: String,
-//    val status: Int,
-//    val streak: Int,
-//    val lastStudyDate: String, // hoặc LocalDate nếu xử lý bằng Java time API
-//    val totalStudyDay: Int,
-//    val totalLearnedCard: Int,
-//    val totalMasteredCard: Int,
-//    val roleId: Int
-//)

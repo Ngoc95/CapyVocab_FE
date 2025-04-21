@@ -1,14 +1,19 @@
 package com.example.capyvocab_fe.admin.user.presentation.users_screen.components
 
-import android.content.res.Configuration
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,28 +22,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,15 +47,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
+import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
@@ -71,7 +73,7 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 fun UserFormDialog(
     user: User?,
     onDismiss: () -> Unit,
-    onSave: (User, String?, String?) -> Unit,
+    onSave: (User, String?, String?, Uri?) -> Unit,
     onDelete: (() -> Unit)
 ) {
     var username by remember { mutableStateOf(user?.username ?: "") }
@@ -79,6 +81,8 @@ fun UserFormDialog(
     var confirmPassword by remember { mutableStateOf("") }
     var email by remember { mutableStateOf(user?.email ?: "") }
     var roleId by remember { mutableStateOf(user?.roleId ?: 2) }
+
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val dialogWidth = if (screenWidth > 600.dp) 500.dp else screenWidth - 32.dp
@@ -96,12 +100,13 @@ fun UserFormDialog(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                //avatar + id + premium
+                //avatar + id + role
                 UserFormHeader(
                     userId = user?.id,
-                    avatarUrl = user?.avatar,
+                    avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
                     selectedRoleId = roleId,
-                    onRoleChange = { roleId = it }
+                    onRoleChange = { roleId = it },
+                    onAvatarSelected = { uri -> selectedImageUri = uri }
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -142,7 +147,7 @@ fun UserFormDialog(
                             username = username,
 //                            password = password,
                             email = email,
-                            roleId = roleId
+                            roleId = roleId,
                         ) ?: User(
                             id = 0,
                             username = username,
@@ -157,7 +162,7 @@ fun UserFormDialog(
                             totalMasteredCard = 0,
                             status = "NOT_VERIFIED"
                         )
-                        onSave(updatedUser, password, confirmPassword)
+                        onSave(updatedUser, password, confirmPassword, selectedImageUri)
                     }
                 )
             }
@@ -165,12 +170,14 @@ fun UserFormDialog(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserFormHeader(
     userId: Int?,
     avatarUrl: String?,
     selectedRoleId: Int,
-    onRoleChange: (Int) -> Unit
+    onRoleChange: (Int) -> Unit,
+    onAvatarSelected: (Uri) -> Unit
 ) {
     val roles = listOf(
         1 to "Admin",
@@ -180,17 +187,38 @@ fun UserFormHeader(
 
     var expanded by remember { mutableStateOf(false) }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        AsyncImage(
-            model = avatarUrl,
-            contentDescription = null,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri -> uri?.let { onAvatarSelected(it) } }
+    )
 
-        Spacer(Modifier.width(8.dp))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(55.dp)
+                .clip(CircleShape)
+                .clickable {
+                    imagePickerLauncher.launch("image/*")
+                }
+        ) {
+            if (avatarUrl.isNullOrBlank()) {
+                Image(
+                    painter = painterResource(R.drawable.add_avt),
+                    contentDescription = "Chọn ảnh đại diện",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                AsyncImage(
+                    model = avatarUrl,
+                    contentDescription = "Avatar người dùng",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
+
+        Spacer(Modifier.width(10.dp))
 
         Column {
             if (userId != null) {
@@ -202,31 +230,53 @@ fun UserFormHeader(
                 Spacer(modifier = Modifier.width(8.dp))
                 Box {
                     // Field để hiển thị
-                    OutlinedTextField(
+                    BasicTextField(
                         value = roles.find { it.first == selectedRoleId }?.second ?: "",
                         onValueChange = {},
                         readOnly = true,
-                        modifier = Modifier
-                            .width(160.dp)
-                            .zIndex(0f), // đảm bảo nằm dưới Spacer clickable
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = null
-                            )
-                        },
-                        shape = RoundedCornerShape(15.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.White,
-                            focusedContainerColor = Color.White,
+                        singleLine = true,
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Start,
+                            lineHeight = 15.sp,
                         ),
+                        modifier = Modifier
+                            .width(128.dp)
+                            .zIndex(0f)
+                            .background(Color.Transparent),
+                        decorationBox = { innerTextField ->
+                            OutlinedTextFieldDefaults.DecorationBox(
+                                value = roles.find { it.first == selectedRoleId }?.second ?: "",
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = true,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = remember { MutableInteractionSource() },
+                                contentPadding = PaddingValues(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 0.dp),
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                    )
+                                },
+                                colors = defaultTextFieldColors(),
+                                container = {
+                                    OutlinedTextFieldDefaults.ContainerBox(
+                                        enabled = true,
+                                        isError = false,
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        shape = RoundedCornerShape(13.dp),
+                                        colors = defaultTextFieldColors()
+                                    )
+                                }
+                            )
+                        }
                     )
 
                     // Lớp trong suốt bắt click
                     Spacer(
                         modifier = Modifier
                             .matchParentSize()
-                            .clip(RoundedCornerShape(15.dp))
+                            .clip(RoundedCornerShape(13.dp))
                             .zIndex(1f)
                             .clickable { expanded = true }
                     )
@@ -438,13 +488,13 @@ private fun UserFormModalPreview() {
         totalStudyDay = 20,
         totalLearnedCard = 100,
         totalMasteredCard = 70,
-        roleId = 1,
+        roleId = 3,
     )
     CapyVocab_FETheme {
         UserFormDialog(
-            user = sampleUser,
+            user = null,
             onDismiss = {},
-            onSave = { User, password, confirmPassword ->
+            onSave = { User, password, confirmPassword, selectedAvt ->
             },
             onDelete = {}
         )

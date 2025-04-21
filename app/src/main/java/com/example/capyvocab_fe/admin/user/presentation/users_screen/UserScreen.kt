@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.admin.user.presentation.users_screen
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -59,7 +60,7 @@ import kotlin.math.sin
 fun UserScreen(
     users: List<User>,
     errorMessage: String,
-    onUserSave: (User, String?, String?) -> Unit,
+    onUserSave: (User, String?, String?, Uri?) -> Unit,
     onUserDelete: (User) -> Unit,
     onUserExpandToggle: (User) -> Unit
 ) {
@@ -102,8 +103,8 @@ fun UserScreen(
                     isDialogOpen = false
                     selectedUser = null
                 },
-                onSave = { updatedUser, password, confirmPassword ->
-                    onUserSave(updatedUser, password, confirmPassword)
+                onSave = { updatedUser, password, confirmPassword, selectedImageUri ->
+                    onUserSave(updatedUser, password, confirmPassword, selectedImageUri)
                     isDialogOpen = false
                     selectedUser = null
                 },

@@ -1,8 +1,9 @@
 package com.example.capyvocab_fe.admin.user.presentation.users_screen
 
-import android.util.Log
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.getOrElse
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.admin.user.domain.repository.AdminUserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +28,7 @@ class UserListViewModel @Inject constructor(
             }
 
             is UserListEvent.SaveUser -> {
-                saveUser(event.user, event.password, event.confirmPassword)
+                saveUser(event.user, event.password, event.confirmPassword, event.avatarUri)
             }
         }
     }
@@ -48,7 +49,7 @@ class UserListViewModel @Inject constructor(
         }
     }
 
-    private fun saveUser(user: User, password: String?, confirmPassword: String?) {
+    private fun saveUser(user: User, password: String?, confirmPassword: String?, avatarUri: Uri?) {
         if (!password.isNullOrEmpty() && password != confirmPassword) {
             _state.update {
                 it.copy(
@@ -60,20 +61,30 @@ class UserListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
+            // Upload ảnh nếu có uri
+            val avatarUrl = avatarUri?.let {
+                adminUserRepository.uploadAvatarImage(it).getOrElse { error ->
+                    _state.update {
+                        it.copy(isLoading = false, errorMessage = "Upload ảnh thất bại: ${error.message}")
+                    }
+                    return@launch
+                }
+            } ?: user.avatar
+
+            val userToSave = user.copy(avatar = avatarUrl)
+
             val result = if (user.id == 0) {
-                adminUserRepository.createUser(user, password.orEmpty())
+                adminUserRepository.createUser(userToSave, password.orEmpty())
             } else {
-                adminUserRepository.updateUser(user, password)
+                adminUserRepository.updateUser(userToSave, password)
             }
+
             result.onRight {
                 loadUsers()
                 _state.update { it.copy(errorMessage = "") }
             }.onLeft { failure ->
                 _state.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = failure.message ?: "Lỗi khi lưu người dùng"
-                    )
+                    it.copy(isLoading = false, errorMessage = failure.message ?: "Lỗi khi lưu người dùng")
                 }
             }
         }

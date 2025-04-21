@@ -4,5 +4,6 @@ data class CreateUserRequest(
     val username: String,
     val email: String,
     val password: String,
-    val roleId: Int
+    val roleId: Int,
+    val avatar: String?
 )

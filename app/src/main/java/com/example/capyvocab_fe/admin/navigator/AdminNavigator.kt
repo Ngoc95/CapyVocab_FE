@@ -142,8 +142,10 @@ fun AdminNavigator() {
                     users = userListState.users,
                     errorMessage = userListState.errorMessage,
                     onUserExpandToggle = { user -> /* toggle logic nếu muốn */ },
-                    onUserSave = { user, password, confirmPassword ->
-                        viewModel.onEvent(UserListEvent.SaveUser(user, password, confirmPassword))
+                    onUserSave = { user, password, confirmPassword, avatarUri ->
+                        viewModel.onEvent(
+                            UserListEvent.SaveUser(user, password, confirmPassword, avatarUri)
+                        )
                     },
                     onUserDelete = { userToDelete ->
                         // TODO: Gọi viewModel xoá user nếu có
