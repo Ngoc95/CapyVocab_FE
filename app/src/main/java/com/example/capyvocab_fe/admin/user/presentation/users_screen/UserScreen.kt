@@ -21,10 +21,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -36,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,9 +64,12 @@ import kotlin.math.sin
 fun UserScreen(
     users: List<User>,
     errorMessage: String,
+    isLoading: Boolean,
+    isEndReached: Boolean,
     onUserSave: (User, String?, String?, Uri?) -> Unit,
     onUserDelete: (User) -> Unit,
-    onUserExpandToggle: (User) -> Unit
+    onUserExpandToggle: (User) -> Unit,
+    onLoadMore: () -> Unit
 ) {
     var selectedUser by remember { mutableStateOf<User?>(null) }
     var isDialogOpen by remember { mutableStateOf(false) }
@@ -90,7 +97,10 @@ fun UserScreen(
             onAddUser = {
                 selectedUser = null
                 isDialogOpen = true
-            }
+            },
+            isLoading = isLoading,
+            isEndReached = isEndReached,
+            onLoadMore = onLoadMore
         )
     }
 
@@ -125,8 +135,26 @@ fun UserScreenContent(
     onUserExpandToggle: (User) -> Unit,
     onEditUser: (User) -> Unit,
     onAddUser: () -> Unit,
+    isLoading: Boolean,
+    isEndReached: Boolean,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
+
+    // Detect khi cuộn đến gần cuối
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .collect { visibleItems ->
+                val lastVisibleItem = visibleItems.lastOrNull()?.index ?: 0
+                val totalItems = listState.layoutInfo.totalItemsCount
+
+                if (lastVisibleItem >= totalItems - 2 && !isLoading && !isEndReached) {
+                    onLoadMore()
+                }
+            }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = modifier.fillMaxSize()) {
             // Top bar
@@ -209,7 +237,7 @@ fun UserScreenContent(
                     .padding(horizontal = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(users) { user ->
+                itemsIndexed(users) { index, user ->
                     var expanded by remember { mutableStateOf(false) }
 
                     UserCard(
@@ -223,6 +251,25 @@ fun UserScreenContent(
                             onEditUser(user)
                         }
                     )
+
+                    // Load thêm nếu gần cuối
+                    if (index >= users.size - 3 && !isLoading && !isEndReached) {
+                        onLoadMore()
+                    }
+                }
+
+                // loading indicator khi đang load thêm
+                if (isLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             }
 
@@ -304,6 +351,9 @@ fun UsersScreenPreview() {
         errorMessage = "",
         onUserExpandToggle = {},
         onEditUser = {},
-        onAddUser = {}
+        onAddUser = {},
+        isLoading = false,
+        isEndReached = true,
+        onLoadMore = {}
     )
 }

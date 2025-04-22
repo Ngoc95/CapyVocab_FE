@@ -141,6 +141,8 @@ fun AdminNavigator() {
                 UserScreen(
                     users = userListState.users,
                     errorMessage = userListState.errorMessage,
+                    isLoading = userListState.isLoading,
+                    isEndReached = userListState.isEndReached,
                     onUserExpandToggle = { user -> /* toggle logic nếu muốn */ },
                     onUserSave = { user, password, confirmPassword, avatarUri ->
                         viewModel.onEvent(
@@ -149,6 +151,9 @@ fun AdminNavigator() {
                     },
                     onUserDelete = { userToDelete ->
                         // TODO: Gọi viewModel xoá user nếu có
+                    },
+                    onLoadMore = {
+                        viewModel.onEvent(UserListEvent.LoadMoreUsers)
                     }
                 )
             }

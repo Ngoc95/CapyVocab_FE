@@ -201,7 +201,7 @@ fun UserFormHeader(
                     imagePickerLauncher.launch("image/*")
                 }
         ) {
-            if (avatarUrl.isNullOrBlank()) {
+            if (avatarUrl.isNullOrBlank() || avatarUrl == "N/A") {
                 Image(
                     painter = painterResource(R.drawable.add_avt),
                     contentDescription = "Chọn ảnh đại diện",

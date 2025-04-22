@@ -26,10 +26,10 @@ class AdminUserRepositoryImpl @Inject constructor(
     private val tokenManager: TokenManager
 ) : AdminUserRepository {
 
-    override suspend fun getAllUsers(): Either<AdminFailure, List<User>> {
+    override suspend fun getAllUsers(page: Int): Either<AdminFailure, List<User>> {
         return Either.catch {
             val token = tokenManager.accessToken.firstOrNull()
-            val response = adminUserApi.getAllUsers("Bearer $token")
+            val response = adminUserApi.getAllUsers("Bearer $token", page)
             response.metaData.users.map { it.toDomain() }
         }.mapLeft { it.toAdminFailure() }
     }

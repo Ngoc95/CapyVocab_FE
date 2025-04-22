@@ -3,7 +3,6 @@ package com.example.capyvocab_fe.admin.user.presentation.users_screen
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.getOrElse
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.admin.user.domain.repository.AdminUserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,23 +22,29 @@ class UserListViewModel @Inject constructor(
 
     fun onEvent(event: UserListEvent) {
         when (event) {
-            is UserListEvent.LoadUsers -> {
-                loadUsers()
-            }
-
-            is UserListEvent.SaveUser -> {
-                saveUser(event.user, event.password, event.confirmPassword, event.avatarUri)
-            }
+            is UserListEvent.LoadUsers -> loadUsers()
+            is UserListEvent.LoadMoreUsers -> loadUsers(loadMore = true)
+            is UserListEvent.SaveUser -> saveUser(event.user, event.password, event.confirmPassword, event.avatarUri)
         }
     }
 
-    fun loadUsers() {
+    private fun loadUsers(loadMore: Boolean = false) {
         viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
+
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
-            adminUserRepository.getAllUsers()
-                .onRight { users ->
-                    _state.update { it.copy(isLoading = false, users = users) }
+            adminUserRepository.getAllUsers(nextPage)
+                .onRight { newUsers ->
+                    _state.update {
+                        val allUsers = if (loadMore) it.users + newUsers else newUsers
+                        it.copy(
+                            isLoading = false,
+                            users = allUsers,
+                            currentPage = nextPage,
+                            isEndReached = newUsers.isEmpty()
+                        )
+                    }
                 }
                 .onLeft { failure ->
                     _state.update {
@@ -91,10 +96,20 @@ class UserListViewModel @Inject constructor(
                         it.copy(isLoading = false, errorMessage = failure.message ?: "Lỗi khi lưu người dùng")
                     }
                 },
-                ifRight = {
-                    loadUsers()
-                    _state.update { it.copy(isLoading = false, errorMessage = "") }
+                ifRight = { updatedUser ->
+                    // Update user trong danh sách hiện tại
+                    _state.update { currentState ->
+                        val updatedUsers = currentState.users.map {
+                            if (it.id == updatedUser.id) updatedUser else it
+                        }
+                        currentState.copy(
+                            isLoading = false,
+                            errorMessage = "",
+                            users = updatedUsers
+                        )
+                    }
                 }
+
             )
         }
     }
