@@ -47,5 +47,4 @@ interface AdminUserApi {
         @Part("type") type: RequestBody,
         @Part images: MultipartBody.Part
     ): ImageUploadResponse
-
 }

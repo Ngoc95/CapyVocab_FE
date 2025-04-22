@@ -52,41 +52,50 @@ class UserListViewModel @Inject constructor(
     private fun saveUser(user: User, password: String?, confirmPassword: String?, avatarUri: Uri?) {
         if (!password.isNullOrEmpty() && password != confirmPassword) {
             _state.update {
-                it.copy(
-                    errorMessage = "Mật khẩu và xác nhận mật khẩu không khớp"
-                )
+                it.copy(errorMessage = "Mật khẩu và xác nhận mật khẩu không khớp")
             }
             return
         }
+
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
-            // Upload ảnh nếu có uri
-            val avatarUrl = avatarUri?.let {
-                adminUserRepository.uploadAvatarImage(it).getOrElse { error ->
-                    _state.update {
-                        it.copy(isLoading = false, errorMessage = "Upload ảnh thất bại: ${error.message}")
-                    }
-                    return@launch
-                }
-            } ?: user.avatar
+            // 1. Upload avatar nếu có ảnh mới
+            val avatarUrl = if (avatarUri != null) {
+                val uploadResult = adminUserRepository.uploadAvatarImage(avatarUri)
+                uploadResult.fold(
+                    ifLeft = { failure ->
+                        _state.update {
+                            it.copy(isLoading = false, errorMessage = "Upload ảnh thất bại: ${failure.message}")
+                        }
+                        return@launch
+                    },
+                    ifRight = { url -> url }
+                )
+            } else {
+                user.avatar
+            }
 
+            // 2. Gọi create/update
             val userToSave = user.copy(avatar = avatarUrl)
-
             val result = if (user.id == 0) {
                 adminUserRepository.createUser(userToSave, password.orEmpty())
             } else {
                 adminUserRepository.updateUser(userToSave, password)
             }
 
-            result.onRight {
-                loadUsers()
-                _state.update { it.copy(errorMessage = "") }
-            }.onLeft { failure ->
-                _state.update {
-                    it.copy(isLoading = false, errorMessage = failure.message ?: "Lỗi khi lưu người dùng")
+            // 3. Cập nhật lại danh sách
+            result.fold(
+                ifLeft = { failure ->
+                    _state.update {
+                        it.copy(isLoading = false, errorMessage = failure.message ?: "Lỗi khi lưu người dùng")
+                    }
+                },
+                ifRight = {
+                    loadUsers()
+                    _state.update { it.copy(isLoading = false, errorMessage = "") }
                 }
-            }
+            )
         }
     }
 }
