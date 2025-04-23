@@ -65,31 +65,16 @@ class UserListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
-            // 1. Upload avatar nếu có ảnh mới
-            val avatarUrl = if (avatarUri != null) {
-                val uploadResult = adminUserRepository.uploadAvatarImage(avatarUri)
-                uploadResult.fold(
-                    ifLeft = { failure ->
-                        _state.update {
-                            it.copy(isLoading = false, errorMessage = "Upload ảnh thất bại: ${failure.message}")
-                        }
-                        return@launch
-                    },
-                    ifRight = { url -> url }
-                )
-            } else {
-                user.avatar
-            }
+            val avatarUrl = uploadAvatarIfNeeded(avatarUri, user.avatar) ?: return@launch
 
-            // 2. Gọi create/update
             val userToSave = user.copy(avatar = avatarUrl)
+
             val result = if (user.id == 0) {
                 adminUserRepository.createUser(userToSave, password.orEmpty())
             } else {
                 adminUserRepository.updateUser(userToSave, password)
             }
 
-            // 3. Cập nhật lại danh sách
             result.fold(
                 ifLeft = { failure ->
                     _state.update {
@@ -97,7 +82,7 @@ class UserListViewModel @Inject constructor(
                     }
                 },
                 ifRight = { updatedUser ->
-                    // Update user trong danh sách hiện tại
+                    // Cập nhật user đã được sửa vào danh sách hiện tại
                     _state.update { currentState ->
                         val updatedUsers = currentState.users.map {
                             if (it.id == updatedUser.id) updatedUser else it
@@ -109,8 +94,21 @@ class UserListViewModel @Inject constructor(
                         )
                     }
                 }
-
             )
         }
+    }
+
+    private suspend fun uploadAvatarIfNeeded(uri: Uri?, currentAvatar: String?): String? {
+        if (uri == null) return currentAvatar
+        val uploadResult = adminUserRepository.uploadAvatarImage(uri)
+        return uploadResult.fold(
+            ifLeft = { failure ->
+                _state.update {
+                    it.copy(isLoading = false, errorMessage = "Upload ảnh thất bại: ${failure.message}")
+                }
+                null
+            },
+            ifRight = { url -> url }
+        )
     }
 }
