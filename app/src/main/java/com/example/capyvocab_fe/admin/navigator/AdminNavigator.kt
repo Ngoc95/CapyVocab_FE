@@ -128,9 +128,18 @@ fun AdminNavigator() {
             composable(route = Route.CoursesScreen.route) {
                 //TODO: navigate to courses screen
             }
+            //topics screen
+            composable(route = Route.TopicsScreen.route) { backStackEntry ->
+                val courseId = backStackEntry.arguments?.getString("courseId")
+                //TODO: navigate to topics screen
+            }
+            //words screen
+            composable(route = Route.WordsScreen.route) { backStackEntry ->
+                val topicId = backStackEntry.arguments?.getString("topicId")
+                //TODO: navigate to words screen
+            }
             //user screen
             composable(route = Route.UsersScreen.route) {
-
                 val viewModel: UserListViewModel = hiltViewModel()
                 val userListState by viewModel.state.collectAsState()
 
