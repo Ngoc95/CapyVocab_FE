@@ -4,5 +4,4 @@ data class RoleData(
     val id: Int,
     val name: String,
     val description: String?,
-    val isDeleted: Boolean
 )

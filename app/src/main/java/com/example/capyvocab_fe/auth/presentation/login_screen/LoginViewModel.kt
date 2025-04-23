@@ -42,7 +42,7 @@ class LoginViewModel @Inject constructor(
                 authRepository.login(_state.value.username, _state.value.password)
                     .onRight {
                             user ->
-                        // Kiểm tra roleId và chuyển hướng đến AdminNavigation nếu là admin
+                        // Kiểm tra roleId và chuyển hướng
                         if (user.roleId == 1) {
                             _navigateToAdmin.emit(Unit)  // Gửi tín hiệu điều hướng đến Admin
                         } else {
