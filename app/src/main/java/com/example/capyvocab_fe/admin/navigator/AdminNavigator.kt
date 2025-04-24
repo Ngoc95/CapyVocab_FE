@@ -159,7 +159,7 @@ fun AdminNavigator() {
                         )
                     },
                     onUserDelete = { userToDelete ->
-                        // TODO: Gọi viewModel xoá user nếu có
+                        viewModel.onEvent(UserListEvent.DeleteUser(userToDelete.id))
                     },
                     onLoadMore = {
                         viewModel.onEvent(UserListEvent.LoadMoreUsers)

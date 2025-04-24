@@ -25,6 +25,7 @@ class UserListViewModel @Inject constructor(
             is UserListEvent.LoadUsers -> loadUsers()
             is UserListEvent.LoadMoreUsers -> loadUsers(loadMore = true)
             is UserListEvent.SaveUser -> saveUser(event.user, event.password, event.confirmPassword, event.avatarUri)
+            is UserListEvent.DeleteUser -> deleteUser(event.userId)
         }
     }
 
@@ -111,4 +112,27 @@ class UserListViewModel @Inject constructor(
             ifRight = { url -> url }
         )
     }
+
+    private fun deleteUser(userId: Int) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            adminUserRepository.deleteUser(userId)
+                .onRight {
+                    _state.update { currentState ->
+                        val updatedList = currentState.users.filterNot { it.id == userId }
+                        currentState.copy(
+                            users = updatedList,
+                            isLoading = false
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(isLoading = false, errorMessage = failure.message ?: "Xoá người dùng thất bại")
+                    }
+                }
+        }
+    }
+
 }

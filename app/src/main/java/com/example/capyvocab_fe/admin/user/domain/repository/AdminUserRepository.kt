@@ -10,4 +10,5 @@ interface AdminUserRepository {
     suspend fun createUser(user: User, password: String): Either<AdminFailure, User>
     suspend fun updateUser(user: User, password: String?): Either<AdminFailure, User>
     suspend fun uploadAvatarImage(uri: Uri): Either<AdminFailure, String>
+    suspend fun deleteUser(id: Int): Either<AdminFailure, Unit>
 }

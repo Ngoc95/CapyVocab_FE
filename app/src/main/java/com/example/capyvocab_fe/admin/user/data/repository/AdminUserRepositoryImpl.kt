@@ -28,8 +28,7 @@ class AdminUserRepositoryImpl @Inject constructor(
 
     override suspend fun getAllUsers(page: Int): Either<AdminFailure, List<User>> {
         return Either.catch {
-            val token = tokenManager.accessToken.firstOrNull()
-            val response = adminUserApi.getAllUsers("Bearer $token", page)
+            val response = adminUserApi.getAllUsers(page)
             response.metaData.users.map { it.toDomain() }
         }.mapLeft { it.toAdminFailure() }
     }
@@ -37,7 +36,6 @@ class AdminUserRepositoryImpl @Inject constructor(
 
     override suspend fun createUser(user: User, password: String): Either<AdminFailure, User> {
         return Either.catch {
-            val token = tokenManager.accessToken.firstOrNull()
             val roleId = if (user.roleId == 0) 2 else user.roleId
             val request = CreateUserRequest(
                 username = user.username,
@@ -46,7 +44,7 @@ class AdminUserRepositoryImpl @Inject constructor(
                 roleId = roleId,
                 avatar = user.avatar
             )
-            val response = adminUserApi.createUser("Bearer $token", request)
+            val response = adminUserApi.createUser(request)
             response.metaData.toDomain()
         }.mapLeft { it.toAdminFailure() }
     }
@@ -54,7 +52,6 @@ class AdminUserRepositoryImpl @Inject constructor(
 
     override suspend fun updateUser(user: User, password: String?): Either<AdminFailure, User> {
         return Either.catch {
-            val token = tokenManager.accessToken.firstOrNull()
             val request = UpdateUserRequest(
                 username = user.username,
                 email = user.email,
@@ -63,15 +60,13 @@ class AdminUserRepositoryImpl @Inject constructor(
                 status = user.status,
                 avatar = user.avatar
             )
-            val response = adminUserApi.updateUser("Bearer $token", user.id, request)
+            val response = adminUserApi.updateUser(user.id, request)
             response.metaData.toDomain()
         }.mapLeft { it.toAdminFailure() }
     }
 
     override suspend fun uploadAvatarImage(uri: Uri): Either<AdminFailure, String> {
         return Either.catch {
-            val token = tokenManager.accessToken.firstOrNull()
-
             val contentResolver = MyApplication.instance.contentResolver
             val inputStream = contentResolver.openInputStream(uri) ?: throw IOException("Không mở được ảnh")
             val fileName = "avatar_${System.currentTimeMillis()}.jpg"
@@ -80,8 +75,15 @@ class AdminUserRepositoryImpl @Inject constructor(
             val multipart = MultipartBody.Part.createFormData("AVATAR", fileName, requestBody)
             val typePart = "AVATAR".toRequestBody("text/plain".toMediaType())
 
-            val response = adminUserApi.uploadAvatarImage("Bearer $token", typePart, multipart)
+            val response = adminUserApi.uploadAvatarImage(typePart, multipart)
             response.metaData.firstOrNull()?.destination ?: throw IOException("Không nhận được URL ảnh")
+        }.mapLeft { it.toAdminFailure() }
+    }
+
+    override suspend fun deleteUser(id: Int): Either<AdminFailure, Unit> {
+        return Either.catch {
+            adminUserApi.deleteUser(id)
+            Unit
         }.mapLeft { it.toAdminFailure() }
     }
 }

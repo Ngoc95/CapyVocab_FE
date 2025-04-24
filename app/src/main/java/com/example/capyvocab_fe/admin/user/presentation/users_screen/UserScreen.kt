@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,8 +55,8 @@ import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.
 import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.UserFormDialog
 import com.example.capyvocab_fe.admin.user.presentation.util.components.FocusComponent
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import kotlinx.coroutines.delay
-import kotlin.math.sin
 
 @Composable
 fun UserScreen(
@@ -73,6 +71,9 @@ fun UserScreen(
 ) {
     var selectedUser by remember { mutableStateOf<User?>(null) }
     var isDialogOpen by remember { mutableStateOf(false) }
+
+    var userToDelete by remember { mutableStateOf<User?>(null) }
+    var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
 
@@ -119,12 +120,31 @@ fun UserScreen(
                     selectedUser = null
                 },
                 onDelete = {
-                    selectedUser?.let { onUserDelete(it) }
+                    selectedUser?.let {
+                        userToDelete = it
+                        isDeleteConfirmDialogOpen = true
+                    }
                     isDialogOpen = false
                     selectedUser = null
                 }
             )
         }
+    }
+
+    //AlertDialog xác nhận trước khi xoá user
+    if (isDeleteConfirmDialogOpen && userToDelete != null) {
+        ConfirmDeleteDialog(
+            message = "Bạn có chắc chắn muốn xoá người dùng \"${userToDelete?.username}\" không?",
+            onConfirm = {
+                onUserDelete(userToDelete!!)
+                isDeleteConfirmDialogOpen = false
+                userToDelete = null
+            },
+            onDismiss = {
+                isDeleteConfirmDialogOpen = false
+                userToDelete = null
+            }
+        )
     }
 }
 
