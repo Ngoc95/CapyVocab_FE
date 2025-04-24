@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,11 +68,13 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
 fun UserFormDialog(
     user: User?,
+    errorMessage: String,
     onDismiss: () -> Unit,
     onSave: (User, String?, String?, Uri?) -> Unit,
     onDelete: (() -> Unit)
@@ -88,85 +91,93 @@ fun UserFormDialog(
     val dialogWidth = if (screenWidth > 600.dp) 500.dp else screenWidth - 32.dp
 
     Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color(0xFF66E6FF),
+        Box(
             modifier = Modifier
-                .width(dialogWidth)
-                .padding(16.dp)
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(bottom = 16.dp)
         ) {
-            Column(
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF66E6FF),
                 modifier = Modifier
+                    .width(dialogWidth)
                     .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
             ) {
-                //avatar + id + role
-                UserFormHeader(
-                    userId = user?.id,
-                    avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
-                    selectedRoleId = roleId,
-                    onRoleChange = { roleId = it },
-                    onAvatarSelected = { uri -> selectedImageUri = uri }
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    //avatar + id + role
+                    UserFormHeader(
+                        userId = user?.id,
+                        avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
+                        selectedRoleId = roleId,
+                        onRoleChange = { roleId = it },
+                        onAvatarSelected = { uri -> selectedImageUri = uri }
+                    )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                // Text fields
-                UserFormFields(
-                    username = username,
-                    onUsernameChange = { username = it },
-                    password = password,
-                    onPasswordChange = { password = it },
-                    confirmPassword = confirmPassword,
-                    onConfirmPasswordChange = {confirmPassword = it},
-                    email = email,
-                    onEmailChange = { email = it }
-                )
+                    // Text fields
+                    UserFormFields(
+                        username = username,
+                        onUsernameChange = { username = it },
+                        password = password,
+                        onPasswordChange = { password = it },
+                        confirmPassword = confirmPassword,
+                        onConfirmPasswordChange = {confirmPassword = it},
+                        email = email,
+                        onEmailChange = { email = it }
+                    )
 
-                if (user != null) {
-                    Spacer(Modifier.height(16.dp))
+                    if (user != null) {
+                        Spacer(Modifier.height(16.dp))
 
-                    UserInfoStats(
-                        totalStudyDay = user.totalStudyDay,
-                        streak = user.streak,
-                        lastStudyDate = user.lastStudyDate,
-                        totalLearnedCard = user.totalLearnedCard,
-                        totalMasteredCard = user.totalMasteredCard
+                        UserInfoStats(
+                            totalStudyDay = user.totalStudyDay,
+                            streak = user.streak,
+                            lastStudyDate = user.lastStudyDate,
+                            totalLearnedCard = user.totalLearnedCard,
+                            totalMasteredCard = user.totalMasteredCard
+                        )
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+
+                    // Action buttons
+                    UserFormActions(
+                        isEditMode = if(user == null) false else true,
+                        onDelete = onDelete,
+                        onCancel = onDismiss,
+                        onSave = {
+                            val updatedUser = user?.copy(
+                                username = username,
+//                            password = password,
+                                email = email,
+                                roleId = roleId,
+                            ) ?: User(
+                                id = 0,
+                                username = username,
+//                            password = password,
+                                email = email,
+                                avatar = "",
+                                roleId = roleId,
+                                streak = 0,
+                                lastStudyDate = "",
+                                totalStudyDay = 0,
+                                totalLearnedCard = 0,
+                                totalMasteredCard = 0,
+                                status = "NOT_VERIFIED"
+                            )
+                            onSave(updatedUser, password, confirmPassword, selectedImageUri)
+                        }
                     )
                 }
-
-                Spacer(Modifier.height(10.dp))
-
-                // Action buttons
-                UserFormActions(
-                    isEditMode = if(user == null) false else true,
-                    onDelete = onDelete,
-                    onCancel = onDismiss,
-                    onSave = {
-                        val updatedUser = user?.copy(
-                            username = username,
-//                            password = password,
-                            email = email,
-                            roleId = roleId,
-                        ) ?: User(
-                            id = 0,
-                            username = username,
-//                            password = password,
-                            email = email,
-                            avatar = "",
-                            roleId = roleId,
-                            streak = 0,
-                            lastStudyDate = "",
-                            totalStudyDay = 0,
-                            totalLearnedCard = 0,
-                            totalMasteredCard = 0,
-                            status = "NOT_VERIFIED"
-                        )
-                        onSave(updatedUser, password, confirmPassword, selectedImageUri)
-                    }
-                )
             }
         }
+        OverlaySnackbar(message = errorMessage)
     }
 }
 
@@ -492,7 +503,8 @@ private fun UserFormModalPreview() {
     )
     CapyVocab_FETheme {
         UserFormDialog(
-            user = null,
+            user = sampleUser,
+            errorMessage = "",
             onDismiss = {},
             onSave = { User, password, confirmPassword, selectedAvt ->
             },
