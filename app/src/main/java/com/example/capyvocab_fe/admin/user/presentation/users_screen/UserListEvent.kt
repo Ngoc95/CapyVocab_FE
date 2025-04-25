@@ -12,4 +12,5 @@ sealed class UserListEvent {
         val confirmPassword: String?,
         val avatarUri: Uri? = null
     ) : UserListEvent()
+    data class DeleteUser(val userId: Int) : UserListEvent()
 }

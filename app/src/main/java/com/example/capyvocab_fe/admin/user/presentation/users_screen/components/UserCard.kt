@@ -1,8 +1,6 @@
 package com.example.capyvocab_fe.admin.user.presentation.users_screen.components
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -81,14 +79,21 @@ fun UserCard(
                         error = painterResource(R.drawable.default_avt),
                         fallback = painterResource(R.drawable.default_avt)
                     )
+
                     Spacer(modifier = Modifier.width(12.dp))
+
                     Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Text(
                                 text = user.username,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
-                                color = Color(0xFF413B38)
+                                color = Color(0xFF413B38),
+                                modifier = Modifier.weight(1f, fill = false)
                             )
 
                             Spacer(modifier = Modifier.width(10.dp))

@@ -9,6 +9,7 @@ import com.example.capyvocab_fe.admin.user.data.remote.model.UserListResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
@@ -21,21 +22,18 @@ import retrofit2.http.Query
 interface AdminUserApi {
     @GET("/users")
     suspend fun getAllUsers(
-        @Header("Authorization") token: String,
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10
     ): UserListResponse
 
     @POST("/users")
     suspend fun createUser(
-        @Header("Authorization") token: String,
         @Body request: CreateUserRequest
     ): ApiResponse<UserData>
 
 
     @PATCH("/users/{id}")
     suspend fun updateUser(
-        @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Body request: UpdateUserRequest
     ): ApiResponse<UserData>
@@ -43,8 +41,12 @@ interface AdminUserApi {
     @Multipart
     @POST("/upload/images")
     suspend fun uploadAvatarImage(
-        @Header("Authorization") token: String,
         @Part("type") type: RequestBody,
         @Part images: MultipartBody.Part
     ): ImageUploadResponse
+
+    @DELETE("/users/{id}")
+    suspend fun deleteUser(
+        @Path("id") id: Int
+    ): ApiResponse<Unit>
 }

@@ -1,10 +1,6 @@
 package com.example.capyvocab_fe.admin.user.presentation.users_screen
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,9 +24,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,10 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,8 +47,8 @@ import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.
 import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.UserFormDialog
 import com.example.capyvocab_fe.admin.user.presentation.util.components.FocusComponent
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import kotlinx.coroutines.delay
-import kotlin.math.sin
 
 @Composable
 fun UserScreen(
@@ -74,9 +64,12 @@ fun UserScreen(
     var selectedUser by remember { mutableStateOf<User?>(null) }
     var isDialogOpen by remember { mutableStateOf(false) }
 
+    var userToDelete by remember { mutableStateOf<User?>(null) }
+    var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
+
     var visibleError by remember { mutableStateOf("") }
 
-    // Khi errorMessage thay đổi, show snackbar trong vài giây
+    // Khi errorMessage thay đổi, show snackbar trong 3 giây
     LaunchedEffect(errorMessage) {
         if (errorMessage.isNotEmpty()) {
             visibleError = errorMessage
@@ -84,11 +77,19 @@ fun UserScreen(
             visibleError = "" // ẩn sau 3 giây
         }
     }
+
+    //Ko đóng dialog khi có lỗi
+    LaunchedEffect(errorMessage, isLoading) {
+        if (errorMessage.isEmpty() && !isLoading) {
+            isDialogOpen = false
+            selectedUser = null
+        }
+    }
+
     // Giao diện chính
     FocusComponent {
         UserScreenContent(
             users = users,
-            errorMessage = visibleError,
             onUserExpandToggle = onUserExpandToggle,
             onEditUser = { user ->
                 selectedUser = user
@@ -109,29 +110,47 @@ fun UserScreen(
         FocusComponent {
             UserFormDialog(
                 user = selectedUser,
+                errorMessage = visibleError,
                 onDismiss = {
                     isDialogOpen = false
                     selectedUser = null
                 },
                 onSave = { updatedUser, password, confirmPassword, selectedImageUri ->
                     onUserSave(updatedUser, password, confirmPassword, selectedImageUri)
-                    isDialogOpen = false
-                    selectedUser = null
                 },
                 onDelete = {
-                    selectedUser?.let { onUserDelete(it) }
+                    selectedUser?.let {
+                        userToDelete = it
+                        isDeleteConfirmDialogOpen = true
+                    }
                     isDialogOpen = false
                     selectedUser = null
                 }
             )
         }
     }
+
+    //AlertDialog xác nhận trước khi xoá user
+    if (isDeleteConfirmDialogOpen && userToDelete != null) {
+        ConfirmDeleteDialog(
+            message = "Bạn có chắc chắn muốn xoá người dùng \"${userToDelete?.username}\" không?",
+            onConfirm = {
+                onUserDelete(userToDelete!!)
+                isDeleteConfirmDialogOpen = false
+                userToDelete = null
+            },
+            onDismiss = {
+                isDeleteConfirmDialogOpen = false
+                userToDelete = null
+            }
+        )
+    }
+
 }
 
 @Composable
 fun UserScreenContent(
     users: List<User>,
-    errorMessage: String,
     onUserExpandToggle: (User) -> Unit,
     onEditUser: (User) -> Unit,
     onAddUser: () -> Unit,
@@ -274,31 +293,6 @@ fun UserScreenContent(
             }
 
         }
-
-
-        // Hiệu ứng mờ dần khi error message xuất hiện
-        AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp),
-            visible = errorMessage.isNotEmpty(),
-            enter = fadeIn(animationSpec = tween(durationMillis = 500)),   // fade in effect
-            exit = fadeOut(animationSpec = tween(durationMillis = 500))    // fade out effect
-        ) {
-            Snackbar(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .shadow(elevation = 10.dp, shape = RoundedCornerShape(16.dp)),
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer
-            ) {
-                Text(
-                    text = errorMessage,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
     }
 }
 
@@ -348,7 +342,6 @@ fun UsersScreenPreview() {
     )
     UserScreenContent(
         users = users,
-        errorMessage = "",
         onUserExpandToggle = {},
         onEditUser = {},
         onAddUser = {},
