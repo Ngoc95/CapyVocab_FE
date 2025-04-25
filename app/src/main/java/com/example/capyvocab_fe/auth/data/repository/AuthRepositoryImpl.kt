@@ -1,10 +1,14 @@
 package com.example.capyvocab_fe.auth.data.repository
 
 import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
 import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
 import com.example.capyvocab_fe.auth.data.mapper.toDomain
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
+import com.example.capyvocab_fe.auth.domain.error.ApiError
 import com.example.capyvocab_fe.auth.domain.error.AuthFailure
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
@@ -47,5 +51,28 @@ class AuthRepositoryImpl @Inject constructor(
         password: String,
     ): Either<AuthFailure, User> {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun refreshToken(refreshToken: String): Either<AuthFailure, Pair<String, String>> {
+        return Either.catch {
+            authApi.refreshToken(mapOf("refreshToken" to refreshToken))
+        }.mapLeft {
+            it.toAuthFailure()
+        }.flatMap { response ->
+            val accessToken = response.metaData["accessToken"]
+            val newRefreshToken = response.metaData["refreshToken"]
+
+            if (accessToken != null && newRefreshToken != null) {
+                Either.Right(Pair(accessToken, newRefreshToken))
+            } else {
+                Either.Left(
+                    AuthFailure(
+                        error = ApiError.UnknownResponse,
+                        message = "Missing access or refresh token"
+                    )
+                )
+            }
+
+        }
     }
 }

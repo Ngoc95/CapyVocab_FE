@@ -9,4 +9,5 @@ interface AuthRepository {
     suspend fun logout()
     suspend fun getUserInfo(): Either<AuthFailure, User?>
     suspend fun register(email: String, username: String, password: String): Either<AuthFailure, User>
+    suspend fun refreshToken(refreshToken: String): Either<AuthFailure, Pair<String, String>>
 }
