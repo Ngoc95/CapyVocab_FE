@@ -11,6 +11,7 @@ fun defaultTextFieldColors(): TextFieldColors {
         unfocusedBorderColor = Color.Gray,
         focusedBorderColor = Color(0xFF0866FF),
         focusedTextColor = Color.Black,
+        focusedLabelColor = Color.Black,
         unfocusedContainerColor = Color.White,
         focusedContainerColor = Color.White,
         unfocusedPlaceholderColor = Color.Gray

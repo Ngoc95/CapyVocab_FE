@@ -1,7 +1,7 @@
 package com.example.capyvocab_fe.auth.data.mapper
 
-import com.example.capyvocab_fe.auth.domain.model.ApiError
-import com.example.capyvocab_fe.auth.domain.model.AuthFailure
+import com.example.capyvocab_fe.auth.domain.error.ApiError
+import com.example.capyvocab_fe.auth.domain.error.AuthFailure
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
