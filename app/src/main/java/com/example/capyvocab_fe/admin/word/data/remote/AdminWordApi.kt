@@ -1,21 +1,17 @@
 package com.example.capyvocab_fe.admin.word.data.remote
 
-import com.example.capyvocab_fe.admin.common.UploadResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.DeleteResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.RestoreResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.WordListResponse
 import com.example.capyvocab_fe.admin.word.domain.model.Word
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
-import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -60,18 +56,4 @@ interface AdminWordApi {
     suspend fun restoreWord(
         @Path("id") id: Int
     ): RestoreResponse
-
-    @Multipart
-    @POST("/upload/images")
-    suspend fun uploadImage(
-        @Part("type") type: RequestBody,
-        @Part image: MultipartBody.Part
-    ): UploadResponse
-
-    @Multipart
-    @POST("/upload/audios")
-    suspend fun uploadAudio(
-        @Part("type") type: RequestBody,
-        @Part audio: MultipartBody.Part
-    ): UploadResponse
 }
