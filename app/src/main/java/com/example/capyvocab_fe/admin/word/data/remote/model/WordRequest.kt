@@ -22,5 +22,5 @@ data class UpdateWordRequest(
     val rank: String,
     val example: String,
     val translateExample: String,
-    val topicIds: List<Int> = emptyList()
+    //val topicIds: List<Int> = emptyList()
 )

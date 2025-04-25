@@ -1,6 +1,8 @@
 package com.example.capyvocab_fe.admin.word.data.repository
 
+import android.net.Uri
 import arrow.core.Either
+import com.example.capyvocab_fe.admin.common.uploadFile
 import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
 import com.example.capyvocab_fe.admin.user.domain.error.toAdminFailure
 import com.example.capyvocab_fe.admin.word.data.remote.AdminWordApi
@@ -22,7 +24,7 @@ class AdminWordRepositoryImpl @Inject constructor(
         }.mapLeft { it.toAdminFailure() }
     }
 
-    override suspend fun getAllWords(): Either<AdminFailure, List<Word>> {
+    override suspend fun getAllWords(page: Int): Either<AdminFailure, List<Word>> {
         return Either.catch {
             adminWordApi.getAllWords().words
         }.mapLeft { it.toAdminFailure() }
@@ -50,5 +52,25 @@ class AdminWordRepositoryImpl @Inject constructor(
         return Either.catch {
             adminWordApi.restoreWord(id)
         }.mapLeft { it.toAdminFailure() }
+    }
+
+    override suspend fun uploadImage(imageUri: Uri): Either<AdminFailure, String> {
+        return uploadFile(
+            uri = imageUri,
+            fileType = "image/*",
+            formFieldName = "IMAGE",
+            filePrefix = "image",
+            uploadCall = adminWordApi::uploadImage
+        )
+    }
+
+    override suspend fun uploadAudio(audioUri: Uri): Either<AdminFailure, String> {
+        return uploadFile(
+            uri = audioUri,
+            fileType = "audio/*",
+            formFieldName = "AUDIO",
+            filePrefix = "audio",
+            uploadCall = adminWordApi::uploadImage
+        )
     }
 }
