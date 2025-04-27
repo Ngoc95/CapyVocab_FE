@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.admin.user.presentation.users_screen.components
+package com.example.capyvocab_fe.admin.user.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background

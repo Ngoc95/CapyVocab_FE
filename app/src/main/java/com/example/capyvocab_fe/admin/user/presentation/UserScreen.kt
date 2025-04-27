@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.admin.user.presentation.users_screen
+package com.example.capyvocab_fe.admin.user.presentation
 
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -37,17 +36,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
-import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.UserCard
-import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.UserFormDialog
-import com.example.capyvocab_fe.admin.user.presentation.util.components.FocusComponent
+import com.example.capyvocab_fe.admin.user.presentation.components.UserCard
+import com.example.capyvocab_fe.admin.user.presentation.components.UserFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
+import com.example.capyvocab_fe.core.ui.components.TopBarTitle
+import com.example.capyvocab_fe.core.util.components.FocusComponent
 import kotlinx.coroutines.delay
 
 @Composable
@@ -177,27 +175,7 @@ fun UserScreenContent(
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = modifier.fillMaxSize()) {
             // Top bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Người dùng",
-                    fontSize = 33.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF5E4A45)
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(53.dp),
-                    tint = Color(0xFF5E4A45)
-                )
-            }
+            TopBarTitle("Người dùng")
 
             // Search bar & Add button
             Row(
