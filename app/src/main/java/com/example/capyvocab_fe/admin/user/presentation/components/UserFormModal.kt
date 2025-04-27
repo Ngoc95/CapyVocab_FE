@@ -110,76 +110,82 @@ fun UserFormDialog(
                         .verticalScroll(rememberScrollState())
                 ) {
                     //avatar + id + role
-                    UserFormHeader(
-                        userId = user?.id,
-                        avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
-                        selectedRoleId = roleId,
-                        onRoleChange = { roleId = it },
-                        onAvatarSelected = { uri -> selectedImageUri = uri }
-                    )
+                    FocusComponent {
+                        UserFormHeader(
+                            userId = user?.id,
+                            avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
+                            selectedRoleId = roleId,
+                            onRoleChange = { roleId = it },
+                            onAvatarSelected = { uri -> selectedImageUri = uri }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     // Text fields
-                    UserFormFields(
-                        username = username,
-                        onUsernameChange = { username = it },
-                        password = password,
-                        onPasswordChange = { password = it },
-                        confirmPassword = confirmPassword,
-                        onConfirmPasswordChange = {confirmPassword = it},
-                        email = email,
-                        onEmailChange = { email = it }
-                    )
+                    FocusComponent {
+                        UserFormFields(
+                            username = username,
+                            onUsernameChange = { username = it },
+                            password = password,
+                            onPasswordChange = { password = it },
+                            confirmPassword = confirmPassword,
+                            onConfirmPasswordChange = {confirmPassword = it},
+                            email = email,
+                            onEmailChange = { email = it }
+                        )
+                    }
 
                     if (user != null) {
                         Spacer(Modifier.height(16.dp))
 
-                        UserInfoStats(
-                            totalStudyDay = user.totalStudyDay,
-                            streak = user.streak,
-                            lastStudyDate = user.lastStudyDate,
-                            totalLearnedCard = user.totalLearnedCard,
-                            totalMasteredCard = user.totalMasteredCard
-                        )
+                        FocusComponent {
+                            UserInfoStats(
+                                totalStudyDay = user.totalStudyDay,
+                                streak = user.streak,
+                                lastStudyDate = user.lastStudyDate,
+                                totalLearnedCard = user.totalLearnedCard,
+                                totalMasteredCard = user.totalMasteredCard
+                            )
+                        }
                     }
 
                     Spacer(Modifier.height(10.dp))
 
                     // Action buttons
-                    FormActionButtons(
-                        isEditMode = if(user == null) false else true,
-                        onDelete = onDelete,
-                        onCancel = onDismiss,
-                        onSave = {
-                            val updatedUser = user?.copy(
-                                username = username,
-//                            password = password,
-                                email = email,
-                                roleId = roleId,
-                            ) ?: User(
-                                id = 0,
-                                username = username,
-//                            password = password,
-                                email = email,
-                                avatar = "",
-                                roleId = roleId,
-                                streak = 0,
-                                lastStudyDate = "",
-                                totalStudyDay = 0,
-                                totalLearnedCard = 0,
-                                totalMasteredCard = 0,
-                                status = "NOT_VERIFIED"
-                            )
-                            onSave(updatedUser, password, confirmPassword, selectedImageUri)
-                        }
-                    )
-                }
-            }
-        }
-        OverlaySnackbar(message = errorMessage)
-    }
-}
+                     FormActionButtons(
+                         isEditMode = if(user == null) false else true,
+                         onDelete = onDelete,
+                         onCancel = onDismiss,
+                         onSave = {
+                             val updatedUser = user?.copy(
+                                 username = username,
+ //                            password = password,
+                                 email = email,
+                                 roleId = roleId,
+                             ) ?: User(
+                                 id = 0,
+                                 username = username,
+ //                            password = password,
+                                 email = email,
+                                 avatar = "",
+                                 roleId = roleId,
+                                 streak = 0,
+                                 lastStudyDate = "",
+                                 totalStudyDay = 0,
+                                 totalLearnedCard = 0,
+                                 totalMasteredCard = 0,
+                                 status = "NOT_VERIFIED"
+                             )
+                             onSave(updatedUser, password, confirmPassword, selectedImageUri)
+                         }
+                     )
+                 }
+             }
+         }
+         OverlaySnackbar(message = errorMessage)
+     }
+ }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

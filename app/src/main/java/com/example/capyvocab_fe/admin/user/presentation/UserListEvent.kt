@@ -13,4 +13,10 @@ sealed class UserListEvent {
         val avatarUri: Uri? = null
     ) : UserListEvent()
     data class DeleteUser(val userId: Int) : UserListEvent()
+
+    data class OnUserLongPress(val userId: Int) : UserListEvent()
+    data class OnUserSelectToggle(val userId: Int) : UserListEvent()
+    object OnSelectAllToggle : UserListEvent()
+    object OnDeleteSelectedUsers : UserListEvent()
+    object CancelMultiSelect : UserListEvent()
 }
