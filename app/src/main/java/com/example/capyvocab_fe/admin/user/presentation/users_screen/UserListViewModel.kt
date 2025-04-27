@@ -26,6 +26,11 @@ class UserListViewModel @Inject constructor(
             is UserListEvent.LoadMoreUsers -> loadUsers(loadMore = true)
             is UserListEvent.SaveUser -> saveUser(event.user, event.password, event.confirmPassword, event.avatarUri)
             is UserListEvent.DeleteUser -> deleteUser(event.userId)
+            is UserListEvent.OnDeleteSelectedUsers -> deleteSelectedUsers()
+            is UserListEvent.OnSelectAllToggle -> selectAll()
+            is UserListEvent.OnUserSelectToggle -> toggleUserSelection(event.userId)
+            is UserListEvent.OnUserLongPress -> startMultiSelect(event.userId)
+            is UserListEvent.CancelMultiSelect -> cancelMultiSelect()
         }
     }
 
@@ -132,6 +137,88 @@ class UserListViewModel @Inject constructor(
                         it.copy(isLoading = false, errorMessage = failure.message ?: "Xoá người dùng thất bại")
                     }
                 }
+        }
+    }
+
+    private fun startMultiSelect(userId: Int) {
+        _state.update {
+            it.copy(
+                isMultiSelecting = true,
+                selectedUsers = setOf(userId)
+            )
+        }
+    }
+
+    private fun toggleUserSelection(userId: Int) {
+        val currentSelected = _state.value.selectedUsers.toMutableSet()
+        if (currentSelected.contains(userId)) {
+            currentSelected.remove(userId)
+        } else {
+            currentSelected.add(userId)
+        }
+        _state.update { currentState ->
+            currentState.copy(
+                selectedUsers = currentSelected,
+                isSelectAll = currentSelected.size == currentState.users.size
+            )
+        }
+    }
+
+    private fun selectAll() {
+        val allSelected = _state.value.isSelectAll
+        _state.value = if (allSelected) {
+            _state.value.copy(
+                selectedUsers = emptySet(),
+                isSelectAll = false
+            )
+        } else {
+            _state.value.copy(
+                selectedUsers = _state.value.users.map { it.id }.toSet(),
+                isSelectAll = true
+            )
+        }
+    }
+
+    private fun deleteSelectedUsers() {
+        viewModelScope.launch {
+            val selected = state.value.selectedUsers
+            if (selected.isEmpty()) return@launch
+
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = ""
+                )
+            }
+
+            var hasError = false
+
+            selected.forEach { userId ->
+                adminUserRepository.deleteUser(userId)
+                    .onLeft { hasError = true }
+            }
+
+            val remainingUsers = state.value.users.filterNot { it.id in selected }
+
+            _state.update {
+                it.copy(
+                    users = remainingUsers,
+                    selectedUsers = emptySet(),
+                    isMultiSelecting = false,
+                    isLoading = false,
+                    errorMessage = if (hasError) "Một số người dùng không thể xoá" else ""
+                )
+            }
+        }
+    }
+
+    private fun cancelMultiSelect() {
+        _state.update {
+            it.copy(
+                isMultiSelecting = false,
+                selectedUsers = emptySet(),
+                isSelectAll = false,
+            )
         }
     }
 

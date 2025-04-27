@@ -66,6 +66,10 @@ fun AdminNavigator() {
         mutableStateOf(0)
     }
 
+    //get the viewModel to access multi select state
+    val viewModel: UserListViewModel = hiltViewModel()
+    val userListState by viewModel.state.collectAsState()
+
     selectedItem = when (backStackState?.destination?.route) {
         Route.HomeScreen.route -> 0
         Route.CoursesScreen.route -> 1
@@ -75,12 +79,19 @@ fun AdminNavigator() {
 
     }
     //hide navbar when in multi select, topic, word,...
-    val isBottomVisible = remember(key1 = backStackState) {
-        backStackState?.destination?.route == Route.HomeScreen.route ||
+    val isBottomVisible = remember(
+        key1 = backStackState,
+        key2 = userListState.isMultiSelecting
+    ) {
+        //check if is on main screen
+        val isOnMainScreen = backStackState?.destination?.route == Route.HomeScreen.route ||
                 backStackState?.destination?.route == Route.CoursesScreen.route ||
                 backStackState?.destination?.route == Route.UsersScreen.route ||
                 backStackState?.destination?.route == Route.SettingScreen.route
-
+        //check if is multi select
+        val isMultiSelecting = (backStackState?.destination?.route == Route.UsersScreen.route && userListState.isMultiSelecting)
+        //visible if is on main screen and not in multi select
+        isOnMainScreen && !isMultiSelecting
     }
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
@@ -140,30 +151,14 @@ fun AdminNavigator() {
             }
             //user screen
             composable(route = Route.UsersScreen.route) {
-                val viewModel: UserListViewModel = hiltViewModel()
-                val userListState by viewModel.state.collectAsState()
-
                 LaunchedEffect(Unit) {
                     viewModel.onEvent(UserListEvent.LoadUsers)
                 }
 
                 UserScreen(
-                    users = userListState.users,
-                    errorMessage = userListState.errorMessage,
-                    isLoading = userListState.isLoading,
-                    isEndReached = userListState.isEndReached,
-                    onUserExpandToggle = { user -> /* toggle logic nếu muốn */ },
-                    onUserSave = { user, password, confirmPassword, avatarUri ->
-                        viewModel.onEvent(
-                            UserListEvent.SaveUser(user, password, confirmPassword, avatarUri)
-                        )
-                    },
-                    onUserDelete = { userToDelete ->
-                        viewModel.onEvent(UserListEvent.DeleteUser(userToDelete.id))
-                    },
-                    onLoadMore = {
-                        viewModel.onEvent(UserListEvent.LoadMoreUsers)
-                    }
+                    state = userListState,
+                    navController = navController,
+                    onEvent = viewModel::onEvent
                 )
             }
             //setting screen

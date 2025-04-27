@@ -68,6 +68,7 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
@@ -110,70 +111,78 @@ fun UserFormDialog(
                         .verticalScroll(rememberScrollState())
                 ) {
                     //avatar + id + role
-                    UserFormHeader(
-                        userId = user?.id,
-                        avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
-                        selectedRoleId = roleId,
-                        onRoleChange = { roleId = it },
-                        onAvatarSelected = { uri -> selectedImageUri = uri }
-                    )
+                    FocusComponent {
+                        UserFormHeader(
+                            userId = user?.id,
+                            avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
+                            selectedRoleId = roleId,
+                            onRoleChange = { roleId = it },
+                            onAvatarSelected = { uri -> selectedImageUri = uri }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     // Text fields
-                    UserFormFields(
-                        username = username,
-                        onUsernameChange = { username = it },
-                        password = password,
-                        onPasswordChange = { password = it },
-                        confirmPassword = confirmPassword,
-                        onConfirmPasswordChange = {confirmPassword = it},
-                        email = email,
-                        onEmailChange = { email = it }
-                    )
+                    FocusComponent {
+                        UserFormFields(
+                            username = username,
+                            onUsernameChange = { username = it },
+                            password = password,
+                            onPasswordChange = { password = it },
+                            confirmPassword = confirmPassword,
+                            onConfirmPasswordChange = {confirmPassword = it},
+                            email = email,
+                            onEmailChange = { email = it }
+                        )
+                    }
 
                     if (user != null) {
                         Spacer(Modifier.height(16.dp))
 
-                        UserInfoStats(
-                            totalStudyDay = user.totalStudyDay,
-                            streak = user.streak,
-                            lastStudyDate = user.lastStudyDate,
-                            totalLearnedCard = user.totalLearnedCard,
-                            totalMasteredCard = user.totalMasteredCard
-                        )
+                        FocusComponent {
+                            UserInfoStats(
+                                totalStudyDay = user.totalStudyDay,
+                                streak = user.streak,
+                                lastStudyDate = user.lastStudyDate,
+                                totalLearnedCard = user.totalLearnedCard,
+                                totalMasteredCard = user.totalMasteredCard
+                            )
+                        }
                     }
 
                     Spacer(Modifier.height(10.dp))
 
                     // Action buttons
-                    UserFormActions(
-                        isEditMode = if(user == null) false else true,
-                        onDelete = onDelete,
-                        onCancel = onDismiss,
-                        onSave = {
-                            val updatedUser = user?.copy(
-                                username = username,
+                    FocusComponent {
+                        UserFormActions(
+                            isEditMode = if(user == null) false else true,
+                            onDelete = onDelete,
+                            onCancel = onDismiss,
+                            onSave = {
+                                val updatedUser = user?.copy(
+                                    username = username,
 //                            password = password,
-                                email = email,
-                                roleId = roleId,
-                            ) ?: User(
-                                id = 0,
-                                username = username,
+                                    email = email,
+                                    roleId = roleId,
+                                ) ?: User(
+                                    id = 0,
+                                    username = username,
 //                            password = password,
-                                email = email,
-                                avatar = "",
-                                roleId = roleId,
-                                streak = 0,
-                                lastStudyDate = "",
-                                totalStudyDay = 0,
-                                totalLearnedCard = 0,
-                                totalMasteredCard = 0,
-                                status = "NOT_VERIFIED"
-                            )
-                            onSave(updatedUser, password, confirmPassword, selectedImageUri)
-                        }
-                    )
+                                    email = email,
+                                    avatar = "",
+                                    roleId = roleId,
+                                    streak = 0,
+                                    lastStudyDate = "",
+                                    totalStudyDay = 0,
+                                    totalLearnedCard = 0,
+                                    totalMasteredCard = 0,
+                                    status = "NOT_VERIFIED"
+                                )
+                                onSave(updatedUser, password, confirmPassword, selectedImageUri)
+                            }
+                        )
+                    }
                 }
             }
         }
