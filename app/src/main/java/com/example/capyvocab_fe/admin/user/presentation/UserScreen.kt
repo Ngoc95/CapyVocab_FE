@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.admin.user.presentation
 
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -52,7 +51,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -62,12 +60,10 @@ import com.example.capyvocab_fe.admin.user.presentation.components.UserCard
 import com.example.capyvocab_fe.admin.user.presentation.components.UserFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
-import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.RippleOverlay
+import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
-import kotlin.math.exp
 
 @Composable
 fun UserScreen(
@@ -480,58 +476,3 @@ fun UserScreenContent(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun UsersScreenPreview() {
-//    val users = listOf(
-//        User(
-//            id = 1,
-//            email = "alice@gmail.com",
-//            username = "Alice",
-//            avatar = "https://randomuser.me/api/portraits/women/68.jpg",
-//            status = "VERIFIED",
-//            streak = 10,
-//            lastStudyDate = "12/04/2025",
-//            totalStudyDay = 15,
-//            totalLearnedCard = 120,
-//            totalMasteredCard = 80,
-//            roleId = 1
-//        ),
-//        User(
-//            id = 2,
-//            email = "bob@gmail.com",
-//            username = "Bob",
-//            avatar = "https://randomuser.me/api/portraits/men/45.jpg",
-//            status = "NOT_VERIFIED",
-//            streak = 20,
-//            lastStudyDate = "14/04/2025",
-//            totalStudyDay = 30,
-//            totalLearnedCard = 200,
-//            totalMasteredCard = 150,
-//            roleId = 2
-//        ),
-//        User(
-//            id = 3,
-//            email = "carol@gmail.com",
-//            username = "Carol",
-//            avatar = "https://randomuser.me/api/portraits/women/12.jpg",
-//            status = "VERIFIED",
-//            streak = 5,
-//            lastStudyDate = "09/04/2025",
-//            totalStudyDay = 7,
-//            totalLearnedCard = 50,
-//            totalMasteredCard = 20,
-//            roleId = 1
-//        )
-//    )
-//    UserScreenContent(
-//        users = users,
-//        onUserExpandToggle = {},
-//        onEditUser = {},
-//        onAddUser = {},
-//        isLoading = false,
-//        isEndReached = true,
-//        onLoadMore = {}
-//    )
-//}

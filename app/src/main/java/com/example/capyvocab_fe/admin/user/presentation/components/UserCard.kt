@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -105,13 +106,19 @@ fun UserCard(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        if (isMultiSelecting) {
-            Checkbox(
-                checked = isSelected,
-                onCheckedChange = { onCheckedChange(it) },
-                modifier = Modifier.padding(end = 8.dp)
-            )
+        Box(
+            modifier = Modifier
+                .scale(checkboxScale.value)
+                .width(48.dp * checkboxScale.value),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isMultiSelecting) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onCheckedChange(it) },
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
         }
 
         Card(
@@ -243,29 +250,3 @@ fun InfoRow(label: String, value: String) {
         modifier = Modifier.padding(vertical = 2.dp)
     )
 }
-
-//@Preview(showBackground = true)
-////@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//private fun UserCardPreview() {
-//    CapyVocab_FETheme {
-//        UserCard(
-//            user = User(
-//                id = 1,
-//                email = "duongkhanhngoc@gmail.com",
-//                username = "Snoopy",
-//                avatar = "https://i.pinimg.com/736x/50/f4/fb/50f4fb7f863bfcfa8afcf424882d216c.jpg", // dùng placeholder
-//                status = "VERIFIED",
-//                streak = 20,
-//                lastStudyDate = "10/04/2025",
-//                totalStudyDay = 20,
-//                totalLearnedCard = 100,
-//                totalMasteredCard = 70,
-//                roleId = 2,
-//            ),
-//            isExpanded = true,
-//            onExpandToggle = {},
-//            onEditClick = {}
-//        )
-//    }
-//}
