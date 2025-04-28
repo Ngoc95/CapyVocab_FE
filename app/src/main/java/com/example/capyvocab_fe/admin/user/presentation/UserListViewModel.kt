@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.admin.user.presentation.users_screen
+package com.example.capyvocab_fe.admin.user.presentation
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel

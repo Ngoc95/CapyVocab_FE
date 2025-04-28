@@ -22,8 +22,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 class AdminUserRepositoryImpl @Inject constructor(
-    private val adminUserApi: AdminUserApi,
-    private val tokenManager: TokenManager
+    private val adminUserApi: AdminUserApi
 ) : AdminUserRepository {
 
     override suspend fun getAllUsers(page: Int): Either<AdminFailure, List<User>> {

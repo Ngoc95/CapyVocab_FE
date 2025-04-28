@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.admin.user.presentation.users_screen.components
+package com.example.capyvocab_fe.admin.user.presentation.components
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -39,7 +39,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +67,7 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
-import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
@@ -154,41 +153,39 @@ fun UserFormDialog(
                     Spacer(Modifier.height(10.dp))
 
                     // Action buttons
-                    FocusComponent {
-                        UserFormActions(
-                            isEditMode = if(user == null) false else true,
-                            onDelete = onDelete,
-                            onCancel = onDismiss,
-                            onSave = {
-                                val updatedUser = user?.copy(
-                                    username = username,
-//                            password = password,
-                                    email = email,
-                                    roleId = roleId,
-                                ) ?: User(
-                                    id = 0,
-                                    username = username,
-//                            password = password,
-                                    email = email,
-                                    avatar = "",
-                                    roleId = roleId,
-                                    streak = 0,
-                                    lastStudyDate = "",
-                                    totalStudyDay = 0,
-                                    totalLearnedCard = 0,
-                                    totalMasteredCard = 0,
-                                    status = "NOT_VERIFIED"
-                                )
-                                onSave(updatedUser, password, confirmPassword, selectedImageUri)
-                            }
-                        )
-                    }
-                }
-            }
-        }
-        OverlaySnackbar(message = errorMessage)
-    }
-}
+                     FormActionButtons(
+                         isEditMode = if(user == null) false else true,
+                         onDelete = onDelete,
+                         onCancel = onDismiss,
+                         onSave = {
+                             val updatedUser = user?.copy(
+                                 username = username,
+ //                            password = password,
+                                 email = email,
+                                 roleId = roleId,
+                             ) ?: User(
+                                 id = 0,
+                                 username = username,
+ //                            password = password,
+                                 email = email,
+                                 avatar = "",
+                                 roleId = roleId,
+                                 streak = 0,
+                                 lastStudyDate = "",
+                                 totalStudyDay = 0,
+                                 totalLearnedCard = 0,
+                                 totalMasteredCard = 0,
+                                 status = "NOT_VERIFIED"
+                             )
+                             onSave(updatedUser, password, confirmPassword, selectedImageUri)
+                         }
+                     )
+                 }
+             }
+         }
+         OverlaySnackbar(message = errorMessage)
+     }
+ }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -394,36 +391,6 @@ fun UserFormFields(
             singleLine = true,
             shape = RoundedCornerShape(15.dp)
         )
-    }
-}
-
-
-@Composable
-fun UserFormActions(
-    isEditMode: Boolean,
-    onDelete: (() -> Unit),
-    onCancel: () -> Unit,
-    onSave: () -> Unit
-) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        if (isEditMode) {
-            TextButton(onClick = onDelete) {
-                Text("Xoá", color = Color(0xFF240000))
-            }
-        } else {
-            Spacer(modifier = Modifier.width(8.dp)) // giữ layout cân bằng khi không có nút xoá
-        }
-        Row {
-            TextButton(onClick = onCancel) {
-                Text("Huỷ", color = Color(0xFF240000))
-            }
-            TextButton(onClick = onSave) {
-                Text("Lưu", color = Color(0xFF240000))
-            }
-        }
     }
 }
 

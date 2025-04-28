@@ -8,7 +8,6 @@ data class Word(
     val meaning: String,
     val audio: String,
     val image: String,
-    val rank: String,
     val example: String,
     val translateExample: String
 )

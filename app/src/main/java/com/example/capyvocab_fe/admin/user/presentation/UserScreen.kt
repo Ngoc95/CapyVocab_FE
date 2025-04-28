@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.admin.user.presentation.users_screen
+package com.example.capyvocab_fe.admin.user.presentation
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -31,8 +31,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
@@ -60,11 +58,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
-import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.UserCard
-import com.example.capyvocab_fe.admin.user.presentation.users_screen.components.UserFormDialog
-import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.admin.user.presentation.components.UserCard
+import com.example.capyvocab_fe.admin.user.presentation.components.UserFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
+import com.example.capyvocab_fe.core.ui.components.TopBarTitle
+import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.RippleOverlay
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
