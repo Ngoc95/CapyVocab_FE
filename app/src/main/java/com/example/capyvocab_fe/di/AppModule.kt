@@ -1,5 +1,7 @@
 package com.example.capyvocab_fe.di
 
+import com.example.capyvocab_fe.admin.course.data.remote.AdminCourseApi
+import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
 import com.example.capyvocab_fe.admin.user.data.remote.AdminUserApi
 import com.example.capyvocab_fe.admin.word.data.remote.AdminWordApi
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
@@ -65,6 +67,18 @@ object AppModule {
     @Singleton
     fun provideAdminWordApi(retrofit: Retrofit): AdminWordApi {
         return retrofit.create(AdminWordApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAdminCourseApi(retrofit: Retrofit): AdminCourseApi {
+        return retrofit.create(AdminCourseApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAdminTopicApi(retrofit: Retrofit): AdminTopicApi {
+        return retrofit.create(AdminTopicApi::class.java)
     }
 
 //    @Provides

@@ -1,5 +1,9 @@
 package com.example.capyvocab_fe.di
 
+import com.example.capyvocab_fe.admin.course.data.repository.AdminCourseRepositoryImpl
+import com.example.capyvocab_fe.admin.course.domain.repository.AdminCourseRepository
+import com.example.capyvocab_fe.admin.topic.data.repository.AdminTopicRepositoryImpl
+import com.example.capyvocab_fe.admin.topic.domain.repository.AdminTopicRepository
 import com.example.capyvocab_fe.admin.user.data.repository.AdminUserRepositoryImpl
 import com.example.capyvocab_fe.admin.user.domain.repository.AdminUserRepository
 import com.example.capyvocab_fe.admin.word.data.repository.AdminWordRepositoryImpl
@@ -23,6 +27,14 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAdminUserRepository(impl: AdminUserRepositoryImpl): AdminUserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAdminCourseRepository(impl: AdminCourseRepositoryImpl): AdminCourseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAdminTopicRepository(impl: AdminTopicRepositoryImpl): AdminTopicRepository
 
     @Binds
     @Singleton

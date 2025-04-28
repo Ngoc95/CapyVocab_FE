@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/com/example/capyvocab_fe/core/util/components/FocusComponent.kt
 package com.example.capyvocab_fe.core.util.components
-========
-package com.example.capyvocab_fe.core.ui.components
->>>>>>>> admin_user:app/src/main/java/com/example/capyvocab_fe/core/ui/components/FocusComponent.kt
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource

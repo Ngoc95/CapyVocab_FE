@@ -134,12 +134,12 @@ fun AdminNavigator() {
             }
             //topics screen
             composable(route = Route.TopicsScreen.route) { backStackEntry ->
-                val courseId = backStackEntry.arguments?.getString("courseId")
+             //   val courseId = backStackEntry.arguments?.getString("courseId")
                 //TODO: navigate to topics screen
             }
             //words screen
             composable(route = Route.WordsScreen.route) { backStackEntry ->
-                val topicId = backStackEntry.arguments?.getString("topicId")
+              //  val topicId = backStackEntry.arguments?.getString("topicId")
                 //TODO: navigate to words screen
             }
             //user screen
