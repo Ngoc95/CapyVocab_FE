@@ -69,6 +69,7 @@ import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
