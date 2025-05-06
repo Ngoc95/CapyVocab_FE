@@ -9,5 +9,8 @@ data class Word(
     val audio: String,
     val image: String,
     val example: String,
-    val translateExample: String
+    val translateExample: String,
+    val deletedAt: String?,
+    val createdAt: String,
+    val updatedAt: String
 )

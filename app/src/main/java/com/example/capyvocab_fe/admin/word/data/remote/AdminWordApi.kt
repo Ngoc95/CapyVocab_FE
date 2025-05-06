@@ -21,14 +21,6 @@ interface AdminWordApi {
     suspend fun getAllWords(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
-        @Query("content") content: String? = null,
-        @Query("example") example: String? = null,
-        @Query("meaning") meaning: String? = null,
-        @Query("position") position: String? = null,
-        @Query("pronunciation") pronunciation: String? = null,
-        @Query("rank") rank: String? = null,
-        @Query("translateExample") translateExample: String? = null,
-        @Query("sort") sort: String? = null
     ): WordListResponse
 
     @GET("/words/{id}")

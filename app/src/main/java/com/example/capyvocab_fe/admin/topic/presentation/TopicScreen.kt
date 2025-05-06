@@ -18,8 +18,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.course.domain.model.Course
+import com.example.capyvocab_fe.admin.course.domain.model.CourseWithTopics
+import com.example.capyvocab_fe.admin.course.domain.model.TopicInCourse
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDialog
@@ -49,17 +53,18 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
 fun TopicScreen(
-    course: Course,
-    onTopicClick: (Topic) -> Unit,
+    course: CourseWithTopics,
+    onBackClick: () -> Unit,
+    onTopicClick: (TopicInCourse) -> Unit,
     viewModel: TopicListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
 
-    var selectedTopic by remember { mutableStateOf<Topic?>(null) }
+    var selectedTopic by remember { mutableStateOf<TopicInCourse?>(null) }
     var isDialogOpen by remember { mutableStateOf(false) }
 
-    LaunchedEffect(course.id) {
-        viewModel.onEvent(TopicEvent.LoadTopics(course.id))
+    LaunchedEffect(course) {
+        viewModel.onEvent(TopicEvent.LoadTopics(course))
     }
 
     FocusComponent {
@@ -76,7 +81,8 @@ fun TopicScreen(
             onEditTopic = { topic ->
                 selectedTopic = topic
                 isDialogOpen = true
-            }
+            },
+            onBackClick = onBackClick
         )
     }
 
@@ -110,14 +116,24 @@ fun TopicScreen(
 @Composable
 fun TopicsScreenContent(
     courseTitle: String,
-    topics: List<Topic>,
-    onTopicClick: (Topic) -> Unit,
+    topics: List<TopicInCourse>,
+    onTopicClick: (TopicInCourse) -> Unit,
     onAddTopic: () -> Unit,
-    onEditTopic: (Topic) -> Unit
+    onEditTopic: (TopicInCourse) -> Unit,
+    onBackClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // Top bar
-        TopBarTitle(courseTitle, 25.sp)
+        Row (
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { onBackClick() },
+                modifier = Modifier.padding(top = 8.dp)) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+            }
+            Spacer(modifier = Modifier.width(5.dp))
+            // Top bar
+            TopBarTitle(courseTitle, 25.sp)
+        }
 
         // Search bar & Add button
         Row(
@@ -193,18 +209,21 @@ fun TopicsScreenContent(
 @Composable
 fun TopicScreenPreview() {
     CapyVocab_FETheme {
-        val sampleTopic = Topic(
+        val sampleTopic = TopicInCourse(
             id = 1,
             title = "Friendship",
             description = "Tình bạn",
             thumbnail = null,
-            type = 1,
-            totalWords = 50
+            type = "Free",
+            deletedAt = null,
+            createdAt = "",
+            updatedAt = "",
+            displayOrder = 1
         )
         val sampleTopics = listOf(
             sampleTopic,
-            sampleTopic.copy(id = 2, title = "Chủ đề số 2 ahihi", totalWords = 30, type = 2),
-            sampleTopic.copy(id = 3, title = "Chủ đề số 3", totalWords = 70)
+            sampleTopic.copy(id = 2, title = "Chủ đề số 2 ahihi", type = "Premium"),
+            sampleTopic.copy(id = 3, title = "Chủ đề số 3")
         )
 
         TopicsScreenContent(
@@ -212,7 +231,8 @@ fun TopicScreenPreview() {
             topics = sampleTopics,
             onTopicClick = {},
             onAddTopic = {},
-            onEditTopic = {}
+            onEditTopic = {},
+            onBackClick = {}
         )
     }
 }

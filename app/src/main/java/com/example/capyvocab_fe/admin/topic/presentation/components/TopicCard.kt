@@ -35,13 +35,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.capyvocab_fe.admin.course.domain.model.TopicInCourse
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.core.ui.components.Badge
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
 fun TopicCard(
-    topic: Topic,
+    topic: TopicInCourse,
     onClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
@@ -114,12 +115,7 @@ fun TopicCard(
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            if (topic.type == 1) {
-                                Badge(text = "Miễn phí", textColor = Color(0xFF125C00), backgroundColor = Color(0xFF00FF00))
-                            }
-                            else {
-                                Badge(text = "Premium", textColor = Color(0xFFDF1E71), backgroundColor = Color(0xFFFFE0F0))
-                            }
+                            Badge(text = topic.type, textColor = Color(0xFF125C00), backgroundColor = Color(0xFF00FF00))
                         }
 
                         topic.description?.let {
@@ -130,14 +126,6 @@ fun TopicCard(
                                 color = Color(0xFF413B38)
                             )
                         }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = "Số lượng từ: ${topic.totalWords}",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                            color = Color(0xFF505050)
-                        )
                     }
 
                     IconButton(
@@ -162,13 +150,16 @@ fun TopicCard(
 @Composable
 fun TopicCardPreview() {
     CapyVocab_FETheme {
-        val sampleTopic = Topic(
+        val sampleTopic = TopicInCourse(
             id = 1,
             title = "Friendship",
             description = "Tình bạn",
             thumbnail = null,
-            type = 1,
-            totalWords = 50
+            type = "Free",
+            deletedAt = null,
+            createdAt = "",
+            updatedAt = "",
+            displayOrder = 1
         )
 
         TopicCard(

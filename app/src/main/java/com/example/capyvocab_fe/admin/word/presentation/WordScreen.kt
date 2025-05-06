@@ -18,8 +18,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +51,7 @@ import com.example.capyvocab_fe.core.util.components.FocusComponent
 @Composable
 fun WordScreen(
     topic: Topic,
+    onBackClick: () -> Unit,
     viewModel: WordListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -57,7 +60,7 @@ fun WordScreen(
     var isDialogOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(topic.id) {
-        viewModel.onEvent(WordEvent.LoadWords(topic.id))
+        viewModel.onEvent(WordEvent.LoadWords(topic))
     }
 
     FocusComponent {
@@ -74,7 +77,8 @@ fun WordScreen(
             onAddWord = {
                 selectedWord = null
                 isDialogOpen = true
-            }
+            },
+            onBackClick = onBackClick
         )
     }
 
@@ -110,11 +114,21 @@ fun WordScreenContent(
     topicTitle: String,
     onPlayAudio: (String) -> Unit,
     onEditWord: (Word) -> Unit,
-    onAddWord: () -> Unit
+    onAddWord: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // Top bar
-        TopBarTitle(topicTitle, 25.sp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { onBackClick() },
+                modifier = Modifier.padding(top = 8.dp)) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+            }
+            Spacer(modifier = Modifier.width(5.dp))
+            // Top bar
+            TopBarTitle(topicTitle, 25.sp)
+        }
 
         // Search bar & Add button
         Row(
@@ -197,7 +211,10 @@ fun WordListScreenContentPreview() {
             audio = "https://example.com/audio1.mp3",
             image = "https://example.com/image1.jpg",
             example = "She ate an apple for lunch.",
-            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa."
+            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa.",
+            deletedAt = null,
+            createdAt = "",
+            updatedAt = ""
         ),
         Word(
             id = 2,
@@ -208,7 +225,10 @@ fun WordListScreenContentPreview() {
             audio = "https://example.com/audio2.mp3",
             image = "https://example.com/image2.jpg",
             example = "He runs every morning.",
-            translateExample = "Anh ấy chạy mỗi sáng."
+            translateExample = "Anh ấy chạy mỗi sáng.",
+            deletedAt = null,
+            createdAt = "",
+            updatedAt = ""
         )
     )
 
@@ -217,7 +237,8 @@ fun WordListScreenContentPreview() {
         topicTitle = "Cuộc sống hằng ngày",
         onPlayAudio = {},
         onEditWord = {},
-        onAddWord = {}
+        onAddWord = {},
+        onBackClick = {}
     )
 }
 

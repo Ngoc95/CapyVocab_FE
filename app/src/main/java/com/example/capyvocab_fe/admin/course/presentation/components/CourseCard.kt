@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.course.domain.model.Course
+import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.core.ui.components.Badge
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
@@ -67,9 +68,7 @@ fun CourseCard(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Badge(text = "Đã công bố", textColor = Color.White, backgroundColor = Color(0xFF075743))
-                        Badge(text = "Miễn phí", textColor = Color(0xFF125C00), backgroundColor = Color(0xFF00FF00))
-                    }
+                        Badge(text = "Đã công bố", textColor = Color.White, backgroundColor = Color(0xFF075743)) }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         style = MaterialTheme.typography.labelMedium,
@@ -105,7 +104,7 @@ fun CourseCard(
                 InfoRow(
                     icon = R.drawable.target,
                     label = "Mục tiêu",
-                    value = course.target ?: "Không có"
+                    value = course.target
                 )
                 InfoRow(
                     icon = R.drawable.description,
@@ -115,7 +114,7 @@ fun CourseCard(
                 InfoRow(
                     icon = R.drawable.level,
                     label = "Trình độ",
-                    value = mapLevelToText(course.level)
+                    value = mapLevel(course.level)
                 )
             }
         }
@@ -125,26 +124,26 @@ fun sampleCourses() = listOf(
     Course(
         id = 1,
         title = "1000 TỪ CƠ BẢN",
-        level = 1,
+        level = CourseLevel.BEGINNER.value,
         target = "Củng cố nền tảng tiếng Anh",
         description = "Từ vựng nền tảng",
-        totalTopics = 10
+        courseTopics = emptyList()
     ),
     Course(
         id = 2,
         title = "Ngữ pháp cơ bản",
-        level = 1,
+        level = CourseLevel.INTERMEDIATE.value,
         target = "Nắm chắc ngữ pháp nền tảng",
         description = "Ngữ pháp phổ biến trong tiếng Anh giúp người mới hiểu được cơ bản cấu trúc",
-        totalTopics = 8
+        courseTopics = emptyList()
     ),
     Course(
         id = 3,
         title = "Từ vựng nâng cao",
-        level = 2,
+        level = CourseLevel.ADVANCE.value,
         target = "Mở rộng vốn từ chuyên sâu",
         description = "Từ vựng học thuật và chuyên ngành",
-        totalTopics = 12
+        courseTopics = emptyList()
     )
 )
 @Preview(showBackground = true)
@@ -196,11 +195,11 @@ fun InfoRow(
 }
 
 
-private fun mapLevelToText(level: Int): String {
+private fun mapLevel(level: String): String {
     return when (level) {
-        1 -> "Sơ cấp"
-        2 -> "Trung cấp"
-        3 -> "Cao cấp"
+        "Beginner" -> "Sơ cấp"
+        "Intermediate" -> "Trung cấp"
+        "Advance" -> "Cao cấp"
         else -> "Không xác định"
     }
 }

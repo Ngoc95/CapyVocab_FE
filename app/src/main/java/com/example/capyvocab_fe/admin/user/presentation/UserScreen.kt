@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.admin.user.presentation
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -85,6 +86,9 @@ fun UserScreen(
         remember { mutableStateOf(true) }
     } else {
         remember { mutableStateOf(false) }
+    }
+    LaunchedEffect(Unit) {
+        onEvent(UserListEvent.LoadUsers)
     }
 
     //launchEffect to track transition to multi-select mode

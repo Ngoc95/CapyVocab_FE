@@ -16,14 +16,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.capyvocab_fe.admin.course.domain.model.TopicInCourse
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 
 @Composable
 fun TopicFormDialog(
-    topic: Topic?,
+    topic: TopicInCourse?,
     errorMessage: String,
     onDismiss: () -> Unit,
-    onSave: (Topic) -> Unit,
+    onSave: (TopicInCourse) -> Unit,
     onDelete: () -> Unit
 ) {
     var title by remember { mutableStateOf(topic?.title.orEmpty()) }
@@ -69,14 +70,16 @@ fun TopicFormDialog(
             Button(
                 onClick = {
                     onSave(
-                        Topic(
+                        TopicInCourse(
                             id = topic?.id ?: 0,
-                            //courseId = topic?.courseId ?: 0,
                             title = title,
                             description = description,
-                            type = 1,
+                            type = "Free",
                             thumbnail = thumbnail,
-                            totalWords = topic?.totalWords ?: 0
+                            deletedAt = null,
+                            createdAt = "",
+                            updatedAt = "",
+                            displayOrder = 1
                         )
                     )
                 }

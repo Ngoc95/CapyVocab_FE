@@ -2,10 +2,15 @@ package com.example.capyvocab_fe.admin.course.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capyvocab_fe.admin.course.data.remote.model.CourseBody
+import com.example.capyvocab_fe.admin.course.data.remote.model.CreateCourseReq
+import com.example.capyvocab_fe.admin.course.data.remote.model.UpdateCourseReq
+import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.repository.AdminCourseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,25 +25,222 @@ class CourseListViewModel @Inject constructor(
     fun onEvent(event: CourseEvent) {
         when (event) {
             is CourseEvent.LoadCourses -> loadCourses()
-            else -> Unit
+            is CourseEvent.LoadMoreCourses -> loadCourses(loadMore = true)
+            is CourseEvent.SaveCourse -> saveCourse(course = event.course)
+            is CourseEvent.DeleteCourse -> deleteCourse(event.courseId)
+            is CourseEvent.OnDeleteSelectedCourses -> deleteSelectedCourses()
+            is CourseEvent.OnCourseLongPress -> startMultiSelect(event.courseId)
+            is CourseEvent.OnCourseSelectToggle -> toggleCourseSelection(event.courseId)
+            is CourseEvent.OnSelectAllToggle -> selectAll()
+            is CourseEvent.CancelMultiSelect -> cancelMultiSelect()
+            is CourseEvent.GetCourseById -> getCourseById(event.courseId)
         }
     }
 
-    private fun loadCourses() {
+    private fun getCourseById(courseId: Int) {
         viewModelScope.launch {
-            courseRepository.getAllCourses()
-                .onRight { courses ->
-                    _state.value = _state.value.copy(
-                        courses = courses,
-                        isLoading = false
-                    )
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            courseRepository.getCourseById(courseId)
+                .onRight { course ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            selectedCourse = course
+                        )
+                    }
                 }
                 .onLeft { failure ->
-                    _state.value = _state.value.copy(
-                        error = failure.message ?: "Unknown error",
-                        isLoading = false
-                    )
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "failed to load course"
+                        )
+                    }
                 }
+        }
+    }
+
+    private fun loadCourses(loadMore: Boolean = false) {
+        viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            courseRepository.getAllCourses(nextPage)
+                .onRight { newCourses ->
+                    _state.update {
+                        val allCourses = if (loadMore) it.courses + newCourses else newCourses
+                        it.copy(
+                            isLoading = false,
+                            courses = allCourses,
+                            currentPage = nextPage,
+                            isEndReached = newCourses.isEmpty()
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun saveCourse(course: Course) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            val result = if (course.id == 0) {
+                // create new course (POST)
+                val createCourseReq = CreateCourseReq(
+                    courses = listOf(
+                        CourseBody(
+                            title = course.title,
+                            level = course.level,
+                            target = course.target,
+                            description = course.description,
+                            topics = emptyList()
+                        )
+                    )
+                )
+                courseRepository.createCourse(createCourseReq)
+            } else {
+                // update existing course (PUT)
+                val updateCourseReq = UpdateCourseReq(
+                    title = course.title,
+                    level = course.level,
+                    target = course.target,
+                    description = course.description,
+                    topics = emptyList()
+                )
+                courseRepository.updateCourse(course.id, updateCourseReq)
+            }
+
+            result.fold(
+                ifRight = { updatedCourse ->
+                    _state.update { currentState ->
+                        val updatedCourses = if (course.id == 0) {
+                            currentState.courses + updatedCourse
+                        } else {
+                            currentState.courses.map {
+                                if (it.id == updatedCourse.id) updatedCourse else it
+                            }
+                        }
+                        currentState.copy(
+                            isLoading = false,
+                            errorMessage = "",
+                            courses = updatedCourses
+                        )
+                    }
+                },
+                ifLeft = { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Lỗi khi lưu khóa học"
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    private fun deleteCourse(courseId: Int) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            courseRepository.deleteCourse(courseId)
+                .onRight {
+                    _state.update { currentState ->
+                        val updatedList = currentState.courses.filterNot { it.id == courseId }
+                        currentState.copy(
+                            courses = updatedList,
+                            isLoading = false
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Xoá khóa học thất bại"
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun startMultiSelect(courseId: Int) {
+        _state.update {
+            it.copy(
+                isMultiSelecting = true,
+                selectedCourses = setOf(courseId)
+            )
+        }
+    }
+
+    private fun toggleCourseSelection(courseId: Int) {
+        val currentSelected = _state.value.selectedCourses.toMutableSet()
+        if (currentSelected.contains(courseId)) {
+            currentSelected.remove(courseId)
+        } else {
+            currentSelected.add(courseId)
+        }
+        _state.update { currentState ->
+            currentState.copy(
+                selectedCourses = currentSelected,
+                isSelectAll = currentSelected.size == currentState.courses.size
+            )
+        }
+    }
+
+    private fun selectAll() {
+        _state.update { currentState ->
+            val allSelected = currentState.isSelectAll
+            currentState.copy(
+                selectedCourses = if (allSelected) emptySet() else currentState.courses.map { it.id }.toSet(),
+                isSelectAll = !allSelected
+            )
+        }
+    }
+
+    private fun cancelMultiSelect() {
+        _state.update {
+            it.copy(
+                isMultiSelecting = false,
+                selectedCourses = emptySet(),
+                isSelectAll = false
+            )
+        }
+    }
+
+    private fun deleteSelectedCourses() {
+        viewModelScope.launch {
+            val selected = state.value.selectedCourses
+            if (selected.isEmpty()) return@launch
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = ""
+                )
+            }
+            var hasError = false
+            selected.forEach { courseId ->
+                courseRepository.deleteCourse(courseId)
+                    .onLeft { hasError = true }
+            }
+            val remainingCourses = state.value.courses.filterNot { it.id in selected }
+            _state.update {
+                it.copy(
+                    courses = remainingCourses,
+                    selectedCourses = emptySet(),
+                    isMultiSelecting = false,
+                    isLoading = false,
+                    errorMessage = if (hasError) "Một số khóa học không thể xoá" else ""
+                )
+            }
         }
     }
 }

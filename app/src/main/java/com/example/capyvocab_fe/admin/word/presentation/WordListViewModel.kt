@@ -2,11 +2,13 @@ package com.example.capyvocab_fe.admin.word.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.admin.word.domain.repository.AdminWordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,30 +22,20 @@ class WordListViewModel @Inject constructor(
 
     fun onEvent(event: WordEvent) {
         when (event) {
-            is WordEvent.LoadWords -> loadWordsByTopic(event.topicId)
+            is WordEvent.LoadWords -> loadWords(event.topic)
             is WordEvent.CreateWord -> createWord(event.word)
             is WordEvent.UpdateWord -> updateWord(event.word)
             is WordEvent.DeleteWord -> deleteWord(event.wordId)
         }
     }
 
-    private fun loadWords() {
-        _state.value = _state.value.copy(isLoading = true, error = null)
+    private fun loadWords(topic: Topic) {
         viewModelScope.launch {
-            adminWordRepository.getAllWords()
-                .onRight { words ->
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        words = words,
-                        error = null
-                    )
-                }
-                .onLeft { failure ->
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = failure.message ?: "Unknown error"
-                    )
-                }
+            _state.update {
+                it.copy(
+                    words = topic.words
+                )
+            }
         }
     }
 
@@ -89,23 +81,4 @@ class WordListViewModel @Inject constructor(
 //        }
     }
 
-    private fun loadWordsByTopic(topicId: Int) {
-//        _state.value = _state.value.copy(isLoading = true, error = null)
-//        viewModelScope.launch {
-//            adminWordRepository.getWordsByTopic(topicId)
-//                .onRight { words ->
-//                    _state.value = _state.value.copy(
-//                        isLoading = false,
-//                        words = words,
-//                        error = null
-//                    )
-//                }
-//                .onLeft { failure ->
-//                    _state.value = _state.value.copy(
-//                        isLoading = false,
-//                        error = failure.message ?: "Unknown error"
-//                    )
-//                }
-//        }
-    }
 }

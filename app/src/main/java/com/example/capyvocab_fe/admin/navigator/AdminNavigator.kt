@@ -14,16 +14,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.admin.course.presentation.CourseEvent
+import com.example.capyvocab_fe.admin.course.presentation.CourseListViewModel
+import com.example.capyvocab_fe.admin.course.presentation.CourseScreen
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigation
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
-import com.example.capyvocab_fe.admin.user.presentation.UserListEvent
+import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
+import com.example.capyvocab_fe.admin.topic.presentation.TopicListViewModel
+import com.example.capyvocab_fe.admin.topic.presentation.TopicScreen
 import com.example.capyvocab_fe.admin.user.presentation.UserListViewModel
 import com.example.capyvocab_fe.admin.user.presentation.UserScreen
+import com.example.capyvocab_fe.admin.word.presentation.WordListViewModel
+import com.example.capyvocab_fe.admin.word.presentation.WordScreen
 import com.example.capyvocab_fe.navigation.Route
 
 @Composable
@@ -44,10 +53,10 @@ fun AdminNavigator() {
                 icon = R.drawable.admin_user,
                 selectedIcon = R.drawable.admin_selected_user,
                 text = "Người dùng"
-             ),
+            ),
             BottomNavigationItem(
                 icon = R.drawable.ic_setting,
-               selectedIcon = R.drawable.ic_selected_setting,
+                selectedIcon = R.drawable.ic_selected_setting,
                 text = "Cài đặt"
             )
         )
@@ -60,8 +69,17 @@ fun AdminNavigator() {
     }
 
     //get the viewModel to access multi select state
-    val viewModel: UserListViewModel = hiltViewModel()
-    val userListState by viewModel.state.collectAsState()
+    val userViewModel: UserListViewModel = hiltViewModel()
+    val userListState by userViewModel.state.collectAsState()
+
+    val courseViewModel: CourseListViewModel = hiltViewModel()
+    val courseListState by courseViewModel.state.collectAsState()
+
+    val topicViewModel: TopicListViewModel = hiltViewModel()
+    val topicListState by topicViewModel.state.collectAsState()
+
+    val wordViewModel: WordListViewModel = hiltViewModel()
+    val wordListState by wordViewModel.state.collectAsState()
 
     selectedItem = when (backStackState?.destination?.route) {
         Route.HomeScreen.route -> 0
@@ -73,8 +91,11 @@ fun AdminNavigator() {
     }
     //hide navbar when in multi select, topic, word,...
     val isBottomVisible = remember(
-        key1 = backStackState,
-        key2 = userListState.isMultiSelecting
+        backStackState,
+        userListState.isMultiSelecting,
+        courseListState.isMultiSelecting,
+        topicListState.isMultiSelecting,
+        wordListState.isMultiSelecting
     ) {
         //check if is on main screen
         val isOnMainScreen = backStackState?.destination?.route == Route.HomeScreen.route ||
@@ -82,7 +103,11 @@ fun AdminNavigator() {
                 backStackState?.destination?.route == Route.UsersScreen.route ||
                 backStackState?.destination?.route == Route.SettingScreen.route
         //check if is multi select
-        val isMultiSelecting = (backStackState?.destination?.route == Route.UsersScreen.route && userListState.isMultiSelecting)
+        val isMultiSelecting =
+            (backStackState?.destination?.route == Route.UsersScreen.route && userListState.isMultiSelecting) ||
+                    (backStackState?.destination?.route == Route.CoursesScreen.route && courseListState.isMultiSelecting ||
+                            backStackState?.destination?.route == Route.TopicsScreen.route && topicListState.isMultiSelecting ||
+                            backStackState?.destination?.route == Route.WordsScreen.route && wordListState.isMultiSelecting)
         //visible if is on main screen and not in multi select
         isOnMainScreen && !isMultiSelecting
     }
@@ -93,6 +118,8 @@ fun AdminNavigator() {
                 items = bottomNavigationItems,
                 selected = selectedItem,
                 onItemClick = { index ->
+                    if (index == selectedItem) return@BottomNavigation
+                    selectedItem == index
                     when (index) {
                         0 -> navigateToTab(
                             navController = navController,
@@ -130,28 +157,56 @@ fun AdminNavigator() {
             }
             //courses screen
             composable(route = Route.CoursesScreen.route) {
-                //TODO: navigate to courses screen
+                CourseScreen(
+                    onCourseClick = { course ->
+                        navController.navigate("${Route.TopicsScreen.route}/${course.id}")
+                    },
+                    viewModel = courseViewModel
+                )
             }
             //topics screen
-            composable(route = Route.TopicsScreen.route) { backStackEntry ->
-             //   val courseId = backStackEntry.arguments?.getString("courseId")
-                //TODO: navigate to topics screen
+            composable(
+                route = "${Route.TopicsScreen.route}/{courseId}",
+                arguments = listOf(navArgument("courseId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val courseId = backStackEntry.arguments?.getInt("courseId")
+                LaunchedEffect(courseId) {
+                    courseViewModel.onEvent(CourseEvent.GetCourseById(courseId!!.toInt()))
+                }
+                courseListState.selectedCourse?.let { course ->
+                    TopicScreen(
+                        course = course,
+                        onBackClick = { navController.popBackStack() },
+                        onTopicClick = { topic ->
+                            navController.navigate("${Route.WordsScreen.route}/${topic.id}")
+                        },
+                        viewModel = topicViewModel
+                    )
+                }
             }
             //words screen
-            composable(route = Route.WordsScreen.route) { backStackEntry ->
-              //  val topicId = backStackEntry.arguments?.getString("topicId")
-                //TODO: navigate to words screen
+            composable(
+                route = "${Route.WordsScreen.route}/{topicId}",
+                arguments = listOf(navArgument("topicId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val topicId = backStackEntry.arguments?.getInt("topicId")
+                LaunchedEffect(topicId) {
+                    topicViewModel.onEvent(TopicEvent.GetTopicById(topicId!!.toInt()))
+                }
+                topicListState.selectedTopic?.let { topic ->
+                    WordScreen(
+                        topic = topic,
+                        onBackClick = { navController.popBackStack() },
+                        viewModel = wordViewModel
+                    )
+                }
             }
             //user screen
             composable(route = Route.UsersScreen.route) {
-                LaunchedEffect(Unit) {
-                    viewModel.onEvent(UserListEvent.LoadUsers)
-                }
-
                 UserScreen(
                     state = userListState,
                     navController = navController,
-                    onEvent = viewModel::onEvent
+                    onEvent = userViewModel::onEvent
                 )
             }
             //setting screen

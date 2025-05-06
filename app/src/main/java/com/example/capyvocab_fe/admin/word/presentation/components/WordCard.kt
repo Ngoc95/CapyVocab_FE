@@ -139,7 +139,10 @@ fun WordCardPreview() {
             audio = "https://example.com/audio.mp3",
             image = "https://example.com/image.jpg",
             example = "She ate an apple for lunch.",
-            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa."
+            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa.",
+            deletedAt = null,
+            createdAt = "",
+            updatedAt = ""
         )
 
         WordCard(

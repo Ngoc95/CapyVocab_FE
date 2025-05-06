@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.admin.course.presentation
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,8 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.course.domain.model.Course
+import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseCard
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseFormDialog
+import com.example.capyvocab_fe.auth.presentation.login_screen.LoginScreen
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
@@ -85,11 +88,7 @@ fun CourseScreen(
                 isDialogOpen = false
             },
             onSave = { course ->
-                if (course.id == 0) {
-                    viewModel.onEvent(CourseEvent.CreateCourse(course))
-                } else {
-                    viewModel.onEvent(CourseEvent.UpdateCourse(course))
-                }
+                viewModel.onEvent(CourseEvent.SaveCourse(course))
                 isDialogOpen = false
             },
             onDelete = {
@@ -107,7 +106,7 @@ fun CoursesScreenContent(
     courses: List<Course>,
     onCourseClick: (Course) -> Unit,
     onAddCourse: () -> Unit,
-    onEditCourse: (Course) -> Unit
+    onEditCourse: (Course) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Top bar
@@ -188,26 +187,26 @@ fun CoursesScreenContentPreview() {
             Course(
                 id = 1,
                 title = "Tiếng Anh A1",
-                level = 1,
+                level = CourseLevel.BEGINNER.value,
                 target = "Người mới bắt đầu",
                 description = "Khóa học tiếng Anh cơ bản trình độ A1",
-                totalTopics = 10
+                courseTopics = emptyList()
             ),
             Course(
                 id = 2,
                 title = "Ngữ pháp cơ bản",
-                level = 1,
+                level = CourseLevel.INTERMEDIATE.value,
                 target = "Nắm chắc ngữ pháp nền tảng",
                 description = "Ngữ pháp phổ biến trong tiếng Anh giúp người mới hiểu được cơ bản cấu trúc",
-                totalTopics = 8
+                courseTopics = emptyList()
             ),
             Course(
                 id = 3,
                 title = "Từ vựng nâng cao",
-                level = 2,
+                level = CourseLevel.ADVANCE.value,
                 target = "Mở rộng vốn từ chuyên sâu",
                 description = "Từ vựng học thuật và chuyên ngành",
-                totalTopics = 12
+                courseTopics = emptyList()
             )
         )
 
