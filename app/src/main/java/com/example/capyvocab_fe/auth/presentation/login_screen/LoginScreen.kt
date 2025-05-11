@@ -27,17 +27,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -46,17 +45,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.LoadingDialog
+import com.example.capyvocab_fe.navigation.Route
 
 
 @Composable
 internal fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
+    navController: NavController
    // onLoginSuccess: () -> Unit
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    //điều hướng khi login thành công
+    LaunchedEffect(viewModel) {
+        viewModel.navigateToAdmin.collect {
+            navController.navigate(Route.AdminNavigation.route)
+        }
+    }
+    // Clear form mỗi lần LoginScreen hiển thị
+    LaunchedEffect(Unit) {
+        viewModel.clearForm()
+    }
 //    // Navigate when login is successful
 //    LaunchedEffect(state.isLoggedIn) {
 //        if (state.isLoggedIn) {
@@ -70,6 +83,9 @@ internal fun LoginScreen(
         onPasswordChanged = { viewModel.onPasswordChanged(it) },
         onTogglePasswordVisibility = { viewModel.onTogglePasswordVisibility() },
         onLoginClick = { viewModel.login() },
+        onRegisterClick = {
+            navController.navigate(Route.RegisterScreen.route)
+        },
         onGoogleLoginClick = {
 
         }
@@ -93,6 +109,7 @@ fun LoginScreenPreview() {
         onPasswordChanged = { /* Handle password change */ },
         onTogglePasswordVisibility = {},
         onLoginClick = { /* Handle login click */ },
+        onRegisterClick = { },
         onGoogleLoginClick = { /* Handle Google login click */ }
     )
 }
@@ -103,6 +120,7 @@ fun LoginContent(
     onPasswordChanged: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
     onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
     onGoogleLoginClick: () -> Unit
 ){
     LoadingDialog(isLoading = state.isLoading)
@@ -134,17 +152,8 @@ fun LoginContent(
                 label = { Text("Tên đăng nhập") },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    cursorColor = Color.Black,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedBorderColor = Color(0xFF0866FF),
-                    focusedTextColor = Color.Black,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    unfocusedPlaceholderColor = Color.Gray
-                ),
+                colors = defaultTextFieldColors(),
                 singleLine = true,
-                maxLines = 1,
                 shape = RoundedCornerShape(15.dp)
             )
 
@@ -164,17 +173,8 @@ fun LoginContent(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    cursorColor = Color.Black,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedBorderColor = Color(0xFF0866FF),
-                    focusedTextColor = Color.Black,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    unfocusedPlaceholderColor = Color.Gray
-                ),
+                colors = defaultTextFieldColors(),
                 singleLine = true,
-                maxLines = 1,
                 shape = RoundedCornerShape(15.dp)
             )
 
@@ -211,11 +211,11 @@ fun LoginContent(
 
             // Register Button
             OutlinedButton(
-                onClick = { /* Handle register */ },
+                onClick = onRegisterClick,
                 modifier = Modifier.width(250.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White, // Màu nền của nút
-                    contentColor = Color.Gray // Màu chữ
+                    containerColor = Color.White,
+                    contentColor = Color.Gray
                 )
             ) {
                 Text("Đăng ký")
@@ -253,7 +253,7 @@ fun LoginContent(
                 modifier = Modifier.size(48.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.google_ic), // Use your Google icon
+                    painter = painterResource(id = R.drawable.google_ic),
                     contentDescription = "Google Sign In",
                     modifier = Modifier.size(36.dp)
                 )
@@ -265,7 +265,7 @@ fun LoginContent(
                 Text(
                     text = state.errorMessage,
                     color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }

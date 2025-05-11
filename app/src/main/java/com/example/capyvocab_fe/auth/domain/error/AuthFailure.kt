@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.auth.domain.model
+package com.example.capyvocab_fe.auth.domain.error
 
 data class AuthFailure(
     val error: ApiError,
