@@ -161,7 +161,8 @@ fun AdminNavigator() {
                     onCourseClick = { course ->
                         navController.navigate("${Route.TopicsScreen.route}/${course.id}")
                     },
-                    viewModel = courseViewModel
+                    viewModel = courseViewModel,
+                    navController = navController
                 )
             }
             //topics screen
@@ -180,7 +181,8 @@ fun AdminNavigator() {
                         onTopicClick = { topic ->
                             navController.navigate("${Route.WordsScreen.route}/${topic.id}")
                         },
-                        viewModel = topicViewModel
+                        viewModel = topicViewModel,
+                        navController = navController
                     )
                 }
             }
@@ -197,7 +199,8 @@ fun AdminNavigator() {
                     WordScreen(
                         topic = topic,
                         onBackClick = { navController.popBackStack() },
-                        viewModel = wordViewModel
+                        viewModel = wordViewModel,
+                        navController = navController
                     )
                 }
             }

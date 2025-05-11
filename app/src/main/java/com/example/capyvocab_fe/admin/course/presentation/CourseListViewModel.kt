@@ -2,9 +2,9 @@ package com.example.capyvocab_fe.admin.course.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.capyvocab_fe.admin.course.data.remote.model.CourseBody
-import com.example.capyvocab_fe.admin.course.data.remote.model.CreateCourseReq
-import com.example.capyvocab_fe.admin.course.data.remote.model.UpdateCourseReq
+import com.example.capyvocab_fe.admin.course.data.remote.model.CreateCourseBody
+import com.example.capyvocab_fe.admin.course.data.remote.model.CreateCourseRequest
+import com.example.capyvocab_fe.admin.course.data.remote.model.UpdateCourseRequest
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.repository.AdminCourseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +54,7 @@ class CourseListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "failed to load course"
+                            errorMessage = failure.message ?: "Failed to load course"
                         )
                     }
                 }
@@ -94,9 +94,9 @@ class CourseListViewModel @Inject constructor(
 
             val result = if (course.id == 0) {
                 // create new course (POST)
-                val createCourseReq = CreateCourseReq(
+                val createCourseReq = CreateCourseRequest(
                     courses = listOf(
-                        CourseBody(
+                        CreateCourseBody(
                             title = course.title,
                             level = course.level,
                             target = course.target,
@@ -108,7 +108,7 @@ class CourseListViewModel @Inject constructor(
                 courseRepository.createCourse(createCourseReq)
             } else {
                 // update existing course (PUT)
-                val updateCourseReq = UpdateCourseReq(
+                val updateCourseReq = UpdateCourseRequest(
                     title = course.title,
                     level = course.level,
                     target = course.target,

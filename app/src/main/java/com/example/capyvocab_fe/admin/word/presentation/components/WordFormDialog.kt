@@ -130,6 +130,9 @@ fun WordFormDialog(
                                 pronunciation = pronunciation,
                                 position = position,
                                 meaning = meaning,
+                                rank = word.rank,
+                                audio = selectedAudioUri?.toString() ?: "",
+                                image = selectedImageUri?.toString() ?: "",
                                 example = example,
                                 translateExample = translateExample
                             ) ?: Word(
@@ -138,6 +141,7 @@ fun WordFormDialog(
                                 pronunciation = pronunciation,
                                 position = position,
                                 meaning = meaning,
+                                rank = "",
                                 audio = "",
                                 image = "",
                                 example = example,
@@ -354,6 +358,7 @@ fun WordFormDialogPreview() {
             pronunciation = "/ˈæpl/",
             position = "noun",
             meaning = "a round fruit with red or green skin",
+            rank = "2",
             audio = "https://example.com/audio.mp3",
             image = "https://example.com/image.jpg",
             example = "She ate an apple for lunch.",

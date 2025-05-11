@@ -1,7 +1,6 @@
-package com.example.capyvocab_fe.admin.word.domain.model
+package com.example.capyvocab_fe.admin.word.data.remote.model
 
-data class Word(
-    val id: Int,
+data class UpdateWordRequest(
     val content: String,
     val pronunciation: String,
     val position: String,
@@ -11,7 +10,5 @@ data class Word(
     val image: String,
     val example: String,
     val translateExample: String,
-    val deletedAt: String?,
-    val createdAt: String,
-    val updatedAt: String
+    val topicIds: List<Int> = emptyList()
 )

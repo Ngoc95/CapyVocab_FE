@@ -2,12 +2,13 @@ package com.example.capyvocab_fe.admin.topic.data.repository
 
 import arrow.core.Either
 import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
-import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicReq
-import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicReq
+import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicRequest
+import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.topic.domain.repository.AdminTopicRepository
 import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
 import com.example.capyvocab_fe.admin.user.domain.error.toAdminFailure
+import com.example.capyvocab_fe.admin.word.domain.model.Word
 import javax.inject.Inject
 
 class AdminTopicRepositoryImpl @Inject constructor(
@@ -15,7 +16,7 @@ class AdminTopicRepositoryImpl @Inject constructor(
 ) : AdminTopicRepository {
     override suspend fun updateTopic(
         id: Int,
-        topicRequest: UpdateTopicReq
+        topicRequest: UpdateTopicRequest
     ): Either<AdminFailure, Topic> {
         return Either.catch {
             api.updateTopic(id, topicRequest).metaData
@@ -33,7 +34,7 @@ class AdminTopicRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun createTopic(topicRequest: CreateTopicReq): Either<AdminFailure, Topic> {
+    override suspend fun createTopic(topicRequest: CreateTopicRequest): Either<AdminFailure, List<Topic>> {
         return Either.catch {
             api.createTopic(topicRequest).metaData
         }.mapLeft {
@@ -41,13 +42,18 @@ class AdminTopicRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getTopicWords(
+        id: Int,
+        page: Int
+    ): Either<AdminFailure, List<Word>> {
+        return Either.catch {
+            api.getTopicWords(id, page).metaData.words
+        }.mapLeft { it.toAdminFailure() }
+    }
+
     override suspend fun getTopicById(id: Int): Either<AdminFailure, Topic> {
         return Either.catch {
             api.getTopicById(id).metaData
-        }.mapLeft {
-            it.toAdminFailure()
-        }
+        }.mapLeft { it.toAdminFailure() }
     }
-
-
 }

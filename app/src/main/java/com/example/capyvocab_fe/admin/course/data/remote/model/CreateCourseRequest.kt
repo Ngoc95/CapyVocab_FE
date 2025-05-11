@@ -1,10 +1,10 @@
 package com.example.capyvocab_fe.admin.course.data.remote.model
 
-data class CreateCourseReq(
-    val courses: List<CourseBody>
+data class CreateCourseRequest(
+    val courses: List<CreateCourseBody>
 )
 
-data class CourseBody (
+data class CreateCourseBody (
     val title: String,
     val description: String? = null,
     val target: String? = null,

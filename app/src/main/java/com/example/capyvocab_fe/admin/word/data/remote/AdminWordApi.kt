@@ -30,13 +30,13 @@ interface AdminWordApi {
 
     @POST("/words")
     suspend fun createWords(
-        @Body words: List<CreateWordRequest>
+        @Body createWordRequest: CreateWordRequest
     ): List<Word>
 
     @PATCH("/words/{id}")
     suspend fun updateWord(
         @Path("id") id: Int,
-        @Body word: UpdateWordRequest
+        @Body updateWordRequest: UpdateWordRequest
     ): Word
 
     @DELETE("/words/{id}")
