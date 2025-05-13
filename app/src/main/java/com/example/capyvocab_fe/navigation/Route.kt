@@ -21,9 +21,9 @@ sealed class Route(
     //user navigator
     object UserNavigation : Route(route = "userNavigation")
     object UserNavigator : Route(route = "userNavigator")
-    object UserHomeScreen : Route(route = "userHomeScreen")
-    object UserLearnScreen: Route(route = "userLearnScreen")
     object UserCommunityScreen: Route(route = "userCommunityScreen")
+    object UserReviewScreen : Route(route = "userReviewScreen")
+    object UserLearnScreen: Route(route = "userLearnScreen")
     object UserTestScreen: Route(route = "userTestScreen")
     object UserProfileScreen: Route(route = "userProfileScreen")
 }
