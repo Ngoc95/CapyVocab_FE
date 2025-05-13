@@ -75,10 +75,10 @@ fun TopicFormDialog(
                             description = description,
                             type = "Free",
                             thumbnail = thumbnail,
-                            deletedAt = null,
-                            createdAt = "",
-                            updatedAt = "",
-                            displayOrder = 1
+//                            deletedAt = null,
+//                            createdAt = "",
+//                            updatedAt = "",
+//                            displayOrder = 1
                         )
                     )
                 }

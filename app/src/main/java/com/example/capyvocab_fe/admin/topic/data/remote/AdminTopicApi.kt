@@ -1,6 +1,7 @@
 package com.example.capyvocab_fe.admin.topic.data.remote
 
 import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicRequest
+import com.example.capyvocab_fe.admin.topic.data.remote.model.TopicListResponse
 import com.example.capyvocab_fe.admin.topic.data.remote.model.TopicWordsResponse
 import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
@@ -14,6 +15,11 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface AdminTopicApi {
+    @GET("/topics")
+    suspend fun getAllTopic(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10,
+    ): ApiResponse<TopicListResponse>
     @POST("/topics")
     suspend fun createTopic(@Body topicRequest: CreateTopicRequest): ApiResponse<List<Topic>>
     @PATCH("/topics/{id}")

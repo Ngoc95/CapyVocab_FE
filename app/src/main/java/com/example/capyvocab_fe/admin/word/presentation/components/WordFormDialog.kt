@@ -145,10 +145,7 @@ fun WordFormDialog(
                                 audio = "",
                                 image = "",
                                 example = example,
-                                translateExample = translateExample,
-                                deletedAt = null,
-                                createdAt = "",
-                                updatedAt = ""
+                                translateExample = translateExample
                             )
                             onSave(updatedWord, selectedImageUri)
                         }
@@ -362,10 +359,7 @@ fun WordFormDialogPreview() {
             audio = "https://example.com/audio.mp3",
             image = "https://example.com/image.jpg",
             example = "She ate an apple for lunch.",
-            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa ahihih hihihi.",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = ""
+            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa ahihih hihihi."
         )
 
         WordFormDialog (

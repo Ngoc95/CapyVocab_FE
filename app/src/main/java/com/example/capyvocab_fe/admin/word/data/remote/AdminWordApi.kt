@@ -1,12 +1,12 @@
 package com.example.capyvocab_fe.admin.word.data.remote
 
+import com.example.capyvocab_fe.admin.user.data.remote.model.ApiResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.DeleteResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.RestoreResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.WordListResponse
 import com.example.capyvocab_fe.admin.word.domain.model.Word
-import okhttp3.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -21,7 +21,7 @@ interface AdminWordApi {
     suspend fun getAllWords(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
-    ): WordListResponse
+    ): ApiResponse<WordListResponse>
 
     @GET("/words/{id}")
     suspend fun getWordById(

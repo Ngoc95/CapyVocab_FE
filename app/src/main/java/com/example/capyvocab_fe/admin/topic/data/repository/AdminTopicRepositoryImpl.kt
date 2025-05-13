@@ -14,6 +14,14 @@ import javax.inject.Inject
 class AdminTopicRepositoryImpl @Inject constructor(
     private val api: AdminTopicApi
 ) : AdminTopicRepository {
+    override suspend fun getAllTopic(page: Int): Either<AdminFailure, List<Topic>> {
+        return Either.catch {
+            api.getAllTopic(page).metaData.topics
+        }.mapLeft {
+            it.toAdminFailure()
+        }
+    }
+
     override suspend fun updateTopic(
         id: Int,
         topicRequest: UpdateTopicRequest

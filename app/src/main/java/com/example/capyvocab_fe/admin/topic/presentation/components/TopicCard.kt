@@ -1,11 +1,9 @@
 package com.example.capyvocab_fe.admin.topic.presentation.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -205,12 +203,12 @@ fun TopicCardPreview() {
             id = 1,
             title = "Friendship",
             description = "Tình bạn",
-            thumbnail = null,
+            thumbnail = "",
             type = "Free",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = "",
-            displayOrder = 1
+//            deletedAt = null,
+//            createdAt = "",
+//            updatedAt = "",
+//            displayOrder = 1
         )
 
         TopicCard(

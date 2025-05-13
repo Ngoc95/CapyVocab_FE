@@ -27,16 +27,46 @@ class WordListViewModel @Inject constructor(
 
     fun onEvent(event: WordEvent) {
         when (event) {
+            is WordEvent.LoadAllWords -> loadAllWords()
+            is WordEvent.LoadMoreAllWords -> loadAllWords(loadMore = true)
             is WordEvent.LoadWords -> loadWords(event.topic)
             is WordEvent.LoadMoreWords -> loadWords(event.topic, loadMore = true)
             is WordEvent.UpdateWord -> updateWord(event.word)
             is WordEvent.DeleteWord -> deleteWord(event.wordId)
-            is WordEvent.CreateWord -> createWord(event.topic, event.word)
+            is WordEvent.CreateWord -> createWord(event.topicId, event.word)
             is WordEvent.CancelMultiSelect -> cancelMultiSelect()
             is WordEvent.OnDeleteSelectedWords -> deleteSelectedTopics()
             is WordEvent.OnSelectAllToggle -> selectAll()
             is WordEvent.OnWordLongPress -> startMultiSelect(event.wordId)
             is WordEvent.OnWordSelectToggle -> toggleWordSelection(event.wordId)
+        }
+    }
+
+    private fun loadAllWords(loadMore: Boolean = false) {
+        viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            wordRepository.getAllWords(nextPage)
+                .onRight { newWords ->
+                    _state.update {
+                        val allWords = if (loadMore) it.words + newWords else newWords
+                        it.copy(
+                            isLoading = false,
+                            words = allWords,
+                            currentPage = nextPage,
+                            isEndReached = allWords.isEmpty()
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Failed to load all words"
+                        )
+                    }
+                }
         }
     }
 
@@ -66,7 +96,7 @@ class WordListViewModel @Inject constructor(
         }
     }
 
-    private fun createWord(topic: Topic, word: Word) {
+    private fun createWord(topicId: Int, word: Word) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
@@ -82,7 +112,7 @@ class WordListViewModel @Inject constructor(
                         image = word.image,
                         example = word.example,
                         translateExample = word.translateExample,
-                        topicIds = listOf(topic.id)
+                        topicIds = listOf(topicId)
                     )
                 )
             )

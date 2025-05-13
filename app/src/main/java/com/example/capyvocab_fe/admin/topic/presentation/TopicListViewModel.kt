@@ -27,11 +27,13 @@ class TopicListViewModel @Inject constructor(
 
     fun onEvent(event: TopicEvent) {
         when (event) {
+            is TopicEvent.LoadAllTopics -> loadAllTopics()
+            is TopicEvent.LoadMoreAllTopics -> loadAllTopics(loadMore = true)
             is TopicEvent.LoadTopics -> loadTopics(event.course)
             is TopicEvent.LoadMoreTopics -> loadTopics(event.course, loadMore = true)
             is TopicEvent.DeleteTopic -> deleteTopic(event.topicId)
             is TopicEvent.UpdateTopic -> updateTopic(event.topic)
-            is TopicEvent.CreateTopic -> createTopic(event.course, event.topic)
+            is TopicEvent.CreateTopic -> createTopic(event.courseId, event.topic)
             is TopicEvent.GetTopicById -> getTopicById(event.topicId)
             is TopicEvent.CancelMultiSelect -> cancelMultiSelect()
             is TopicEvent.OnDeleteSelectedTopics -> deleteSelectedTopics()
@@ -41,8 +43,35 @@ class TopicListViewModel @Inject constructor(
         }
     }
 
+    private fun loadAllTopics(loadMore: Boolean = false) {
+        viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            topicRepository.getAllTopic(nextPage)
+                .onRight { newTopics ->
+                    _state.update {
+                        val allTopics = if (loadMore) it.topics + newTopics else newTopics
+                        it.copy(
+                            isLoading = false,
+                            topics = allTopics,
+                            currentPage = nextPage,
+                            isEndReached = newTopics.isEmpty()
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "failed to load topics"
+                        )
+                    }
+                }
+        }
+    }
+
     private fun createTopic(
-        course: Course,
+        courseId: Int,
         topic: Topic
     ) {
         viewModelScope.launch {
@@ -55,7 +84,7 @@ class TopicListViewModel @Inject constructor(
                         description = topic.description,
                         thumbnail = topic.thumbnail,
                         type = topic.type,
-                        courseIds = listOf(course.id)
+                        courseIds = listOf(courseId)
                     )
                 )
             )
@@ -215,7 +244,8 @@ class TopicListViewModel @Inject constructor(
         _state.update { currentState ->
             val allSelected = currentState.isSelectAll
             currentState.copy(
-                selectedTopics = if (allSelected) emptySet() else currentState.topics.map { it.id }.toSet(),
+                selectedTopics = if (allSelected) emptySet() else currentState.topics.map { it.id }
+                    .toSet(),
                 isSelectAll = !allSelected
             )
         }
@@ -227,7 +257,7 @@ class TopicListViewModel @Inject constructor(
             currentSelected.remove(topicId)
         } else {
             currentSelected.add(topicId)
-            }
+        }
         _state.update { currentState ->
             currentState.copy(
                 selectedTopics = currentSelected,

@@ -45,7 +45,7 @@ fun UserNavigator() {
                 text = "Kiểm tra"
             ),
             BottomNavigationItem(
-                icon = R.drawable.ic_profile,
+                icon = R.drawable.user_profile,
                 selectedIcon = R.drawable.ic_selected_profile,
                 text = "Hồ sơ"
             ),

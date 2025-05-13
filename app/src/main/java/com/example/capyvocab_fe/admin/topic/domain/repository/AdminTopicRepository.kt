@@ -8,6 +8,7 @@ import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
 import com.example.capyvocab_fe.admin.word.domain.model.Word
 
 interface AdminTopicRepository {
+    suspend fun getAllTopic(page: Int = 1): Either<AdminFailure, List<Topic>>
     suspend fun updateTopic(id: Int, topicRequest: UpdateTopicRequest): Either<AdminFailure, Topic>
     suspend fun deleteTopic(id: Int): Either<AdminFailure, Unit>
     suspend fun createTopic(topicRequest: CreateTopicRequest): Either<AdminFailure, List<Topic>>

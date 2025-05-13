@@ -51,11 +51,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDialog
@@ -64,10 +66,13 @@ import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.RippleOverlay
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun TopicScreen(
+fun TopicsInCourseScreen(
+    course: Course,
+    onBackClick: () -> Unit,
     onTopicClick: (Topic) -> Unit,
     viewModel: TopicListViewModel = hiltViewModel(),
     navController: NavController
@@ -90,10 +95,9 @@ fun TopicScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.onEvent(TopicEvent.LoadAllTopics)
+    LaunchedEffect(course) {
+        viewModel.onEvent(TopicEvent.LoadTopics(course))
     }
-
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
         multiSelectTransition.value = state.isMultiSelecting
@@ -102,8 +106,8 @@ fun TopicScreen(
         if (state.isMultiSelecting) {
             viewModel.onEvent(TopicEvent.CancelMultiSelect)
         } else {
-            navController.navigate(Route.HomeScreen.route) {
-                popUpTo(Route.HomeScreen.route) {
+            navController.navigate(Route.CoursesScreen.route) {
+                popUpTo(Route.CoursesScreen.route) {
                     inclusive = false
                 }
                 launchSingleTop = true
@@ -126,15 +130,15 @@ fun TopicScreen(
             selectedTopic = null
         }
     }
-
     FocusComponent {
-        TopicScreenContent(
+        TopicsInCourseScreenContent(
+            courseTitle = course.title,
             topics = state.topics,
             selectedTopics = state.topics.filter { state.selectedTopics.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
-            onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreAllTopics) },
+            onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreTopics(course)) },
             onTopicClick = { topic ->
                 onTopicClick(topic)
             },
@@ -146,6 +150,7 @@ fun TopicScreen(
                 selectedTopic = topic
                 isDialogOpen = true
             },
+            onBackClick = onBackClick,
             onCancelMultiSelect = { viewModel.onEvent(TopicEvent.CancelMultiSelect) },
             onDeleteSelectedTopics = {
                 isMultiDeleteConfirmDialogOpen = true
@@ -168,9 +173,9 @@ fun TopicScreen(
                 isDialogOpen = false
             },
             onSave = {
-                    topic ->
+                topic ->
                 if (topic.id == 0) {
-                    viewModel.onEvent(TopicEvent.CreateTopic(1, topic))
+                    viewModel.onEvent(TopicEvent.CreateTopic(course.id, topic))
                 } else {
                     viewModel.onEvent(TopicEvent.UpdateTopic(topic))
                 }
@@ -230,7 +235,8 @@ fun TopicScreen(
 }
 
 @Composable
-fun TopicScreenContent(
+fun TopicsInCourseScreenContent(
+    courseTitle: String,
     topics: List<Topic>,
     selectedTopics: List<Topic>,
     isMultiSelectMode: Boolean,
@@ -239,6 +245,7 @@ fun TopicScreenContent(
     onTopicClick: (Topic) -> Unit,
     onAddTopic: () -> Unit,
     onEditTopic: (Topic) -> Unit,
+    onBackClick: () -> Unit,
     onLoadMore: () -> Unit,
     onCancelMultiSelect: () -> Unit,
     onDeleteSelectedTopics: () -> Unit,
@@ -325,7 +332,6 @@ fun TopicScreenContent(
                             }
                         }
                     }
-
                 }
             }
 
@@ -442,5 +448,42 @@ fun TopicScreenContent(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TopicsInCourseScreenPreview() {
+    CapyVocab_FETheme {
+        val sampleTopic = Topic(
+            id = 1,
+            title = "Friendship",
+            description = "Tình bạn",
+            thumbnail = "",
+            type = "Free"
+        )
+        val sampleTopics = listOf(
+            sampleTopic,
+            sampleTopic.copy(id = 2, title = "Chủ đề số 2 ahihi", type = "Premium"),
+            sampleTopic.copy(id = 3, title = "Chủ đề số 3")
+        )
+
+        TopicsInCourseScreenContent(
+            courseTitle = "Tiếng Anh giao tiếp",
+            topics = sampleTopics,
+            onTopicClick = {},
+            onAddTopic = {},
+            onEditTopic = {},
+            onBackClick = {},
+            onLoadMore = {},
+            onCancelMultiSelect = {},
+            onDeleteSelectedTopics = {},
+            onTopicLongPress = {},
+            onTopicSelectToggle = {},
+            isMultiSelectMode = false,
+            isLoading = false,
+            isEndReached = false,
+            selectedTopics = emptyList()
+        )
     }
 }

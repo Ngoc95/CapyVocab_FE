@@ -81,8 +81,8 @@ private fun BottomNavigationPreview() {
             BottomNavigationItem(icon = R.drawable.admin_topic, selectedIcon = R.drawable.admin_selected_topic, text = "Chủ đề"),
             BottomNavigationItem(icon = R.drawable.admin_word, selectedIcon = R.drawable.admin_selected_word, text = "Từ vựng"),
             BottomNavigationItem(icon = R.drawable.admin_user,selectedIcon = R.drawable.admin_selected_user, text = "Người dùng"),
-            BottomNavigationItem(icon = R.drawable.ic_profile,selectedIcon = R.drawable.ic_selected_profile, text = "Hồ sơ")
-        ), selected = 1, onItemClick = {}
+            BottomNavigationItem(icon = R.drawable.user_profile,selectedIcon = R.drawable.ic_selected_profile, text = "Hồ sơ")
+        ), selected = 5, onItemClick = {}
         )
     }
 }

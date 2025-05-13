@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.admin.topic.presentation
+package com.example.capyvocab_fe.admin.word.presentation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -51,14 +51,16 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
-import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDialog
+import com.example.capyvocab_fe.admin.word.domain.model.Word
+import com.example.capyvocab_fe.admin.word.presentation.components.WordCard
+import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.RippleOverlay
@@ -67,17 +69,18 @@ import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
 @Composable
-fun TopicScreen(
-    onTopicClick: (Topic) -> Unit,
-    viewModel: TopicListViewModel = hiltViewModel(),
+fun WordsInTopicScreen(
+    topic: Topic,
+    onBackClick: () -> Unit,
+    viewModel: WordListViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
 
-    var selectedTopic by remember { mutableStateOf<Topic?>(null) }
+    var selectedWord by remember { mutableStateOf<Word?>(null) }
     var isDialogOpen by remember { mutableStateOf(false) }
 
-    var topicToDelete by remember { mutableStateOf<Topic?>(null) }
+    var wordToDelete by remember { mutableStateOf<Word?>(null) }
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var isMultiDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
@@ -90,8 +93,8 @@ fun TopicScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.onEvent(TopicEvent.LoadAllTopics)
+    LaunchedEffect(topic.id) {
+        viewModel.onEvent(WordEvent.LoadWords(topic))
     }
 
     //launchEffect to track transition to multi-select mode
@@ -100,7 +103,7 @@ fun TopicScreen(
     }
     BackHandler {
         if (state.isMultiSelecting) {
-            viewModel.onEvent(TopicEvent.CancelMultiSelect)
+            viewModel.onEvent(WordEvent.CancelMultiSelect)
         } else {
             navController.navigate(Route.HomeScreen.route) {
                 popUpTo(Route.HomeScreen.route) {
@@ -123,90 +126,91 @@ fun TopicScreen(
     LaunchedEffect(state.errorMessage, state.isLoading) {
         if (state.errorMessage.isEmpty() && !state.isLoading) {
             isDialogOpen = false
-            selectedTopic = null
+            selectedWord = null
         }
     }
 
     FocusComponent {
-        TopicScreenContent(
-            topics = state.topics,
-            selectedTopics = state.topics.filter { state.selectedTopics.contains(it.id) },
-            isMultiSelectMode = state.isMultiSelecting,
+        WordsInTopicScreenContent (
+            words = state.words,
+            topicTitle = topic.title,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
-            onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreAllTopics) },
-            onTopicClick = { topic ->
-                onTopicClick(topic)
+            selectedWords = state.words.filter { state.selectedWords.contains(it.id) },
+            isMultiSelectMode = state.isMultiSelecting,
+            onPlayAudio = { audioUrl ->
+                // TODO: Play audio
             },
-            onAddTopic = {
-                selectedTopic = null
+            onEditWord = { word ->
+                selectedWord = word
                 isDialogOpen = true
             },
-            onEditTopic = { topic ->
-                selectedTopic = topic
+            onAddWord = {
+                selectedWord = null
                 isDialogOpen = true
             },
-            onCancelMultiSelect = { viewModel.onEvent(TopicEvent.CancelMultiSelect) },
-            onDeleteSelectedTopics = {
+            onBackClick = onBackClick,
+            onLoadMore = { viewModel.onEvent(WordEvent.LoadMoreWords(topic))},
+            onCancelMultiSelect = { viewModel.onEvent(WordEvent.CancelMultiSelect) },
+            onDeleteSelectedWords = {
                 isMultiDeleteConfirmDialogOpen = true
             },
-            onTopicLongPress = { topic ->
-                viewModel.onEvent(TopicEvent.OnTopicLongPress(topic.id))
+            onWordLongPress = { word ->
+                viewModel.onEvent(WordEvent.OnWordLongPress(word.id))
             },
-            onTopicSelectToggle = { topic ->
-                viewModel.onEvent(TopicEvent.OnTopicSelectToggle(topic.id))
+            onWordSelectToggle = { word ->
+                viewModel.onEvent(WordEvent.OnWordSelectToggle(word.id))
             }
         )
     }
 
     if (isDialogOpen) {
-        TopicFormDialog(
-            topic = selectedTopic,
+        WordFormDialog(
+            word = selectedWord,
             errorMessage = "",
             onDismiss = {
-                selectedTopic = null
                 isDialogOpen = false
+                selectedWord = null
             },
-            onSave = {
-                    topic ->
-                if (topic.id == 0) {
-                    viewModel.onEvent(TopicEvent.CreateTopic(1, topic))
+            onSave = { word, uri ->
+                if (word.id == 0) {
+                    viewModel.onEvent(WordEvent.CreateWord(topic.id, word))
                 } else {
-                    viewModel.onEvent(TopicEvent.UpdateTopic(topic))
+                    viewModel.onEvent(WordEvent.UpdateWord(word))
                 }
                 isDialogOpen = false
             },
             onDelete = {
-                selectedTopic?.let { topic ->
-                    viewModel.onEvent(TopicEvent.DeleteTopic(topic.id))
+                selectedWord?.let { word ->
+                    viewModel.onEvent(WordEvent.DeleteWord(word.id))
                 }
                 isDialogOpen = false
             }
         )
     }
     //AlertDialog xác nhận trước khi xoá user
-    if (isDeleteConfirmDialogOpen && topicToDelete != null) {
+    if (isDeleteConfirmDialogOpen && wordToDelete != null) {
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá người dùng \"${topicToDelete?.title}\" không?",
+            message = "Bạn có chắc chắn muốn xoá người dùng \"${wordToDelete?.content}\" không?",
             onConfirm = {
-                viewModel.onEvent(TopicEvent.DeleteTopic(topicToDelete!!.id))
+                viewModel.onEvent(WordEvent.DeleteWord(wordToDelete!!.id))
                 isDeleteConfirmDialogOpen = false
-                topicToDelete = null
+                wordToDelete = null
             },
             onDismiss = {
                 isDeleteConfirmDialogOpen = false
-                topicToDelete = null
+                wordToDelete = null
             }
         )
     }
 
     //multi-user delete confirmation dialog
     if (isMultiDeleteConfirmDialogOpen) {
-        val selectedCount = state.selectedTopics.size
+        val selectedCount = state.selectedWords.size
         ConfirmDeleteDialog(
             message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
             onConfirm = {
-                viewModel.onEvent(TopicEvent.OnDeleteSelectedTopics)
+                viewModel.onEvent(WordEvent.OnDeleteSelectedWords)
                 isMultiDeleteConfirmDialogOpen = false
             },
             onDismiss = {
@@ -230,20 +234,22 @@ fun TopicScreen(
 }
 
 @Composable
-fun TopicScreenContent(
-    topics: List<Topic>,
-    selectedTopics: List<Topic>,
+fun WordsInTopicScreenContent(
+    words: List<Word>,
+    topicTitle: String,
+    selectedWords: List<Word>,
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
-    onTopicClick: (Topic) -> Unit,
-    onAddTopic: () -> Unit,
-    onEditTopic: (Topic) -> Unit,
+    onPlayAudio: (String) -> Unit,
+    onEditWord: (Word) -> Unit,
+    onAddWord: () -> Unit,
+    onBackClick: () -> Unit,
     onLoadMore: () -> Unit,
     onCancelMultiSelect: () -> Unit,
-    onDeleteSelectedTopics: () -> Unit,
-    onTopicLongPress: (Topic) -> Unit,
-    onTopicSelectToggle: (Topic) -> Unit
+    onDeleteSelectedWords: () -> Unit,
+    onWordLongPress: (Word) -> Unit,
+    onWordSelectToggle: (Word) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -308,7 +314,7 @@ fun TopicScreenContent(
                             }
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = "Đã chọn ${selectedTopics.size}",
+                                text = "Đã chọn ${selectedWords.size}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 25.sp
                             )
@@ -320,7 +326,7 @@ fun TopicScreenContent(
                             enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
                             exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 })
                         ) {
-                            IconButton(onClick = { onDeleteSelectedTopics() }) {
+                            IconButton(onClick = { onDeleteSelectedWords() }) {
                                 Icon(Icons.Default.Delete, contentDescription = "Delete")
                             }
                         }
@@ -328,7 +334,6 @@ fun TopicScreenContent(
 
                 }
             }
-
 
             // Search bar & Add button - hide if in multi-select mode + animation
             AnimatedVisibility(
@@ -354,7 +359,7 @@ fun TopicScreenContent(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Tìm chủ đề") },
+                        placeholder = { Text("Tìm từ vựng") },
                         shape = RoundedCornerShape(30.dp),
                         singleLine = true,
                         trailingIcon = {
@@ -385,21 +390,21 @@ fun TopicScreenContent(
                         contentDescription = null,
                         modifier = Modifier
                             .size(55.dp)
-                            .clickable(onClick = onAddTopic)
+                            .clickable(onClick = onAddWord)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(30.dp)
             ) {
-                itemsIndexed(topics) { index, topic ->
-                    val isSelected = selectedTopics.contains(topic)
+                itemsIndexed(words) { index, word ->
+                    val isSelected = selectedWords.contains(word)
 
                     //animation for selection
                     val cardElevation = animateDpAsState(
@@ -411,29 +416,29 @@ fun TopicScreenContent(
                         label = "cardScale"
                     )
                     Box(modifier = Modifier.scale(cardScale.value)) {
-                        TopicCard(
-                            topic = topic,
-                            onClick = { onTopicClick(topic) },
-                            onEditClick = { onEditTopic(topic) },
-                            onLongClick = { onTopicLongPress(topic) },
-                            onCheckedChange = { onTopicSelectToggle(topic) },
+                        WordCard(
+                            word = word,
+                            onPlayAudio = onPlayAudio,
+                            onEditClick = onEditWord,
+                            onLongClick = { onWordLongPress(word) },
+                            onCheckedChange = { onWordSelectToggle(word) },
                             isMultiSelecting = isMultiSelectMode,
                             isSelected = isSelected,
                             cardElevation = cardElevation.value
                         )
                     }
                     // Load thêm nếu gần cuối
-                    if (index >= topics.size - 3 && !isLoading && !isEndReached) {
+                    if (index >= words.size - 3 && !isLoading && !isEndReached) {
                         onLoadMore()
                     }
                 }
-                // loading indicator khi đang load thêm
+
                 if (isLoading) {
                     item {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 16.dp),
+                                .padding(16.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator()
@@ -444,3 +449,54 @@ fun TopicScreenContent(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun WordListScreenContentPreview() {
+    val sampleWords = listOf(
+        Word(
+            id = 1,
+            content = "apple",
+            pronunciation = "/ˈæpl/",
+            position = "noun",
+            meaning = "a round fruit with red or green skin",
+            rank = "2",
+            audio = "https://example.com/audio1.mp3",
+            image = "https://example.com/image1.jpg",
+            example = "She ate an apple for lunch.",
+            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa."
+        ),
+        Word(
+            id = 2,
+            content = "run",
+            pronunciation = "/rʌn/",
+            position = "verb",
+            meaning = "to move quickly on foot",
+            rank = "2",
+            audio = "https://example.com/audio2.mp3",
+            image = "https://example.com/image2.jpg",
+            example = "He runs every morning.",
+            translateExample = "Anh ấy chạy mỗi sáng."
+        )
+    )
+
+    WordsInTopicScreenContent(
+        words = sampleWords,
+        topicTitle = "Cuộc sống hằng ngày",
+        isLoading = false,
+        onPlayAudio = {},
+        onEditWord = {},
+        onAddWord = {},
+        onBackClick = {},
+        onLoadMore = {},
+        onCancelMultiSelect = {},
+        onDeleteSelectedWords = {},
+        onWordLongPress = {},
+        onWordSelectToggle = {},
+        selectedWords = emptyList(),
+        isMultiSelectMode = false,
+        isEndReached = false,
+    )
+}
+
+

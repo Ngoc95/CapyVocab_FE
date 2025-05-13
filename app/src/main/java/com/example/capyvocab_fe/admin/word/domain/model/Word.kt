@@ -11,7 +11,4 @@ data class Word(
     val image: String,
     val example: String,
     val translateExample: String,
-    val deletedAt: String?,
-    val createdAt: String,
-    val updatedAt: String
 )

@@ -6,9 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
+
 @Composable
 fun UserBottomNavigation(
     items: List<BottomNavigationItem>,
@@ -129,5 +131,5 @@ fun UserBottomBarPreview() {
         BottomNavigationItem(icon = R.drawable.user_learn, selectedIcon = R.drawable.user_selected_learn, text = "Học từ vựng"),
         BottomNavigationItem(icon = R.drawable.user_test, selectedIcon = R.drawable.user_selected_test, text = "Kiểm tra"),
         BottomNavigationItem(icon = R.drawable.user_profile, selectedIcon = R.drawable.user_selected_profile, text = "Hồ sơ")
-    ), selected = 2, onItemClick = {})
+    ), selected = 4, onItemClick = {})
 }

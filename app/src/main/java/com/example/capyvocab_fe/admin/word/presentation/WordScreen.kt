@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,29 +51,23 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
-import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
 import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.admin.word.presentation.components.WordCard
 import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.RippleOverlay
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
 @Composable
 fun WordScreen(
-    topic: Topic,
-    onBackClick: () -> Unit,
     viewModel: WordListViewModel = hiltViewModel(),
     navController: NavController
 ) {
@@ -96,14 +89,14 @@ fun WordScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(topic.id) {
-        viewModel.onEvent(WordEvent.LoadWords(topic))
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(WordEvent.LoadAllWords)
     }
 
     //launchEffect to track transition to multi-select mode
-    LaunchedEffect(state.isMultiSelecting) {
-        multiSelectTransition.value = state.isMultiSelecting
-    }
+            LaunchedEffect(state.isMultiSelecting) {
+                multiSelectTransition.value = state.isMultiSelecting
+            }
     BackHandler {
         if (state.isMultiSelecting) {
             viewModel.onEvent(WordEvent.CancelMultiSelect)
@@ -134,13 +127,12 @@ fun WordScreen(
     }
 
     FocusComponent {
-        WordScreenContent (
+        WordScreenContent(
             words = state.words,
-            topicTitle = topic.title,
-            isLoading = state.isLoading,
-            isEndReached = state.isEndReached,
             selectedWords = state.words.filter { state.selectedWords.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
+            isLoading = state.isLoading,
+            isEndReached = state.isEndReached,
             onPlayAudio = { audioUrl ->
                 // TODO: Play audio
             },
@@ -152,8 +144,7 @@ fun WordScreen(
                 selectedWord = null
                 isDialogOpen = true
             },
-            onBackClick = onBackClick,
-            onLoadMore = { viewModel.onEvent(WordEvent.LoadMoreWords(topic))},
+            onLoadMore = { viewModel.onEvent(WordEvent.LoadMoreAllWords) },
             onCancelMultiSelect = { viewModel.onEvent(WordEvent.CancelMultiSelect) },
             onDeleteSelectedWords = {
                 isMultiDeleteConfirmDialogOpen = true
@@ -177,7 +168,7 @@ fun WordScreen(
             },
             onSave = { word, uri ->
                 if (word.id == 0) {
-                    viewModel.onEvent(WordEvent.CreateWord(topic, word))
+                    viewModel.onEvent(WordEvent.CreateWord(1, word))
                 } else {
                     viewModel.onEvent(WordEvent.UpdateWord(word))
                 }
@@ -239,7 +230,6 @@ fun WordScreen(
 @Composable
 fun WordScreenContent(
     words: List<Word>,
-    topicTitle: String,
     selectedWords: List<Word>,
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
@@ -247,7 +237,6 @@ fun WordScreenContent(
     onPlayAudio: (String) -> Unit,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
-    onBackClick: () -> Unit,
     onLoadMore: () -> Unit,
     onCancelMultiSelect: () -> Unit,
     onDeleteSelectedWords: () -> Unit,
@@ -335,18 +324,6 @@ fun WordScreenContent(
                         }
                     }
 
-                } else {
-                    Row (
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { onBackClick() },
-                            modifier = Modifier.padding(top = 8.dp)) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        // Top bar
-                        TopBarTitle(topicTitle, 25.sp)
-                    }
                 }
             }
 
@@ -464,60 +441,3 @@ fun WordScreenContent(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun WordListScreenContentPreview() {
-    val sampleWords = listOf(
-        Word(
-            id = 1,
-            content = "apple",
-            pronunciation = "/ˈæpl/",
-            position = "noun",
-            meaning = "a round fruit with red or green skin",
-            rank = "2",
-            audio = "https://example.com/audio1.mp3",
-            image = "https://example.com/image1.jpg",
-            example = "She ate an apple for lunch.",
-            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa.",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = ""
-        ),
-        Word(
-            id = 2,
-            content = "run",
-            pronunciation = "/rʌn/",
-            position = "verb",
-            meaning = "to move quickly on foot",
-            rank = "2",
-            audio = "https://example.com/audio2.mp3",
-            image = "https://example.com/image2.jpg",
-            example = "He runs every morning.",
-            translateExample = "Anh ấy chạy mỗi sáng.",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = ""
-        )
-    )
-
-    WordScreenContent(
-        words = sampleWords,
-        topicTitle = "Cuộc sống hằng ngày",
-        isLoading = false,
-        onPlayAudio = {},
-        onEditWord = {},
-        onAddWord = {},
-        onBackClick = {},
-        onLoadMore = {},
-        onCancelMultiSelect = {},
-        onDeleteSelectedWords = {},
-        onWordLongPress = {},
-        onWordSelectToggle = {},
-        selectedWords = emptyList(),
-        isMultiSelectMode = false,
-        isEndReached = false,
-    )
-}
-
-

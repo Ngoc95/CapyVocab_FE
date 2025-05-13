@@ -1,7 +1,6 @@
 package com.example.capyvocab_fe.admin.user.data.repository
 
 import android.net.Uri
-import androidx.compose.ui.res.stringArrayResource
 import arrow.core.Either
 import com.example.capyvocab_fe.MyApplication
 import com.example.capyvocab_fe.admin.user.data.mapper.toDomain
@@ -12,8 +11,6 @@ import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
 import com.example.capyvocab_fe.admin.user.domain.error.toAdminFailure
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.admin.user.domain.repository.AdminUserRepository
-import com.example.capyvocab_fe.core.data.TokenManager
-import kotlinx.coroutines.flow.firstOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody

@@ -22,9 +22,9 @@ class AdminWordRepositoryImpl @Inject constructor(
         }.mapLeft { it.toAdminFailure() }
     }
 
-    override suspend fun getAllWords(): Either<AdminFailure, List<Word>> {
+    override suspend fun getAllWords(page: Int): Either<AdminFailure, List<Word>> {
         return Either.catch {
-            adminWordApi.getAllWords().words
+            adminWordApi.getAllWords(page).metaData.words
         }.mapLeft { it.toAdminFailure() }
     }
 
