@@ -25,19 +25,19 @@ fun UserNavigator() {
     val bottomNavigationItems = remember {
         listOf(
             BottomNavigationItem(
-                icon = R.drawable.user_home,
-                selectedIcon = R.drawable.user_selected_home,
-                text = "Trang chủ"
+                icon = R.drawable.user_community,
+                selectedIcon = R.drawable.user_selected_community,
+                text = "Cộng đồng"
+            ),
+            BottomNavigationItem(
+                icon = R.drawable.user_review,
+                selectedIcon = R.drawable.user_selected_review,
+                text = "Ôn tập"
             ),
             BottomNavigationItem(
                 icon = R.drawable.user_learn,
                 selectedIcon = R.drawable.user_selected_learn,
                 text = "Học từ vựng"
-            ),
-            BottomNavigationItem(
-                icon = R.drawable.user_community,
-                selectedIcon = R.drawable.user_selected_community,
-                text = "Cộng đồng"
             ),
             BottomNavigationItem(
                 icon = R.drawable.user_test,
@@ -59,18 +59,18 @@ fun UserNavigator() {
     }
 
     selectedItem = when(backStackState?.destination?.route) {
-        Route.UserHomeScreen.route -> 0
-        Route.UserLearnScreen.route -> 1
-        Route.UserCommunityScreen.route -> 2
+        Route.UserCommunityScreen.route -> 0
+        Route.UserReviewScreen.route -> 1
+        Route.UserLearnScreen.route -> 2
         Route.UserTestScreen.route -> 3
         Route.UserProfileScreen.route -> 4
         else -> 0
     }
 
     val isBottomVisible = remember(backStackState) {
-        backStackState?.destination?.route == Route.UserHomeScreen.route ||
+        backStackState?.destination?.route == Route.UserCommunityScreen.route ||
+                backStackState?.destination?.route == Route.UserReviewScreen.route ||
                 backStackState?.destination?.route == Route.UserLearnScreen.route ||
-                backStackState?.destination?.route == Route.UserCommunityScreen.route ||
                 backStackState?.destination?.route == Route.UserTestScreen.route ||
                 backStackState?.destination?.route == Route.UserProfileScreen.route
     }
@@ -88,15 +88,15 @@ fun UserNavigator() {
                         when(index) {
                             0 -> navigateToTab(
                                 navController = navController,
-                                route = Route.UserHomeScreen.route
+                                route = Route.UserCommunityScreen.route
                             )
                             1 -> navigateToTab(
                                 navController = navController,
-                                route = Route.UserLearnScreen.route
+                                route = Route.UserReviewScreen.route
                             )
                             2 -> navigateToTab(
                                 navController = navController,
-                                route = Route.UserCommunityScreen.route
+                                route = Route.UserLearnScreen.route
                             )
                             3 -> navigateToTab(
                                 navController = navController,
@@ -115,19 +115,19 @@ fun UserNavigator() {
         val bottomPadding = it.calculateBottomPadding()
         NavHost(
             navController = navController,
-            startDestination = Route.UserHomeScreen.route,
+            startDestination = Route.UserCommunityScreen.route,
             modifier = Modifier.padding(bottom = bottomPadding)
         ) {
-            //user home screen
-            composable(route = Route.UserHomeScreen.route) {
+            //user community screen
+            composable(route = Route.UserCommunityScreen.route) {
                 //TODO: navigate to user home screen
+            }
+            //user review screen
+            composable(route = Route.UserReviewScreen.route) {
+                //TODO: navigate to user learn screen
             }
             //user learn screen
             composable(route = Route.UserLearnScreen.route) {
-                //TODO: navigate to user learn screen
-            }
-            //user community screen
-            composable(route = Route.UserCommunityScreen.route) {
                 //TODO: navigate to user community screen
             }
             //user test screen
