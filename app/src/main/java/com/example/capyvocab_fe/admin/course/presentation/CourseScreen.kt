@@ -64,7 +64,6 @@ import com.example.capyvocab_fe.admin.course.presentation.components.CourseFormD
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.RippleOverlay
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
@@ -324,8 +323,6 @@ fun CoursesScreenContent(
                         }
                     }
 
-                } else {
-                    TopBarTitle("Khóa học")
                 }
             }
 

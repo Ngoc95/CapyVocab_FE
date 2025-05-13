@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
@@ -324,27 +323,6 @@ fun UserScreenContent(
                                 Icon(Icons.Default.Delete, contentDescription = "Delete")
                             }
                         }
-                    }
-
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Người dùng",
-                            fontSize = 33.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF5E4A45)
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(53.dp),
-                            tint = Color(0xFF5E4A45)
-                        )
                     }
                 }
             }
