@@ -191,7 +191,7 @@ fun WordsInTopicScreen(
     //AlertDialog xác nhận trước khi xoá user
     if (isDeleteConfirmDialogOpen && wordToDelete != null) {
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá người dùng \"${wordToDelete?.content}\" không?",
+            message = "Bạn có chắc chắn muốn xoá từ \"${wordToDelete?.content}\" không?",
             onConfirm = {
                 viewModel.onEvent(WordEvent.DeleteWord(wordToDelete!!.id))
                 isDeleteConfirmDialogOpen = false
@@ -208,7 +208,7 @@ fun WordsInTopicScreen(
     if (isMultiDeleteConfirmDialogOpen) {
         val selectedCount = state.selectedWords.size
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
+            message = "Bạn có chắc chắn muốn xoá $selectedCount từ đã chọn không?",
             onConfirm = {
                 viewModel.onEvent(WordEvent.OnDeleteSelectedWords)
                 isMultiDeleteConfirmDialogOpen = false

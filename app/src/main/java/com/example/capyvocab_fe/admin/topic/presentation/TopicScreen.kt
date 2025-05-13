@@ -187,7 +187,7 @@ fun TopicScreen(
     //AlertDialog xác nhận trước khi xoá user
     if (isDeleteConfirmDialogOpen && topicToDelete != null) {
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá người dùng \"${topicToDelete?.title}\" không?",
+            message = "Bạn có chắc chắn muốn xoá chủ đề \"${topicToDelete?.title}\" không?",
             onConfirm = {
                 viewModel.onEvent(TopicEvent.DeleteTopic(topicToDelete!!.id))
                 isDeleteConfirmDialogOpen = false
@@ -204,7 +204,7 @@ fun TopicScreen(
     if (isMultiDeleteConfirmDialogOpen) {
         val selectedCount = state.selectedTopics.size
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
+            message = "Bạn có chắc chắn muốn xoá $selectedCount chủ đề đã chọn không?",
             onConfirm = {
                 viewModel.onEvent(TopicEvent.OnDeleteSelectedTopics)
                 isMultiDeleteConfirmDialogOpen = false

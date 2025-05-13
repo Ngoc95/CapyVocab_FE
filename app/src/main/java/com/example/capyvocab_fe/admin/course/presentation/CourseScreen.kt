@@ -185,7 +185,7 @@ fun CourseScreen(
     //AlertDialog xác nhận trước khi xoá user
     if (isDeleteConfirmDialogOpen && courseToDelete != null) {
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá người dùng \"${courseToDelete?.title}\" không?",
+            message = "Bạn có chắc chắn muốn xoá khoá học \"${courseToDelete?.title}\" không?",
             onConfirm = {
                 viewModel.onEvent(CourseEvent.DeleteCourse(courseToDelete!!.id))
                 isDeleteConfirmDialogOpen = false
@@ -202,7 +202,7 @@ fun CourseScreen(
     if (isMultiDeleteConfirmDialogOpen) {
         val selectedCount = state.selectedCourses.size
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
+            message = "Bạn có chắc chắn muốn xoá $selectedCount khoá học đã chọn không?",
             onConfirm = {
                 viewModel.onEvent(CourseEvent.OnDeleteSelectedCourses)
                 isMultiDeleteConfirmDialogOpen = false
