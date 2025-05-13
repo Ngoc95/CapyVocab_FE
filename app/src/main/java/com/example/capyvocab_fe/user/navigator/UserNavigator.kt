@@ -16,7 +16,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.capyvocab_fe.R
-import com.example.capyvocab_fe.admin.navigator.components.AdminBottomNavigation
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
@@ -46,8 +45,8 @@ fun UserNavigator() {
                 text = "Kiểm tra"
             ),
             BottomNavigationItem(
-                icon = R.drawable.user_profile,
-                selectedIcon = R.drawable.user_selected_profile,
+                icon = R.drawable.ic_profile,
+                selectedIcon = R.drawable.ic_selected_profile,
                 text = "Hồ sơ"
             ),
         )

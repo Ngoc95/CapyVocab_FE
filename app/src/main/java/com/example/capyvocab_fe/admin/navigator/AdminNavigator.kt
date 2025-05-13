@@ -50,14 +50,24 @@ fun AdminNavigator() {
                 text = "Khoá học"
             ),
             BottomNavigationItem(
+                icon = R.drawable.admin_topic,
+                selectedIcon = R.drawable.admin_selected_topic,
+                text = "Chủ đề"
+            ),
+            BottomNavigationItem(
+                icon = R.drawable.admin_word,
+                selectedIcon = R.drawable.admin_selected_word,
+                text = "Từ vựng"
+            ),
+            BottomNavigationItem(
                 icon = R.drawable.admin_user,
                 selectedIcon = R.drawable.admin_selected_user,
                 text = "Người dùng"
             ),
             BottomNavigationItem(
-                icon = R.drawable.ic_setting,
-                selectedIcon = R.drawable.ic_selected_setting,
-                text = "Cài đặt"
+                icon = R.drawable.ic_profile,
+                selectedIcon = R.drawable.ic_selected_profile,
+                text = "Hồ sơ"
             )
         )
     }

@@ -44,7 +44,7 @@ fun AdminBottomNavigation(
                         Icon(
                             painter = painterResource(if (selected == index) item.selectedIcon else item.icon),
                             contentDescription = null,
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -81,8 +81,8 @@ private fun BottomNavigationPreview() {
             BottomNavigationItem(icon = R.drawable.admin_topic, selectedIcon = R.drawable.admin_selected_topic, text = "Chủ đề"),
             BottomNavigationItem(icon = R.drawable.admin_word, selectedIcon = R.drawable.admin_selected_word, text = "Từ vựng"),
             BottomNavigationItem(icon = R.drawable.admin_user,selectedIcon = R.drawable.admin_selected_user, text = "Người dùng"),
-            BottomNavigationItem(icon = R.drawable.ic_setting,selectedIcon = R.drawable.ic_selected_setting, text = "Cài đặt")
-        ), selected = 5, onItemClick = {}
+            BottomNavigationItem(icon = R.drawable.ic_profile,selectedIcon = R.drawable.ic_selected_profile, text = "Hồ sơ")
+        ), selected = 1, onItemClick = {}
         )
     }
 }
