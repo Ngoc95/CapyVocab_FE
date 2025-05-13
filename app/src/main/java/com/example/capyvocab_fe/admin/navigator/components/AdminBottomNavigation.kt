@@ -25,7 +25,7 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.navBarBackground
 
 @Composable
-fun BottomNavigation(
+fun AdminBottomNavigation(
     items: List<BottomNavigationItem>,
     selected: Int,
     onItemClick: (Int) -> Unit
@@ -74,7 +74,7 @@ data class BottomNavigationItem(
 @Composable
 private fun BottomNavigationPreview() {
     CapyVocab_FETheme {
-        BottomNavigation(items = listOf(
+        AdminBottomNavigation(items = listOf(
             BottomNavigationItem(icon = R.drawable.admin_home, selectedIcon = R.drawable.admin_selected_home, text = "Trang chủ"),
             BottomNavigationItem(icon = R.drawable.admin_course, selectedIcon = R.drawable.admin_selected_course, text = "Khoá học"),
             BottomNavigationItem(icon = R.drawable.admin_user,selectedIcon = R.drawable.admin_selected_user, text = "Người dùng"),
