@@ -165,7 +165,7 @@ fun AdminNavigator() {
                     navController = navController
                 )
             }
-            //topics screen
+            //topics in course screen
             composable(
                 route = "${Route.TopicsScreen.route}/{courseId}",
                 arguments = listOf(navArgument("courseId") { type = NavType.IntType })
@@ -186,7 +186,7 @@ fun AdminNavigator() {
                     )
                 }
             }
-            //words screen
+            //words in topic screen
             composable(
                 route = "${Route.WordsScreen.route}/{topicId}",
                 arguments = listOf(navArgument("topicId") { type = NavType.IntType })
