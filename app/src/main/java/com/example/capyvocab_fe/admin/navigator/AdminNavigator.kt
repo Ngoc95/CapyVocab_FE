@@ -24,7 +24,7 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.course.presentation.CourseEvent
 import com.example.capyvocab_fe.admin.course.presentation.CourseListViewModel
 import com.example.capyvocab_fe.admin.course.presentation.CourseScreen
-import com.example.capyvocab_fe.admin.navigator.components.BottomNavigation
+import com.example.capyvocab_fe.admin.navigator.components.AdminBottomNavigation
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
 import com.example.capyvocab_fe.admin.topic.presentation.TopicListViewModel
@@ -114,11 +114,11 @@ fun AdminNavigator() {
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
         if (isBottomVisible) {
-            BottomNavigation(
+            AdminBottomNavigation(
                 items = bottomNavigationItems,
                 selected = selectedItem,
                 onItemClick = { index ->
-                    if (index == selectedItem) return@BottomNavigation
+                    if (index == selectedItem) return@AdminBottomNavigation
                     selectedItem == index
                     when (index) {
                         0 -> navigateToTab(
