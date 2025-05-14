@@ -8,5 +8,8 @@ data class UserData(
     val username: String,
     val avatar: String?,
     val status: String,
+    val streak: Int,
+    val lastStudyDate: String?,
+    val totalStudyDay: Int,
     val role: RoleData
 )

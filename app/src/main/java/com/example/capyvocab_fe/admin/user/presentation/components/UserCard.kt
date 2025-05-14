@@ -223,7 +223,7 @@ fun UserCard(
                             )
                         }
                         InfoRow("Chuỗi", "${user.streak} ngày")
-                        InfoRow("Ngày học cuối", user.lastStudyDate)
+                        user.lastStudyDate?.let { InfoRow("Ngày học cuối", it) }
                         InfoRow("Tổng ngày học", "${user.totalStudyDay}")
                         InfoRow("Tổng thẻ đã học", "${user.totalLearnedCard}")
                         InfoRow("Tổng thẻ đã thành thạo", "${user.totalMasteredCard}")

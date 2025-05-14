@@ -141,13 +141,15 @@ fun UserFormDialog(
                         Spacer(Modifier.height(16.dp))
 
                         FocusComponent {
-                            UserInfoStats(
-                                totalStudyDay = user.totalStudyDay,
-                                streak = user.streak,
-                                lastStudyDate = user.lastStudyDate,
-                                totalLearnedCard = user.totalLearnedCard,
-                                totalMasteredCard = user.totalMasteredCard
-                            )
+                            user.lastStudyDate?.let {
+                                UserInfoStats(
+                                    totalStudyDay = user.totalStudyDay,
+                                    streak = user.streak,
+                                    lastStudyDate = it,
+                                    totalLearnedCard = user.totalLearnedCard,
+                                    totalMasteredCard = user.totalMasteredCard
+                                )
+                            }
                         }
                     }
 
