@@ -200,7 +200,8 @@ class CourseListViewModel @Inject constructor(
         _state.update { currentState ->
             val allSelected = currentState.isSelectAll
             currentState.copy(
-                selectedCourses = if (allSelected) emptySet() else currentState.courses.map { it.id }.toSet(),
+                selectedCourses = if (allSelected) emptySet() else currentState.courses.map { it.id }
+                    .toSet(),
                 isSelectAll = !allSelected
             )
         }

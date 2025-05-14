@@ -9,10 +9,14 @@ import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.domain.model.Word
 
 interface AdminWordRepository {
-    suspend fun createWords(createWordRequest: CreateWordRequest) : Either<AdminFailure, List<Word>>
-    suspend fun getAllWords(page: Int) : Either<AdminFailure, List<Word>>
-    suspend fun getWordById(id: Int) : Either<AdminFailure, Word>
-    suspend fun updateWord(id: Int, updateWordRequest: UpdateWordRequest) : Either<AdminFailure, Word>
-    suspend fun deleteWord(id: Int) : Either<AdminFailure, DeleteResponse>
-    suspend fun restoreWord(id: Int) : Either<AdminFailure, RestoreResponse>
+    suspend fun createWords(createWordRequest: CreateWordRequest): Either<AdminFailure, List<Word>>
+    suspend fun getAllWords(page: Int): Either<AdminFailure, List<Word>>
+    suspend fun getWordById(id: Int): Either<AdminFailure, Word>
+    suspend fun updateWord(
+        id: Int,
+        updateWordRequest: UpdateWordRequest
+    ): Either<AdminFailure, Word>
+
+    suspend fun deleteWord(id: Int): Either<AdminFailure, DeleteResponse>
+    suspend fun restoreWord(id: Int): Either<AdminFailure, RestoreResponse>
 }

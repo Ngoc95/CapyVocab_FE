@@ -220,7 +220,11 @@ fun WordFormFields(
     WordTextField(title = "Loại từ", value = position, onValueChange = onPositionChange)
     WordTextField(title = "Ý nghĩa", value = meaning, onValueChange = onMeaningChange)
     WordTextField(title = "Ví dụ", value = example, onValueChange = onExampleChange)
-    WordTextField(title = "Dịch ví dụ", value = translateExample, onValueChange = onTranslateExampleChange)
+    WordTextField(
+        title = "Dịch ví dụ",
+        value = translateExample,
+        onValueChange = onTranslateExampleChange
+    )
 }
 
 @Composable
@@ -362,11 +366,11 @@ fun WordFormDialogPreview() {
             translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa ahihih hihihi."
         )
 
-        WordFormDialog (
+        WordFormDialog(
             word = null,
             errorMessage = "",
             onDismiss = {},
-            onSave = {Word, Uri -> },
+            onSave = { Word, Uri -> },
             onDelete = {},
         )
     }

@@ -20,18 +20,26 @@ interface AdminTopicApi {
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
     ): ApiResponse<TopicListResponse>
+
     @POST("/topics")
     suspend fun createTopic(@Body topicRequest: CreateTopicRequest): ApiResponse<List<Topic>>
+
     @PATCH("/topics/{id}")
-    suspend fun updateTopic(@Path("id") id: Int, @Body topicRequest: UpdateTopicRequest): ApiResponse<Topic>
+    suspend fun updateTopic(
+        @Path("id") id: Int,
+        @Body topicRequest: UpdateTopicRequest
+    ): ApiResponse<Topic>
+
     @GET("/topics/{id}/words")
     suspend fun getTopicWords(
         @Path("id") id: Int,
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
     ): ApiResponse<TopicWordsResponse>
+
     @DELETE("/topics/{id}")
     suspend fun deleteTopic(@Path("id") id: Int): ApiResponse<Any>
+
     @GET("/topics/{id}")
     suspend fun getTopicById(@Path("id") id: Int): ApiResponse<Topic>
 }

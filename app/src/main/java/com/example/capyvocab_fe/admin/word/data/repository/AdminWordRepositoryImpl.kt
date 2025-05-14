@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class AdminWordRepositoryImpl @Inject constructor(
     private val adminWordApi: AdminWordApi
-): AdminWordRepository {
+) : AdminWordRepository {
 
     override suspend fun createWords(createWordRequest: CreateWordRequest): Either<AdminFailure, List<Word>> {
         return Either.catch {
@@ -34,7 +34,10 @@ class AdminWordRepositoryImpl @Inject constructor(
         }.mapLeft { it.toAdminFailure() }
     }
 
-    override suspend fun updateWord(id: Int, updateWordRequest: UpdateWordRequest): Either<AdminFailure, Word> {
+    override suspend fun updateWord(
+        id: Int,
+        updateWordRequest: UpdateWordRequest
+    ): Either<AdminFailure, Word> {
         return Either.catch {
             adminWordApi.updateWord(id, updateWordRequest)
         }.mapLeft { it.toAdminFailure() }

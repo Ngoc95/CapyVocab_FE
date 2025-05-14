@@ -115,7 +115,7 @@ fun CourseFormDialog(
                     ) {
                         OutlinedTextField(
                             value = level,
-                            onValueChange = { /*read-only */},
+                            onValueChange = { /*read-only */ },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(15.dp),
                             readOnly = true,
@@ -168,7 +168,7 @@ fun CourseFormDialog(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Action buttons
-                    FormActionButtons (
+                    FormActionButtons(
                         isEditMode = course != null,
                         onDelete = onDelete,
                         onCancel = onDismiss,

@@ -14,7 +14,10 @@ interface AdminCourseRepository {
 
     suspend fun createCourse(courseRequest: CreateCourseRequest): Either<AdminFailure, Course>
 
-    suspend fun updateCourse(id: Int, courseRequest: UpdateCourseRequest): Either<AdminFailure, Course>
+    suspend fun updateCourse(
+        id: Int,
+        courseRequest: UpdateCourseRequest
+    ): Either<AdminFailure, Course>
 
     suspend fun deleteCourse(id: Int): Either<AdminFailure, Unit>
 

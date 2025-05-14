@@ -1,6 +1,6 @@
 package com.example.capyvocab_fe.admin.course.data.remote.model
 
-data class UpdateCourseRequest (
+data class UpdateCourseRequest(
     val title: String,
     val description: String? = null,
     val target: String? = null,

@@ -51,7 +51,7 @@ class AdminUserRepositoryImpl @Inject constructor(
             val request = UpdateUserRequest(
                 username = user.username,
                 email = user.email,
-               // password = password?.takeIf { it.isNotBlank() },
+                // password = password?.takeIf { it.isNotBlank() },
                 roleId = user.roleId,
                 status = user.status,
                 avatar = user.avatar
@@ -64,7 +64,8 @@ class AdminUserRepositoryImpl @Inject constructor(
     override suspend fun uploadAvatarImage(uri: Uri): Either<AdminFailure, String> {
         return Either.catch {
             val contentResolver = MyApplication.instance.contentResolver
-            val inputStream = contentResolver.openInputStream(uri) ?: throw IOException("Không mở được ảnh")
+            val inputStream =
+                contentResolver.openInputStream(uri) ?: throw IOException("Không mở được ảnh")
             val fileName = "avatar_${System.currentTimeMillis()}.jpg"
             val requestBody = inputStream.readBytes().toRequestBody("image/*".toMediaTypeOrNull())
 
@@ -72,7 +73,8 @@ class AdminUserRepositoryImpl @Inject constructor(
             val typePart = "AVATAR".toRequestBody("text/plain".toMediaType())
 
             val response = adminUserApi.uploadAvatarImage(typePart, multipart)
-            response.metaData.firstOrNull()?.destination ?: throw IOException("Không nhận được URL ảnh")
+            response.metaData.firstOrNull()?.destination
+                ?: throw IOException("Không nhận được URL ảnh")
         }.mapLeft { it.toAdminFailure() }
     }
 

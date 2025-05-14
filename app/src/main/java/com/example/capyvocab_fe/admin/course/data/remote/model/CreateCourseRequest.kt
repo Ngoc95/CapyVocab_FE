@@ -4,7 +4,7 @@ data class CreateCourseRequest(
     val courses: List<CreateCourseBody>
 )
 
-data class CreateCourseBody (
+data class CreateCourseBody(
     val title: String,
     val description: String? = null,
     val target: String? = null,

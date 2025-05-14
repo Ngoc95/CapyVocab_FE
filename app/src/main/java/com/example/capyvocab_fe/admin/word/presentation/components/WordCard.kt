@@ -64,7 +64,7 @@ fun WordCard(
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
-                    if(isMultiSelecting) {
+                    if (isMultiSelecting) {
                         onCheckedChange(!isSelected)
                     }
                 },

@@ -60,7 +60,7 @@ fun UserCard(
     isMultiSelecting: Boolean,
     isSelected: Boolean,
     onExpandToggle: () -> Unit,
-    onEditClick:() -> Unit,
+    onEditClick: () -> Unit,
     onLongClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
     cardElevation: Dp = 8.dp
@@ -90,7 +90,7 @@ fun UserCard(
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
-                    if(isMultiSelecting) {
+                    if (isMultiSelecting) {
                         onCheckedChange(!isSelected)
                     } else {
                         expanded = !expanded
@@ -205,7 +205,8 @@ fun UserCard(
                             .fillMaxWidth()
                             .background(
                                 detailBgColor.value,
-                                RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                                RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                            )
                             .padding(16.dp)
                     ) {
                         Row(

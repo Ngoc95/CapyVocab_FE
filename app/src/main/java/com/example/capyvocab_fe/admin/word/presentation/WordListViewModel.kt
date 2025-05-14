@@ -90,7 +90,10 @@ class WordListViewModel @Inject constructor(
                 }
                 .onLeft { failure ->
                     _state.update {
-                        it.copy(isLoading = false, errorMessage = failure.message ?: "failed to load words")
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "failed to load words"
+                        )
                     }
                 }
         }
@@ -165,7 +168,7 @@ class WordListViewModel @Inject constructor(
                             errorMessage = "",
                             words = updatedWords
                         )
-                        }
+                    }
                 }
                 .onLeft { failure ->
                     _state.update {
@@ -215,7 +218,8 @@ class WordListViewModel @Inject constructor(
         _state.update { currentState ->
             val allSelected = currentState.isSelectAll
             currentState.copy(
-                selectedWords = if (allSelected) emptySet() else currentState.words.map { it.id }.toSet(),
+                selectedWords = if (allSelected) emptySet() else currentState.words.map { it.id }
+                    .toSet(),
                 isSelectAll = !allSelected
             )
         }

@@ -67,7 +67,7 @@ fun TopicCard(
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
-                    if(isMultiSelecting) {
+                    if (isMultiSelecting) {
                         onCheckedChange(!isSelected)
                     } else {
                         onClick()
@@ -163,10 +163,18 @@ fun TopicCard(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                if(topic.type == "Free")
-                                    Badge(text = topic.type, textColor = Color(0xFF125C00), backgroundColor = Color(0xFF00FF00))
+                                if (topic.type == "Free")
+                                    Badge(
+                                        text = topic.type,
+                                        textColor = Color(0xFF125C00),
+                                        backgroundColor = Color(0xFF00FF00)
+                                    )
                                 else if (topic.type == "Premium")
-                                    Badge(text = topic.type, textColor = Color(0xFFDF1E71), backgroundColor = Color(0xFFFFE0F0))
+                                    Badge(
+                                        text = topic.type,
+                                        textColor = Color(0xFFDF1E71),
+                                        backgroundColor = Color(0xFFFFE0F0)
+                                    )
                             }
 
                             topic.description?.let {

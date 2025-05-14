@@ -1,7 +1,7 @@
 package com.example.capyvocab_fe.admin.course.domain.model
 
 
-data class Course (
+data class Course(
     val id: Int,
     val title: String,
     val level: String,
@@ -10,7 +10,7 @@ data class Course (
     val courseTopics: List<CourseTopics>
 )
 
-data class CourseTopics (
+data class CourseTopics(
     val id: Int,
     val displayOrder: Int,
     val deletedAt: String?,

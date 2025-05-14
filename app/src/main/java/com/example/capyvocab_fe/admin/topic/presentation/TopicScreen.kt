@@ -28,12 +28,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,12 +44,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
@@ -61,7 +55,6 @@ import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.ui.components.RippleOverlay
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
@@ -79,8 +72,6 @@ fun TopicScreen(
 
     var topicToDelete by remember { mutableStateOf<Topic?>(null) }
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
-
-    var isMultiDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
 
@@ -146,10 +137,6 @@ fun TopicScreen(
                 selectedTopic = topic
                 isDialogOpen = true
             },
-            onCancelMultiSelect = { viewModel.onEvent(TopicEvent.CancelMultiSelect) },
-            onDeleteSelectedTopics = {
-                isMultiDeleteConfirmDialogOpen = true
-            },
             onTopicLongPress = { topic ->
                 viewModel.onEvent(TopicEvent.OnTopicLongPress(topic.id))
             },
@@ -167,8 +154,7 @@ fun TopicScreen(
                 selectedTopic = null
                 isDialogOpen = false
             },
-            onSave = {
-                    topic ->
+            onSave = { topic ->
                 if (topic.id == 0) {
                     viewModel.onEvent(TopicEvent.CreateTopic(1, topic))
                 } else {
@@ -177,10 +163,12 @@ fun TopicScreen(
                 isDialogOpen = false
             },
             onDelete = {
-                selectedTopic?.let { topic ->
-                    viewModel.onEvent(TopicEvent.DeleteTopic(topic.id))
+                selectedTopic?.let {
+                    topicToDelete = it
+                    isDeleteConfirmDialogOpen = true
                 }
                 isDialogOpen = false
+                selectedTopic = null
             }
         )
     }
@@ -199,34 +187,6 @@ fun TopicScreen(
             }
         )
     }
-
-    //multi-user delete confirmation dialog
-    if (isMultiDeleteConfirmDialogOpen) {
-        val selectedCount = state.selectedTopics.size
-        ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount chủ đề đã chọn không?",
-            onConfirm = {
-                viewModel.onEvent(TopicEvent.OnDeleteSelectedTopics)
-                isMultiDeleteConfirmDialogOpen = false
-            },
-            onDismiss = {
-                isMultiDeleteConfirmDialogOpen = false
-            }
-        )
-    }
-
-    //overlay when entering multi-select mode
-    if (multiSelectTransition.value && state.isMultiSelecting) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 4.dp)
-        ) {
-            RippleOverlay(
-                onFinished = {/* optional callback */ }
-            )
-        }
-    }
 }
 
 @Composable
@@ -240,25 +200,10 @@ fun TopicScreenContent(
     onAddTopic: () -> Unit,
     onEditTopic: (Topic) -> Unit,
     onLoadMore: () -> Unit,
-    onCancelMultiSelect: () -> Unit,
-    onDeleteSelectedTopics: () -> Unit,
     onTopicLongPress: (Topic) -> Unit,
     onTopicSelectToggle: (Topic) -> Unit
 ) {
     val listState = rememberLazyListState()
-
-    //animation values
-    val topBarScale = animateFloatAsState(
-        targetValue = if (isMultiSelectMode) 1.05f else 1f,
-        animationSpec = tween(300),
-        label = "topBarScale"
-    )
-
-    val topBarElevation = animateDpAsState(
-        targetValue = if (isMultiSelectMode) 8.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "topBarElevation"
-    )
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -275,61 +220,6 @@ fun TopicScreenContent(
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
-            // Top bar + animation
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-                    .scale(topBarScale.value)
-                    .shadow(topBarElevation.value, RoundedCornerShape(16.dp))
-                    .background(
-                        color = if (isMultiSelectMode) Color(0xFF8FD9FF) else Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                if (isMultiSelectMode) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        //left side with back button and selection count
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AnimatedVisibility(
-                                visible = true,
-                                enter = fadeIn() + slideInHorizontally(),
-                                exit = fadeOut() + slideOutHorizontally()
-                            ) {
-                                IconButton(onClick = { onCancelMultiSelect() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Cancel")
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "Đã chọn ${selectedTopics.size}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 25.sp
-                            )
-                        }
-
-                        //right side with delete button
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
-                            exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 })
-                        ) {
-                            IconButton(onClick = { onDeleteSelectedTopics() }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                            }
-                        }
-                    }
-
-                }
-            }
-
-
             // Search bar & Add button - hide if in multi-select mode + animation
             AnimatedVisibility(
                 visible = !isMultiSelectMode,
@@ -345,6 +235,7 @@ fun TopicScreenContent(
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
+                        .padding(top = 12.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

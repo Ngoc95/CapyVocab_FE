@@ -131,7 +131,7 @@ fun UserFormDialog(
                             password = password,
                             onPasswordChange = { password = it },
                             confirmPassword = confirmPassword,
-                            onConfirmPasswordChange = {confirmPassword = it},
+                            onConfirmPasswordChange = { confirmPassword = it },
                             email = email,
                             onEmailChange = { email = it }
                         )
@@ -156,39 +156,39 @@ fun UserFormDialog(
                     Spacer(Modifier.height(10.dp))
 
                     // Action buttons
-                     FormActionButtons(
-                         isEditMode = if(user == null) false else true,
-                         onDelete = onDelete,
-                         onCancel = onDismiss,
-                         onSave = {
-                             val updatedUser = user?.copy(
-                                 username = username,
- //                            password = password,
-                                 email = email,
-                                 roleId = roleId,
-                             ) ?: User(
-                                 id = 0,
-                                 username = username,
- //                            password = password,
-                                 email = email,
-                                 avatar = "",
-                                 roleId = roleId,
-                                 streak = 0,
-                                 lastStudyDate = "",
-                                 totalStudyDay = 0,
-                                 totalLearnedCard = 0,
-                                 totalMasteredCard = 0,
-                                 status = "NOT_VERIFIED"
-                             )
-                             onSave(updatedUser, password, confirmPassword, selectedImageUri)
-                         }
-                     )
-                 }
-             }
-         }
-         OverlaySnackbar(message = errorMessage)
-     }
- }
+                    FormActionButtons(
+                        isEditMode = if (user == null) false else true,
+                        onDelete = onDelete,
+                        onCancel = onDismiss,
+                        onSave = {
+                            val updatedUser = user?.copy(
+                                username = username,
+                                //                            password = password,
+                                email = email,
+                                roleId = roleId,
+                            ) ?: User(
+                                id = 0,
+                                username = username,
+                                //                            password = password,
+                                email = email,
+                                avatar = "",
+                                roleId = roleId,
+                                streak = 0,
+                                lastStudyDate = "",
+                                totalStudyDay = 0,
+                                totalLearnedCard = 0,
+                                totalMasteredCard = 0,
+                                status = "NOT_VERIFIED"
+                            )
+                            onSave(updatedUser, password, confirmPassword, selectedImageUri)
+                        }
+                    )
+                }
+            }
+        }
+        OverlaySnackbar(message = errorMessage)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -271,7 +271,12 @@ fun UserFormHeader(
                                 singleLine = true,
                                 visualTransformation = VisualTransformation.None,
                                 interactionSource = remember { MutableInteractionSource() },
-                                contentPadding = PaddingValues(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 0.dp),
+                                contentPadding = PaddingValues(
+                                    start = 12.dp,
+                                    top = 10.dp,
+                                    bottom = 10.dp,
+                                    end = 0.dp
+                                ),
                                 trailingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.ArrowDropDown,
@@ -407,8 +412,13 @@ fun UserInfoStats(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            buildAnnotatedString{
-                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold, color = Color.Black)) {
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                ) {
                     append("Tổng ngày học: ")
                 }
                 withStyle(style = SpanStyle(color = Color.DarkGray)) {
@@ -418,8 +428,13 @@ fun UserInfoStats(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            buildAnnotatedString{
-                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold, color = Color.Black)) {
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                ) {
                     append("Chuỗi: ")
                 }
                 withStyle(style = SpanStyle(color = Color.DarkGray)) {
@@ -429,8 +444,13 @@ fun UserInfoStats(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            buildAnnotatedString{
-                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold, color = Color.Black)) {
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                ) {
                     append("Ngày học cuối: ")
                 }
                 withStyle(style = SpanStyle(color = Color.DarkGray)) {
@@ -440,8 +460,13 @@ fun UserInfoStats(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            buildAnnotatedString{
-                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold, color = Color.Black)) {
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                ) {
                     append("Tổng thẻ đã học: ")
                 }
                 withStyle(style = SpanStyle(color = Color.DarkGray)) {
@@ -451,8 +476,13 @@ fun UserInfoStats(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            buildAnnotatedString{
-                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold, color = Color.Black)) {
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                ) {
                     append("Tổng thẻ thành thạo: ")
                 }
                 withStyle(style = SpanStyle(color = Color.DarkGray)) {

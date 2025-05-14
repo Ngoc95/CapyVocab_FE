@@ -79,7 +79,7 @@ fun CourseCard(
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
-                    if(isMultiSelecting) {
+                    if (isMultiSelecting) {
                         onCheckedChange(!isSelected)
                     } else {
                         onClick()
@@ -128,7 +128,12 @@ fun CourseCard(
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Badge(text = "Đã công bố", textColor = Color.White, backgroundColor = Color(0xFF075743)) }
+                            Badge(
+                                text = "Đã công bố",
+                                textColor = Color.White,
+                                backgroundColor = Color(0xFF075743)
+                            )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             style = MaterialTheme.typography.labelMedium,
@@ -181,6 +186,7 @@ fun CourseCard(
         }
     }
 }
+
 fun sampleCourses() = listOf(
     Course(
         id = 1,
@@ -207,10 +213,11 @@ fun sampleCourses() = listOf(
         courseTopics = emptyList()
     )
 )
+
 @Preview(showBackground = true)
 @Composable
 fun CourseCardPreview() {
-    CapyVocab_FETheme{
+    CapyVocab_FETheme {
         CourseCard(
             course = sampleCourses()[1],
             onClick = {},

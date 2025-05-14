@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,7 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,11 +47,14 @@ import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
 import com.example.capyvocab_fe.admin.topic.presentation.TopicListViewModel
 import com.example.capyvocab_fe.admin.topic.presentation.TopicScreen
 import com.example.capyvocab_fe.admin.topic.presentation.TopicsInCourseScreen
+import com.example.capyvocab_fe.admin.user.presentation.UserListEvent
 import com.example.capyvocab_fe.admin.user.presentation.UserListViewModel
 import com.example.capyvocab_fe.admin.user.presentation.UserScreen
+import com.example.capyvocab_fe.admin.word.presentation.WordEvent
 import com.example.capyvocab_fe.admin.word.presentation.WordListViewModel
 import com.example.capyvocab_fe.admin.word.presentation.WordScreen
 import com.example.capyvocab_fe.admin.word.presentation.WordsInTopicScreen
+import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.launch
 
@@ -74,16 +82,37 @@ fun AdminNavigator() {
     val wordListState by wordViewModel.state.collectAsState()
 
     // Check if in multi-select mode to adjust UI behavior
-    val isInMultiSelectMode = when (currentRoute) {
-        Route.UsersScreen.route -> userListState.isMultiSelecting
-        Route.CoursesScreen.route -> courseListState.isMultiSelecting
-        Route.TopicsScreen.route -> topicListState.isMultiSelecting
-        Route.WordsScreen.route -> wordListState.isMultiSelecting
+    val isInMultiSelectMode = when {
+        currentRoute == Route.UsersScreen.route -> userListState.isMultiSelecting
+        currentRoute == Route.CoursesScreen.route -> courseListState.isMultiSelecting
+        currentRoute == Route.TopicsScreen.route -> topicListState.isMultiSelecting
+        currentRoute == Route.WordsScreen.route -> wordListState.isMultiSelecting
+        currentRoute.startsWith("${Route.TopicsScreen.route}/") == true -> topicListState.isMultiSelecting
+        currentRoute.startsWith("${Route.WordsScreen.route}/") == true -> wordListState.isMultiSelecting
         else -> false
     }
 
+    // Check if current screen is a nested screen
+    val isNestedScreen = currentRoute.startsWith("${Route.TopicsScreen.route}/") ||
+            currentRoute.startsWith("${Route.WordsScreen.route}/")
+
+    // Get the number of selected items based on current route
+    val selectedItemsCount = when {
+        currentRoute == Route.UsersScreen.route -> userListState.selectedUsers.size
+        currentRoute == Route.CoursesScreen.route -> courseListState.selectedCourses.size
+        currentRoute == Route.TopicsScreen.route -> topicListState.selectedTopics.size
+        currentRoute == Route.WordsScreen.route -> wordListState.selectedWords.size
+        currentRoute.startsWith("${Route.TopicsScreen.route}/") == true -> topicListState.selectedTopics.size
+        currentRoute.startsWith("${Route.WordsScreen.route}/") == true -> wordListState.selectedWords.size
+        else -> 0
+    }
+
+    // Check if current screen should show back button
+    val shouldShowBackButton = isNestedScreen || isInMultiSelectMode
+
     // Generate screen title based on current route
     val screenTitle = when {
+        isInMultiSelectMode -> "Đã chọn $selectedItemsCount"
         currentRoute == Route.HomeScreen.route -> "Trang chủ"
         currentRoute == Route.CoursesScreen.route -> "Khoá học"
         currentRoute == Route.TopicsScreen.route -> "Chủ đề"
@@ -92,9 +121,42 @@ fun AdminNavigator() {
         currentRoute == Route.SettingScreen.route -> "Cài đặt"
         currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
             courseListState.selectedCourse?.title ?: "Chủ đề"
+
         currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
             topicListState.selectedTopic?.title ?: "Từ vựng"
+
         else -> "Admin Panel"
+    }
+    // Add state for delete confirmation
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+
+    // Function to handle delete action based on current route
+    val handleDeleteSelected = {
+        // Show confirmation dialog instead of direct deletion
+        showDeleteConfirmDialog = true
+    }
+
+    val executeDeleteAction = {
+        when {
+            currentRoute == Route.UsersScreen.route ->
+                userViewModel.onEvent(UserListEvent.OnDeleteSelectedUsers)
+
+            currentRoute == Route.CoursesScreen.route ->
+                courseViewModel.onEvent(CourseEvent.OnDeleteSelectedCourses)
+
+            currentRoute == Route.TopicsScreen.route ->
+                topicViewModel.onEvent(TopicEvent.OnDeleteSelectedTopics)
+
+            currentRoute == Route.WordsScreen.route ->
+                wordViewModel.onEvent(WordEvent.OnDeleteSelectedWords)
+
+            currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
+                topicViewModel.onEvent(TopicEvent.OnDeleteSelectedTopics)
+
+            currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
+                wordViewModel.onEvent(WordEvent.OnDeleteSelectedWords)
+        }
+        showDeleteConfirmDialog = false
     }
 
     // List of navigation items for the drawer
@@ -155,7 +217,7 @@ fun AdminNavigator() {
                 )
             }
         },
-        gesturesEnabled = !isInMultiSelectMode
+        gesturesEnabled = !isInMultiSelectMode && !isNestedScreen
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -163,8 +225,46 @@ fun AdminNavigator() {
                 TopAppBar(
                     title = { Text(text = screenTitle) },
                     navigationIcon = {
-                        // Only show menu button if not in multi-select mode
-                        if (!isInMultiSelectMode) {
+                        if (shouldShowBackButton) {
+                            // show back button for nested screens or multi-select mode
+                            IconButton(onClick = {
+                                if (isInMultiSelectMode) {
+                                    // handle multi-select back button
+                                    when {
+                                        currentRoute == Route.UsersScreen.route -> userViewModel.onEvent(
+                                            UserListEvent.CancelMultiSelect
+                                        )
+
+                                        currentRoute == Route.CoursesScreen.route -> courseViewModel.onEvent(
+                                            CourseEvent.CancelMultiSelect
+                                        )
+
+                                        currentRoute == Route.TopicsScreen.route -> topicViewModel.onEvent(
+                                            TopicEvent.CancelMultiSelect
+                                        )
+
+                                        currentRoute == Route.WordsScreen.route -> wordViewModel.onEvent(
+                                            WordEvent.CancelMultiSelect
+                                        )
+
+                                        currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
+                                            topicViewModel.onEvent(TopicEvent.CancelMultiSelect)
+
+                                        currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
+                                            wordViewModel.onEvent(WordEvent.CancelMultiSelect)
+                                    }
+                                } else {
+                                    //regular back navigation
+                                    navController.popBackStack()
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                    contentDescription = "Back"
+                                )
+                            }
+                        } // Only show menu button if not in multi-select mode
+                        else if (!isInMultiSelectMode) {
                             IconButton(onClick = {
                                 scope.launch {
                                     if (drawerState.isClosed) {
@@ -177,6 +277,17 @@ fun AdminNavigator() {
                                 Icon(
                                     imageVector = Icons.Default.Menu,
                                     contentDescription = "Menu"
+                                )
+                            }
+                        }
+                    },
+                    actions = {
+                        //show delete button when in multi-select mode
+                        if (isInMultiSelectMode && selectedItemsCount > 0) {
+                            IconButton(onClick = { handleDeleteSelected() }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete selected"
                                 )
                             }
                         }
@@ -225,7 +336,6 @@ fun AdminNavigator() {
                         courseListState.selectedCourse?.let { course ->
                             TopicsInCourseScreen(
                                 course = course,
-                                onBackClick = { navController.popBackStack() },
                                 onTopicClick = { topic ->
                                     navController.navigate("${Route.WordsScreen.route}/${topic.id}")
                                 },
@@ -258,7 +368,6 @@ fun AdminNavigator() {
                         topicListState.selectedTopic?.let { topic ->
                             WordsInTopicScreen(
                                 topic = topic,
-                                onBackClick = { navController.popBackStack() },
                                 viewModel = wordViewModel,
                                 navController = navController
                             )
@@ -290,6 +399,28 @@ fun AdminNavigator() {
             }
         }
     }
+    // Add confirmation dialog for multi select
+    if (showDeleteConfirmDialog) {
+        val itemType = when {
+            currentRoute == Route.UsersScreen.route -> "người dùng"
+            currentRoute == Route.CoursesScreen.route -> "khóa học"
+            currentRoute == Route.TopicsScreen.route -> "chủ đề"
+            currentRoute == Route.WordsScreen.route -> "từ vựng"
+            currentRoute.startsWith("${Route.TopicsScreen.route}/") -> "chủ đề"
+            currentRoute.startsWith("${Route.WordsScreen.route}/") -> "từ vựng"
+            else -> "mục"
+        }
+
+        ConfirmDeleteDialog(
+            message = "Bạn có chắc chắn muốn xoá $selectedItemsCount $itemType đã chọn không?",
+            onConfirm = {
+                executeDeleteAction()
+            },
+            onDismiss = {
+                showDeleteConfirmDialog = false
+            }
+        )
+    }
 }
 
 private fun navigateToTab(navController: NavController, route: String) {
@@ -303,8 +434,8 @@ private fun navigateToTab(navController: NavController, route: String) {
         route == Route.SettingScreen.route
     ) {
         navController.navigate(route) {
-            navController.graph.startDestinationRoute?.let { screen_route ->
-                popUpTo(screen_route) {
+            navController.graph.startDestinationRoute?.let { route ->
+                popUpTo(route) {
                     saveState = true
                 }
             }

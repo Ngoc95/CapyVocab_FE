@@ -8,8 +8,9 @@ sealed class CourseEvent {
     data class SaveCourse(
         val course: Course
     ) : CourseEvent()
+
     data class DeleteCourse(val courseId: Int) : CourseEvent()
-    data class GetCourseById(val courseId: Int): CourseEvent()
+    data class GetCourseById(val courseId: Int) : CourseEvent()
 
     data class OnCourseLongPress(val courseId: Int) : CourseEvent()
     data class OnCourseSelectToggle(val courseId: Int) : CourseEvent()

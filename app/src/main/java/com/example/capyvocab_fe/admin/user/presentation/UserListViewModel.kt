@@ -24,7 +24,13 @@ class UserListViewModel @Inject constructor(
         when (event) {
             is UserListEvent.LoadUsers -> loadUsers()
             is UserListEvent.LoadMoreUsers -> loadUsers(loadMore = true)
-            is UserListEvent.SaveUser -> saveUser(event.user, event.password, event.confirmPassword, event.avatarUri)
+            is UserListEvent.SaveUser -> saveUser(
+                event.user,
+                event.password,
+                event.confirmPassword,
+                event.avatarUri
+            )
+
             is UserListEvent.DeleteUser -> deleteUser(event.userId)
             is UserListEvent.OnDeleteSelectedUsers -> deleteSelectedUsers()
             is UserListEvent.OnSelectAllToggle -> selectAll()
@@ -54,7 +60,10 @@ class UserListViewModel @Inject constructor(
                 }
                 .onLeft { failure ->
                     _state.update {
-                        it.copy(isLoading = false, errorMessage = failure.message ?: "Đã xảy ra lỗi")
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                        )
                     }
                 }
         }
@@ -84,7 +93,10 @@ class UserListViewModel @Inject constructor(
             result.fold(
                 ifLeft = { failure ->
                     _state.update {
-                        it.copy(isLoading = false, errorMessage = failure.message ?: "Lỗi khi lưu người dùng")
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Lỗi khi lưu người dùng"
+                        )
                     }
                 },
                 ifRight = { updatedUser ->
@@ -110,7 +122,10 @@ class UserListViewModel @Inject constructor(
         return uploadResult.fold(
             ifLeft = { failure ->
                 _state.update {
-                    it.copy(isLoading = false, errorMessage = "Upload ảnh thất bại: ${failure.message}")
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Upload ảnh thất bại: ${failure.message}"
+                    )
                 }
                 null
             },
@@ -134,7 +149,10 @@ class UserListViewModel @Inject constructor(
                 }
                 .onLeft { failure ->
                     _state.update {
-                        it.copy(isLoading = false, errorMessage = failure.message ?: "Xoá người dùng thất bại")
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Xoá người dùng thất bại"
+                        )
                     }
                 }
         }

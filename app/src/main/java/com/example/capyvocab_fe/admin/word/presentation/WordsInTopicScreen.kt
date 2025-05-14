@@ -28,12 +28,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,13 +44,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
@@ -63,7 +57,6 @@ import com.example.capyvocab_fe.admin.word.presentation.components.WordCard
 import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.ui.components.RippleOverlay
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
@@ -71,7 +64,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun WordsInTopicScreen(
     topic: Topic,
-    onBackClick: () -> Unit,
     viewModel: WordListViewModel = hiltViewModel(),
     navController: NavController
 ) {
@@ -82,8 +74,6 @@ fun WordsInTopicScreen(
 
     var wordToDelete by remember { mutableStateOf<Word?>(null) }
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
-
-    var isMultiDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
 
@@ -131,9 +121,8 @@ fun WordsInTopicScreen(
     }
 
     FocusComponent {
-        WordsInTopicScreenContent (
+        WordsInTopicScreenContent(
             words = state.words,
-            topicTitle = topic.title,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
             selectedWords = state.words.filter { state.selectedWords.contains(it.id) },
@@ -149,12 +138,7 @@ fun WordsInTopicScreen(
                 selectedWord = null
                 isDialogOpen = true
             },
-            onBackClick = onBackClick,
-            onLoadMore = { viewModel.onEvent(WordEvent.LoadMoreWords(topic))},
-            onCancelMultiSelect = { viewModel.onEvent(WordEvent.CancelMultiSelect) },
-            onDeleteSelectedWords = {
-                isMultiDeleteConfirmDialogOpen = true
-            },
+            onLoadMore = { viewModel.onEvent(WordEvent.LoadMoreWords(topic)) },
             onWordLongPress = { word ->
                 viewModel.onEvent(WordEvent.OnWordLongPress(word.id))
             },
@@ -181,10 +165,12 @@ fun WordsInTopicScreen(
                 isDialogOpen = false
             },
             onDelete = {
-                selectedWord?.let { word ->
-                    viewModel.onEvent(WordEvent.DeleteWord(word.id))
+                selectedWord?.let {
+                    wordToDelete = it
+                    isDeleteConfirmDialogOpen = true
                 }
                 isDialogOpen = false
+                selectedWord = null
             }
         )
     }
@@ -203,40 +189,11 @@ fun WordsInTopicScreen(
             }
         )
     }
-
-    //multi-user delete confirmation dialog
-    if (isMultiDeleteConfirmDialogOpen) {
-        val selectedCount = state.selectedWords.size
-        ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount từ đã chọn không?",
-            onConfirm = {
-                viewModel.onEvent(WordEvent.OnDeleteSelectedWords)
-                isMultiDeleteConfirmDialogOpen = false
-            },
-            onDismiss = {
-                isMultiDeleteConfirmDialogOpen = false
-            }
-        )
-    }
-
-    //overlay when entering multi-select mode
-    if (multiSelectTransition.value && state.isMultiSelecting) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 4.dp)
-        ) {
-            RippleOverlay(
-                onFinished = {/* optional callback */ }
-            )
-        }
-    }
 }
 
 @Composable
 fun WordsInTopicScreenContent(
     words: List<Word>,
-    topicTitle: String,
     selectedWords: List<Word>,
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
@@ -244,27 +201,11 @@ fun WordsInTopicScreenContent(
     onPlayAudio: (String) -> Unit,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
-    onBackClick: () -> Unit,
     onLoadMore: () -> Unit,
-    onCancelMultiSelect: () -> Unit,
-    onDeleteSelectedWords: () -> Unit,
     onWordLongPress: (Word) -> Unit,
     onWordSelectToggle: (Word) -> Unit
 ) {
     val listState = rememberLazyListState()
-
-    //animation values
-    val topBarScale = animateFloatAsState(
-        targetValue = if (isMultiSelectMode) 1.05f else 1f,
-        animationSpec = tween(300),
-        label = "topBarScale"
-    )
-
-    val topBarElevation = animateDpAsState(
-        targetValue = if (isMultiSelectMode) 8.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "topBarElevation"
-    )
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -281,60 +222,6 @@ fun WordsInTopicScreenContent(
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
-            // Top bar + animation
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-                    .scale(topBarScale.value)
-                    .shadow(topBarElevation.value, RoundedCornerShape(16.dp))
-                    .background(
-                        color = if (isMultiSelectMode) Color(0xFF8FD9FF) else Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                if (isMultiSelectMode) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        //left side with back button and selection count
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AnimatedVisibility(
-                                visible = true,
-                                enter = fadeIn() + slideInHorizontally(),
-                                exit = fadeOut() + slideOutHorizontally()
-                            ) {
-                                IconButton(onClick = { onCancelMultiSelect() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Cancel")
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "Đã chọn ${selectedWords.size}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 25.sp
-                            )
-                        }
-
-                        //right side with delete button
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
-                            exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 })
-                        ) {
-                            IconButton(onClick = { onDeleteSelectedWords() }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                            }
-                        }
-                    }
-
-                }
-            }
-
             // Search bar & Add button - hide if in multi-select mode + animation
             AnimatedVisibility(
                 visible = !isMultiSelectMode,
@@ -350,6 +237,7 @@ fun WordsInTopicScreenContent(
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
+                        .padding(top = 12.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -482,15 +370,11 @@ fun WordListScreenContentPreview() {
 
     WordsInTopicScreenContent(
         words = sampleWords,
-        topicTitle = "Cuộc sống hằng ngày",
         isLoading = false,
         onPlayAudio = {},
         onEditWord = {},
         onAddWord = {},
-        onBackClick = {},
         onLoadMore = {},
-        onCancelMultiSelect = {},
-        onDeleteSelectedWords = {},
         onWordLongPress = {},
         onWordSelectToggle = {},
         selectedWords = emptyList(),
