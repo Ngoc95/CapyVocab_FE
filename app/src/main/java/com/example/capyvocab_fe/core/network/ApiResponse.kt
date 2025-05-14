@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.admin.user.data.remote.model
+package com.example.capyvocab_fe.core.network
 
 data class ApiResponse<T>(
     val message: String,

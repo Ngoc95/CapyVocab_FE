@@ -10,6 +10,8 @@ import com.example.capyvocab_fe.admin.word.data.repository.AdminWordRepositoryIm
 import com.example.capyvocab_fe.admin.word.domain.repository.AdminWordRepository
 import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
+import com.example.capyvocab_fe.user.learn.data.repository.UserLearnRepositoryImpl
+import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -20,6 +22,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
 
+    // ADMIN
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
@@ -39,4 +42,9 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAdminWordRepository(impl: AdminWordRepositoryImpl): AdminWordRepository
+
+    // USER
+    @Binds
+    @Singleton
+    abstract fun bindUserLearnRepository(impl: UserLearnRepositoryImpl): UserLearnRepository
 }

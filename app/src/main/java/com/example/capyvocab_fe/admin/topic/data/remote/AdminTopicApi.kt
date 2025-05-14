@@ -5,7 +5,7 @@ import com.example.capyvocab_fe.admin.topic.data.remote.model.TopicListResponse
 import com.example.capyvocab_fe.admin.topic.data.remote.model.TopicWordsResponse
 import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.user.data.remote.model.ApiResponse
+import com.example.capyvocab_fe.core.network.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

@@ -1,7 +1,7 @@
 package com.example.capyvocab_fe.admin.user.data.remote
 
 import com.example.capyvocab_fe.admin.user.data.model.UserData
-import com.example.capyvocab_fe.admin.user.data.remote.model.ApiResponse
+import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.admin.user.data.remote.model.CreateUserRequest
 import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
 import com.example.capyvocab_fe.admin.user.data.remote.model.UpdateUserRequest

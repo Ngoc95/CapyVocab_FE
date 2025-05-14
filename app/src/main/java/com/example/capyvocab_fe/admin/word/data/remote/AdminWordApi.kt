@@ -1,6 +1,6 @@
 package com.example.capyvocab_fe.admin.word.data.remote
 
-import com.example.capyvocab_fe.admin.user.data.remote.model.ApiResponse
+import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.DeleteResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.RestoreResponse
