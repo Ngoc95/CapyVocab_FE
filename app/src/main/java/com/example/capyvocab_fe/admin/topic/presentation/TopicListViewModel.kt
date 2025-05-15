@@ -37,7 +37,11 @@ class TopicListViewModel @Inject constructor(
             is TopicEvent.DeleteTopic -> deleteTopic(event.topicId)
 
             is TopicEvent.UpdateTopic -> updateTopic(event.topic, event.thumbnailUri)
-            is TopicEvent.CreateTopic -> createTopic(event.courseId, event.topic, event.thumbnailUri)
+            is TopicEvent.CreateTopic -> createTopic(
+                event.courseId,
+                event.topic,
+                event.thumbnailUri
+            )
 
             is TopicEvent.GetTopicById -> getTopicById(event.topicId)
             is TopicEvent.CancelMultiSelect -> cancelMultiSelect()
@@ -83,7 +87,8 @@ class TopicListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
-            val thumbnailUrl = uploadThumbnailIfNeeded(thumbnailUri, topic.thumbnail) ?: return@launch
+            val thumbnailUrl =
+                uploadThumbnailIfNeeded(thumbnailUri, topic.thumbnail) ?: return@launch
 
             val createTopicRequest = CreateTopicRequest(
                 topics = listOf(
@@ -173,7 +178,8 @@ class TopicListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
-            val thumbnailUrl = uploadThumbnailIfNeeded(thumbnailUri, topic.thumbnail) ?: return@launch
+            val thumbnailUrl =
+                uploadThumbnailIfNeeded(thumbnailUri, topic.thumbnail) ?: return@launch
 
             val updateTopicRequest = UpdateTopicRequest(
                 title = topic.title,
@@ -242,7 +248,8 @@ class TopicListViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = failure.message ?: "Không thể xoá chủ đề ra khỏi khoá học"
+                                errorMessage = failure.message
+                                    ?: "Không thể xoá chủ đề ra khỏi khoá học"
                             )
                         }
                     }
@@ -375,7 +382,7 @@ class TopicListViewModel @Inject constructor(
     private suspend fun uploadThumbnailIfNeeded(uri: Uri?, currentThumbnail: String?): String? {
         if (uri == null) return currentThumbnail
         val uploadResult = topicRepository.uploadThumbnailImage(uri)
-        return uploadResult.fold (
+        return uploadResult.fold(
             ifLeft = { failure ->
                 _state.update {
                     it.copy(

@@ -134,7 +134,6 @@ fun WordFormDialog(
                                 pronunciation = pronunciation,
                                 position = position,
                                 meaning = meaning,
-                                rank = word.rank,
                                 audio = selectedAudioUri?.toString() ?: "N/A",
                                 image = selectedImageUri?.toString() ?: "N/A",
                                 example = example,
@@ -145,7 +144,6 @@ fun WordFormDialog(
                                 pronunciation = pronunciation,
                                 position = position,
                                 meaning = meaning,
-                                rank = "",
                                 audio = "N/A",
                                 image = "N/A",
                                 example = example,
@@ -221,7 +219,11 @@ fun WordFormFields(
 ) {
     WordTextField(title = "Từ vựng", value = content, onValueChange = onContentChange)
     WordTextField(title = "Phát âm", value = pronunciation, onValueChange = onPronunciationChange)
-    WordPositionDropdown(title = "Loại từ", selectedPosition = position, onPositionSelected = onPositionChange)
+    WordPositionDropdown(
+        title = "Loại từ",
+        selectedPosition = position,
+        onPositionSelected = onPositionChange
+    )
     WordTextField(title = "Ý nghĩa", value = meaning, onValueChange = onMeaningChange)
     WordTextField(title = "Ví dụ", value = example, onValueChange = onExampleChange)
     WordTextField(
@@ -423,7 +425,6 @@ fun WordFormDialogPreview() {
             pronunciation = "/ˈæpl/",
             position = "noun",
             meaning = "a round fruit with red or green skin",
-            rank = "2",
             audio = "https://example.com/audio.mp3",
             image = "https://example.com/image.jpg",
             example = "She ate an apple for lunch.",

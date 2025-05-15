@@ -113,7 +113,6 @@ class WordListViewModel @Inject constructor(
                         pronunciation = word.pronunciation,
                         position = word.position,
                         meaning = word.meaning,
-                        rank = word.rank,
                         audio = word.audio,
                         image = imageUrl,
                         example = word.example,
@@ -155,7 +154,6 @@ class WordListViewModel @Inject constructor(
                 pronunciation = word.pronunciation,
                 position = word.position,
                 meaning = word.meaning,
-                rank = word.rank,
                 audio = word.audio,
                 image = imageUrl,
                 example = word.example,
@@ -368,7 +366,7 @@ class WordListViewModel @Inject constructor(
                 }
                 null
             },
-            ifRight = { url -> url}
+            ifRight = { url -> url }
         )
     }
 }

@@ -15,6 +15,7 @@ sealed class WordEvent {
         val word: Word,
         val imageUri: Uri? = null
     ) : WordEvent()
+
     data class CreateWord(
         val topicId: Int,
         val word: Word,
