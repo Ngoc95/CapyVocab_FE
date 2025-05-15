@@ -1,6 +1,8 @@
 package com.example.capyvocab_fe.admin.topic.data.repository
 
+import android.net.Uri
 import arrow.core.Either
+import com.example.capyvocab_fe.MyApplication
 import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
 import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicRequest
 import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
@@ -9,6 +11,10 @@ import com.example.capyvocab_fe.admin.topic.domain.repository.AdminTopicReposito
 import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
 import com.example.capyvocab_fe.admin.user.domain.error.toAdminFailure
 import com.example.capyvocab_fe.admin.word.domain.model.Word
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 import javax.inject.Inject
 
 class AdminTopicRepositoryImpl @Inject constructor(
@@ -63,5 +69,24 @@ class AdminTopicRepositoryImpl @Inject constructor(
         return Either.catch {
             api.getTopicById(id).metaData
         }.mapLeft { it.toAdminFailure() }
+    }
+
+    override suspend fun uploadThumbnailImage(uri: Uri): Either<AdminFailure, String> {
+        return Either.catch {
+            val contentResolver = MyApplication.instance.contentResolver
+            val inputStream =
+                contentResolver.openInputStream(uri) ?: throw IOException("Không mở được ảnh")
+            val fileName = "thumbnail_${System.currentTimeMillis()}.jpg"
+            val requestBody = inputStream.readBytes().toRequestBody("image/*".toMediaTypeOrNull())
+
+            val multipart = MultipartBody.Part.createFormData("THUMBNAIL", fileName, requestBody)
+            val typePart = "THUMBNAIL".toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = api.uploadThumbnailImage(typePart, multipart)
+            response.metaData.firstOrNull()?.destination
+                ?: throw IOException("Không nhận được URL ảnh")
+        }.mapLeft {
+            it.toAdminFailure()
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.admin.topic.domain.repository
 
+import android.net.Uri
 import arrow.core.Either
 import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicRequest
 import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
@@ -14,4 +15,5 @@ interface AdminTopicRepository {
     suspend fun createTopic(topicRequest: CreateTopicRequest): Either<AdminFailure, List<Topic>>
     suspend fun getTopicWords(id: Int, page: Int): Either<AdminFailure, List<Word>>
     suspend fun getTopicById(id: Int): Either<AdminFailure, Topic>
+    suspend fun uploadThumbnailImage(uri: Uri): Either<AdminFailure, String>
 }

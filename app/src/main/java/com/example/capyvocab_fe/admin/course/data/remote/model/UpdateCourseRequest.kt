@@ -5,5 +5,5 @@ data class UpdateCourseRequest(
     val description: String? = null,
     val target: String? = null,
     val level: String,
-    val topics: List<TopicRequest>
+    val topics: List<TopicRequest> = emptyList()
 )

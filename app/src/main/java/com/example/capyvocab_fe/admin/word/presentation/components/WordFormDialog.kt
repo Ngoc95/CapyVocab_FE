@@ -22,8 +22,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -50,6 +53,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.capyvocab_fe.admin.word.domain.model.Word
+import com.example.capyvocab_fe.admin.word.domain.model.WordPosition
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
@@ -64,7 +68,7 @@ fun WordFormDialog(
 ) {
     var content by remember { mutableStateOf(word?.content ?: "") }
     var pronunciation by remember { mutableStateOf(word?.pronunciation ?: "") }
-    var position by remember { mutableStateOf(word?.position ?: "") }
+    var position by remember { mutableStateOf(word?.position ?: WordPosition.OTHERS.value) }
     var meaning by remember { mutableStateOf(word?.meaning ?: "") }
     var example by remember { mutableStateOf(word?.example ?: "") }
     var translateExample by remember { mutableStateOf(word?.translateExample ?: "") }
@@ -131,8 +135,8 @@ fun WordFormDialog(
                                 position = position,
                                 meaning = meaning,
                                 rank = word.rank,
-                                audio = selectedAudioUri?.toString() ?: "",
-                                image = selectedImageUri?.toString() ?: "",
+                                audio = selectedAudioUri?.toString() ?: "N/A",
+                                image = selectedImageUri?.toString() ?: "N/A",
                                 example = example,
                                 translateExample = translateExample
                             ) ?: Word(
@@ -142,8 +146,8 @@ fun WordFormDialog(
                                 position = position,
                                 meaning = meaning,
                                 rank = "",
-                                audio = "",
-                                image = "",
+                                audio = "N/A",
+                                image = "N/A",
                                 example = example,
                                 translateExample = translateExample
                             )
@@ -217,7 +221,7 @@ fun WordFormFields(
 ) {
     WordTextField(title = "Từ vựng", value = content, onValueChange = onContentChange)
     WordTextField(title = "Phát âm", value = pronunciation, onValueChange = onPronunciationChange)
-    WordTextField(title = "Loại từ", value = position, onValueChange = onPositionChange)
+    WordPositionDropdown(title = "Loại từ", selectedPosition = position, onPositionSelected = onPositionChange)
     WordTextField(title = "Ý nghĩa", value = meaning, onValueChange = onMeaningChange)
     WordTextField(title = "Ví dụ", value = example, onValueChange = onExampleChange)
     WordTextField(
@@ -225,6 +229,66 @@ fun WordFormFields(
         value = translateExample,
         onValueChange = onTranslateExampleChange
     )
+}
+
+@Composable
+private fun WordPositionDropdown(
+    title: String,
+    selectedPosition: String,
+    onPositionSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val positions = WordPosition.entries.map { it.value }
+    Column(modifier = Modifier.padding(vertical = 7.dp)) {
+        Text(
+            text = title,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 40.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.White)
+                .clickable { expanded = true }
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedPosition,
+                    style = TextStyle(fontSize = 14.sp, lineHeight = 20.sp),
+                    color = Color.Black
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Arrow",
+                    tint = Color.DarkGray
+                )
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(Color.White)
+            ) {
+                positions.forEach { position ->
+                    DropdownMenuItem(
+                        text = { Text(text = position) },
+                        onClick = {
+                            onPositionSelected(position)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -367,7 +431,7 @@ fun WordFormDialogPreview() {
         )
 
         WordFormDialog(
-            word = null,
+            word = sampleWord,
             errorMessage = "",
             onDismiss = {},
             onSave = { Word, Uri -> },

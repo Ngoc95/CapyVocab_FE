@@ -269,7 +269,7 @@ fun InfoRow(
 }
 
 
-private fun mapLevel(level: String): String {
+fun mapLevel(level: String): String {
     return when (level) {
         "Beginner" -> "Sơ cấp"
         "Intermediate" -> "Trung cấp"
