@@ -28,6 +28,7 @@ import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
 
 @Composable
 fun UserNavigator() {
@@ -172,7 +173,7 @@ fun UserNavigator() {
             }
             //user test screen
             composable(route = Route.UserTestScreen.route) {
-                //TODO: navigate to user test screen
+                TestScreen()
             }
             //user profile screen
             composable(route = Route.UserProfileScreen.route) {
