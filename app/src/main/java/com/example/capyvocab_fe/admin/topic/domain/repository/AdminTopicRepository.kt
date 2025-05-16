@@ -15,5 +15,5 @@ interface AdminTopicRepository {
     suspend fun createTopic(topicRequest: CreateTopicRequest): Either<AppFailure, List<Topic>>
     suspend fun getTopicWords(id: Int, page: Int): Either<AppFailure, List<Word>>
     suspend fun getTopicById(id: Int): Either<AppFailure, Topic>
-    suspend fun uploadThumbnailImage(uri: Uri): Either<AdminFailure, String>
+    suspend fun uploadThumbnailImage(uri: Uri): Either<AppFailure, String>
 }

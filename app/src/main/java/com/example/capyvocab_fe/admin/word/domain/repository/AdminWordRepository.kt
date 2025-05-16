@@ -16,6 +16,6 @@ interface AdminWordRepository {
         updateWordRequest: UpdateWordRequest
     ): Either<AppFailure, Word>
 
-    suspend fun deleteWord(id: Int): Either<AppFailure, DeleteResponse>
+    suspend fun deleteWord(id: Int): Either<AppFailure, Unit>
     suspend fun uploadImage(uri: Uri): Either<AppFailure, String>
 }

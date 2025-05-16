@@ -22,7 +22,7 @@ class AdminWordRepositoryImpl @Inject constructor(
 
     override suspend fun createWords(createWordRequest: CreateWordRequest): Either<AppFailure, List<Word>> {
         return Either.catch {
-            adminWordApi.createWords(createWordRequest)
+            adminWordApi.createWords(createWordRequest).metaData
         }.mapLeft { it.toAppFailure() }
     }
 
@@ -34,7 +34,7 @@ class AdminWordRepositoryImpl @Inject constructor(
 
     override suspend fun getWordById(id: Int): Either<AppFailure, Word> {
         return Either.catch {
-            adminWordApi.getWordById(id)
+            adminWordApi.getWordById(id).metaData
         }.mapLeft { it.toAppFailure() }
     }
 
@@ -43,16 +43,17 @@ class AdminWordRepositoryImpl @Inject constructor(
         updateWordRequest: UpdateWordRequest
     ): Either<AppFailure, Word> {
         return Either.catch {
-            adminWordApi.updateWord(id, updateWordRequest)
+            adminWordApi.updateWord(id, updateWordRequest).metaData
         }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun deleteWord(id: Int): Either<AppFailure, DeleteResponse> {
+    override suspend fun deleteWord(id: Int): Either<AppFailure, Unit> {
         return Either.catch {
             adminWordApi.deleteWordById(id)
+            Unit
         }.mapLeft { it.toAppFailure() }
     }
-    override suspend fun uploadImage(uri: Uri): Either<AdminFailure, String> {
+    override suspend fun uploadImage(uri: Uri): Either<AppFailure, String> {
         return Either.catch {
             val contentResolver = MyApplication.instance.contentResolver
             val inputStream =
@@ -67,7 +68,7 @@ class AdminWordRepositoryImpl @Inject constructor(
             response.metaData.firstOrNull()?.destination
                 ?: throw IOException("Không nhận được URL ảnh")
         }.mapLeft {
-            it.toAdminFailure()
+            it.toAppFailure()
         }
     }
 }

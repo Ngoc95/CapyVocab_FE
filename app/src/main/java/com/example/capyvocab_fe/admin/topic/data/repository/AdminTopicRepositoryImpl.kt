@@ -71,7 +71,7 @@ class AdminTopicRepositoryImpl @Inject constructor(
         }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun uploadThumbnailImage(uri: Uri): Either<AdminFailure, String> {
+    override suspend fun uploadThumbnailImage(uri: Uri): Either<AppFailure, String> {
         return Either.catch {
             val contentResolver = MyApplication.instance.contentResolver
             val inputStream =
@@ -86,7 +86,7 @@ class AdminTopicRepositoryImpl @Inject constructor(
             response.metaData.firstOrNull()?.destination
                 ?: throw IOException("Không nhận được URL ảnh")
         }.mapLeft {
-            it.toAdminFailure()
+            it.toAppFailure()
         }
     }
 }
