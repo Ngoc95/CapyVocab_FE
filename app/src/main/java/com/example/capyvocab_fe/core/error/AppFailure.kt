@@ -1,16 +1,16 @@
-package com.example.capyvocab_fe.admin.user.domain.error
+package com.example.capyvocab_fe.core.error
 
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
 
-data class AdminFailure(
-    val error: AdminError,
+data class AppFailure(
+    val error: AppError,
     val message: String? = null,
     val throwable: Throwable? = null
 )
 
-enum class AdminError(val defaultMessage: String) {
+enum class AppError(val defaultMessage: String) {
     NetworkError("Cannot connect to server"),
     Unauthorized("You are not authorized"),
     Forbidden("Access denied"),
@@ -19,7 +19,7 @@ enum class AdminError(val defaultMessage: String) {
     Unknown("Unexpected error");
 
     companion object {
-        fun fromHttpCode(code: Int): AdminError = when (code) {
+        fun fromHttpCode(code: Int): AppError = when (code) {
             401 -> Unauthorized
             403 -> Forbidden
             404 -> NotFound
@@ -29,11 +29,11 @@ enum class AdminError(val defaultMessage: String) {
     }
 }
 
-fun Throwable.toAdminFailure(): AdminFailure {
+fun Throwable.toAppFailure(): AppFailure {
     val error = when (this) {
-        is IOException -> AdminError.NetworkError
-        is HttpException -> AdminError.fromHttpCode(this.code())
-        else -> AdminError.Unknown
+        is IOException -> AppError.NetworkError
+        is HttpException -> AppError.fromHttpCode(this.code())
+        else -> AppError.Unknown
     }
 
     val message = (this as? HttpException)?.response()?.errorBody()?.string()?.let { body ->
@@ -44,7 +44,7 @@ fun Throwable.toAdminFailure(): AdminFailure {
         }
     }
 
-    return AdminFailure(
+    return AppFailure(
         error = error,
         message = message ?: error.defaultMessage,
         throwable = this

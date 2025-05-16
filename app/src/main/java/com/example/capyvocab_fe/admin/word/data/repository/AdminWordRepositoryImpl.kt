@@ -2,9 +2,9 @@ package com.example.capyvocab_fe.admin.word.data.repository
 
 import android.net.Uri
 import arrow.core.Either
+import com.example.capyvocab_fe.core.error.AppFailure
+import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.MyApplication
-import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
-import com.example.capyvocab_fe.admin.user.domain.error.toAdminFailure
 import com.example.capyvocab_fe.admin.word.data.remote.AdminWordApi
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
@@ -20,40 +20,38 @@ class AdminWordRepositoryImpl @Inject constructor(
     private val adminWordApi: AdminWordApi
 ) : AdminWordRepository {
 
-    override suspend fun createWords(createWordRequest: CreateWordRequest): Either<AdminFailure, List<Word>> {
+    override suspend fun createWords(createWordRequest: CreateWordRequest): Either<AppFailure, List<Word>> {
         return Either.catch {
-            adminWordApi.createWords(createWordRequest).metaData
-        }.mapLeft { it.toAdminFailure() }
+            adminWordApi.createWords(createWordRequest)
+        }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getAllWords(page: Int): Either<AdminFailure, List<Word>> {
+    override suspend fun getAllWords(page: Int): Either<AppFailure, List<Word>> {
         return Either.catch {
             adminWordApi.getAllWords(page).metaData.words
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getWordById(id: Int): Either<AdminFailure, Word> {
+    override suspend fun getWordById(id: Int): Either<AppFailure, Word> {
         return Either.catch {
-            adminWordApi.getWordById(id).metaData
-        }.mapLeft { it.toAdminFailure() }
+            adminWordApi.getWordById(id)
+        }.mapLeft { it.toAppFailure() }
     }
 
     override suspend fun updateWord(
         id: Int,
         updateWordRequest: UpdateWordRequest
-    ): Either<AdminFailure, Word> {
+    ): Either<AppFailure, Word> {
         return Either.catch {
-            adminWordApi.updateWord(id, updateWordRequest).metaData
-        }.mapLeft { it.toAdminFailure() }
+            adminWordApi.updateWord(id, updateWordRequest)
+        }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun deleteWord(id: Int): Either<AdminFailure, Unit> {
+    override suspend fun deleteWord(id: Int): Either<AppFailure, DeleteResponse> {
         return Either.catch {
             adminWordApi.deleteWordById(id)
-            Unit
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
-
     override suspend fun uploadImage(uri: Uri): Either<AdminFailure, String> {
         return Either.catch {
             val contentResolver = MyApplication.instance.contentResolver

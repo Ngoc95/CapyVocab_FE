@@ -5,21 +5,21 @@ import com.example.capyvocab_fe.admin.course.data.remote.model.CreateCourseReque
 import com.example.capyvocab_fe.admin.course.data.remote.model.UpdateCourseRequest
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
+import com.example.capyvocab_fe.core.error.AppFailure
 
 interface AdminCourseRepository {
-    suspend fun getAllCourses(page: Int = 1): Either<AdminFailure, List<Course>>
+    suspend fun getAllCourses(page: Int = 1): Either<AppFailure, List<Course>>
 
-    suspend fun getCourseTopics(id: Int, page: Int): Either<AdminFailure, List<Topic>>
+    suspend fun getCourseTopics(id: Int, page: Int): Either<AppFailure, List<Topic>>
 
-    suspend fun createCourse(courseRequest: CreateCourseRequest): Either<AdminFailure, Course>
+    suspend fun createCourse(courseRequest: CreateCourseRequest): Either<AppFailure, Course>
 
     suspend fun updateCourse(
         id: Int,
         courseRequest: UpdateCourseRequest
-    ): Either<AdminFailure, Course>
+    ): Either<AppFailure, Course>
 
-    suspend fun deleteCourse(id: Int): Either<AdminFailure, Unit>
+    suspend fun deleteCourse(id: Int): Either<AppFailure, Unit>
 
-    suspend fun getCourseById(id: Int): Either<AdminFailure, Course>
+    suspend fun getCourseById(id: Int): Either<AppFailure, Course>
 }

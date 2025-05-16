@@ -25,6 +25,9 @@ class AuthRepositoryImpl @Inject constructor(
                 accessToken = response.metaData.accessToken,
                 refreshToken = response.metaData.refreshToken
             )
+            tokenManager.saveUserId(
+                userId = response.metaData.user.id
+            )
 
             response.metaData.user.toDomain()
         }.mapLeft {
