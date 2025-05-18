@@ -204,17 +204,16 @@ fun TopicsInCourseScreenContent(
                 itemsIndexed(topics) { index, topic ->
                     val isSelected = selectedTopic == topic
 
-                    Box() {
-                        TopicCard(
-                            topic = topic,
-                            onClick = { onTopicClick(topic) },
-                            onEditClick = { },
-                            onLongClick = { },
-                            onCheckedChange = { },
-                            isMultiSelecting = false,
-                            isSelected = isSelected,
-                        )
-                    }
+                    TopicCard(
+                        topic = topic,
+                        onClick = { onTopicClick(topic) },
+                        onEditClick = { },
+                        onLongClick = { },
+                        onCheckedChange = { },
+                        isMultiSelecting = false,
+                        isSelected = isSelected,
+                        isAdmin = false
+                    )
                     // Load thêm nếu gần cuối
                     if (index >= topics.size - 3 && !isLoading && !isEndReached) {
                         onLoadMore()
@@ -238,32 +237,32 @@ fun TopicsInCourseScreenContent(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TopicsInCourseScreenPreview() {
-    CapyVocab_FETheme {
-        val sampleTopic = Topic(
-            id = 1,
-            title = "Friendship",
-            description = "Tình bạn",
-            thumbnail = "",
-            type = "Free"
-        )
-        val sampleTopics = listOf(
-            sampleTopic,
-            sampleTopic.copy(id = 2, title = "Chủ đề số 2 ahihi", type = "Premium"),
-            sampleTopic.copy(id = 3, title = "Chủ đề số 3")
-        )
-
-        TopicsInCourseScreenContent(
-            courseTitle = "Hello",
-            topics = sampleTopics,
-            onTopicClick = {},
-            onLoadMore = {},
-            isLoading = false,
-            isEndReached = false,
-            selectedTopic = sampleTopics[1],
-            onBackClick = {}
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun TopicsInCourseScreenPreview() {
+//    CapyVocab_FETheme {
+//        val sampleTopic = Topic(
+//            id = 1,
+//            title = "Friendship",
+//            description = "Tình bạn",
+//            thumbnail = "",
+//            type = "Free"
+//        )
+//        val sampleTopics = listOf(
+//            sampleTopic,
+//            sampleTopic.copy(id = 2, title = "Chủ đề số 2 ahihi", type = "Premium"),
+//            sampleTopic.copy(id = 3, title = "Chủ đề số 3")
+//        )
+//
+//        TopicsInCourseScreenContent(
+//            courseTitle = "Hello",
+//            topics = sampleTopics,
+//            onTopicClick = {},
+//            onLoadMore = {},
+//            isLoading = false,
+//            isEndReached = false,
+//            selectedTopic = sampleTopics[1],
+//            onBackClick = {}
+//        )
+//    }
+//}

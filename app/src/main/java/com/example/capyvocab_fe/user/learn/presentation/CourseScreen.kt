@@ -1,7 +1,5 @@
 package com.example.capyvocab_fe.user.learn.presentation
 
-
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,14 +35,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseCard
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
-import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
 
@@ -52,7 +48,6 @@ import kotlinx.coroutines.delay
 fun CourseScreen(
     onCourseClick: (Course) -> Unit,
     viewModel: LearnViewModel = hiltViewModel(),
-    navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -73,17 +68,6 @@ fun CourseScreen(
             visibleError = "" // ẩn sau 3 giây
         }
     }
-
-    BackHandler {
-        navController.navigate(Route.UserCommunityScreen.route) {
-            popUpTo(Route.UserCommunityScreen.route) {
-                inclusive = false
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-    }
-
 
     FocusComponent {
         CoursesScreenContent(
@@ -188,17 +172,16 @@ fun CoursesScreenContent(
                 itemsIndexed(courses) { index, course ->
                     val isSelected = selectedCourse == course
 
-                    Box() {
-                        CourseCard(
-                            course = course,
-                            isMultiSelecting = false,
-                            isSelected = isSelected,
-                            onClick = { onCourseClick(course) },
-                            onEditClick = { },
-                            onLongClick = { },
-                            onCheckedChange = { },
-                        )
-                    }
+                    CourseCard(
+                        course = course,
+                        isMultiSelecting = false,
+                        isSelected = isSelected,
+                        onClick = { onCourseClick(course) },
+                        onEditClick = { },
+                        onLongClick = { },
+                        onCheckedChange = { },
+                        isAdmin = false
+                    )
                     // Load thêm nếu gần cuối
                     if (index >= courses.size - 3 && !isLoading && !isEndReached) {
                         onLoadMore()

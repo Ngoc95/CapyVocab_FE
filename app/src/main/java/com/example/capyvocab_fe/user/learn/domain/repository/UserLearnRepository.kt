@@ -10,6 +10,7 @@ interface UserLearnRepository {
     suspend fun getAllCourses(page: Int = 1): Either<AppFailure, List<Course>>
     suspend fun getCourseTopics(id: Int, page: Int): Either<AppFailure, List<Topic>>
     suspend fun getCourseById(id: Int): Either<AppFailure, Course>
-    suspend fun getTopicWords(id: Int, page: Int): Either<AppFailure, List<Word>>
+    suspend fun getTopicWords(id: Int): Either<AppFailure, List<Word>>
     suspend fun getTopicById(id: Int): Either<AppFailure, Topic>
+    suspend fun markTopicComplete(topicId: Int): Either<AppFailure, Unit>
 }

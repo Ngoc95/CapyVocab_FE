@@ -59,7 +59,8 @@ fun CourseCard(
     onEditClick: () -> Unit,
     onLongClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
-    cardElevation: Dp = 8.dp
+    cardElevation: Dp = 8.dp,
+    isAdmin: Boolean
 ) {
     //animation for checkbox
     val checkboxScale = animateFloatAsState(
@@ -125,16 +126,19 @@ fun CourseCard(
                     Column(
                         modifier = Modifier.align(Alignment.Center)
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Badge(
-                                text = "Đã công bố",
-                                textColor = Color.White,
-                                backgroundColor = Color(0xFF075743)
-                            )
+                        if(isAdmin){
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Badge(
+                                    text = "Đã công bố",
+                                    textColor = Color.White,
+                                    backgroundColor = Color(0xFF075743)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
                             style = MaterialTheme.typography.labelMedium,
                             text = course.title,
@@ -143,19 +147,22 @@ fun CourseCard(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .align(Alignment.TopEnd)
-                            .clickable(onClick = onEditClick),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            tint = Color.White,
-                            modifier = Modifier.size(25.dp)
-                        )
+                    if (isAdmin){
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .align(Alignment.TopEnd)
+                                .clickable(onClick = onEditClick),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                tint = Color.White,
+                                modifier = Modifier.size(25.dp)
+                            )
+                        }
                     }
+
                 }
 
                 // Info phần dưới
@@ -225,7 +232,8 @@ fun CourseCardPreview() {
             onLongClick = {},
             onCheckedChange = {},
             isMultiSelecting = false,
-            isSelected = false
+            isSelected = false,
+            isAdmin = true
         )
     }
 

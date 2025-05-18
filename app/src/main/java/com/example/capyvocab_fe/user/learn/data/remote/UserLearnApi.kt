@@ -6,7 +6,10 @@ import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.topic.data.remote.model.TopicWordsResponse
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.core.network.ApiResponse
+import com.example.capyvocab_fe.user.learn.data.remote.model.CompleteTopicRequest
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -32,9 +35,12 @@ interface UserLearnApi {
     suspend fun getTopicWords(
         @Path("id") id: Int,
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 10,
+        @Query("limit") limit: Int = 20,
     ): ApiResponse<TopicWordsResponse>
 
     @GET("/topics/{id}")
     suspend fun getTopicById(@Path("id") id: Int): ApiResponse<Topic>
+
+    @POST("/progress/complete-topic")
+    suspend fun markTopicComplete(@Body body: CompleteTopicRequest): ApiResponse<Unit>
 }

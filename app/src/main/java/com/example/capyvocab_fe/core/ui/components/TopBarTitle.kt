@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 fun TopBarTitle(
     title: String,
     fontSize: TextUnit = 33.sp,
-    icon: ImageVector = Icons.Default.AccountCircle
+    icon: ImageVector = Icons.Default.Notifications
 ) {
     Row(
         modifier = Modifier
@@ -38,13 +38,14 @@ fun TopBarTitle(
             text = title,
             fontSize = fontSize,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF5E4A45)
+            color = Color(0xFF5E4A45),
+            modifier = Modifier.weight(2f)
         )
         Spacer(modifier = Modifier.width(5.dp))
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(53.dp),
+            modifier = Modifier.size(30.dp),
             tint = Color(0xFF5E4A45)
         )
     }

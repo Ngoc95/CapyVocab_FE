@@ -3,6 +3,7 @@ package com.example.capyvocab_fe.user.navigator
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,6 +26,7 @@ import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
+import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
@@ -97,7 +99,7 @@ fun UserNavigator() {
                     selected = selectedItem,
                     onItemClick = { index ->
                         if (index == selectedItem) return@UserBottomNavigation
-                        selectedItem == index
+                        selectedItem = index
                         when(index) {
                             0 -> navigateToTab(
                                 navController = navController,
@@ -142,11 +144,11 @@ fun UserNavigator() {
             //user course screen
             composable(route = Route.UserLearnScreen.route) {
                 CourseScreen(
-                    onCourseClick = { course ->
-                        navController.navigate("${Route.UserTopicsScreen.route}/${course.id}")
-                    },
                     viewModel = learnViewModel,
-                    navController = navController
+                    onCourseClick = { course ->
+                        learnViewModel.onEvent(LearnEvent.ClearTopics)
+                        navController.navigate("${Route.UserTopicsScreen.route}/${course.id}")
+                    }
                 )
             }
             // Topics in learn screen
@@ -170,6 +172,30 @@ fun UserNavigator() {
                     )
                 }
             }
+
+            // Words in topic
+            composable(
+                route = "${Route.UserWordsScreen.route}/{topicId}",
+                arguments = listOf(navArgument("topicId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val topicId = backStackEntry.arguments?.getInt("topicId")
+
+                LaunchedEffect(topicId) {
+                    learnViewModel.onEvent(LearnEvent.GetTopicById(topicId!!))
+                }
+
+                learnState.selectedTopic?.let { topic ->
+                    LearnFlashcardScreen(
+                        topic = topic,
+                        viewModel = learnViewModel,
+                        onComplete = {
+                            navController.popBackStack("${Route.UserWordsScreen.route}/${topic.id}", inclusive = true)
+                        },
+                        navController = navController
+                    )
+                }
+            }
+
             //user test screen
             composable(route = Route.UserTestScreen.route) {
                 //TODO: navigate to user test screen

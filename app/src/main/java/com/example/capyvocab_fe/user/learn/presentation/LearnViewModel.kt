@@ -1,9 +1,9 @@
 package com.example.capyvocab_fe.user.learn.presentation
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capyvocab_fe.admin.course.domain.model.Course
+import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +28,18 @@ class LearnViewModel @Inject constructor(
             is LearnEvent.LoadTopics -> loadTopics(event.course)
             is LearnEvent.LoadMoreTopics -> loadTopics(event.course, loadMore = true)
             is LearnEvent.GetTopicById -> getTopicById(event.topicId)
+            is LearnEvent.ClearTopics -> _state.update { it.copy(topics = emptyList()) }
+            is LearnEvent.LoadWords -> loadWords(event.topic)
+            is LearnEvent.FlipCard -> { _state.update { it.copy(isFlipped = !it.isFlipped) } }
+            is LearnEvent.ContinueToTyping -> goToTyping()
+            is LearnEvent.SubmitAnswer -> submitAnswer(event.answer)
+            is LearnEvent.ContinueAfterResult -> continueAfterResult()
+            is LearnEvent.AlreadyKnowWord -> skipCurrentWord()
+            is LearnEvent.ClearWords -> _state.update { it.copy(words = emptyList(), currentIndex = 0, isComplete = false) }
+            is LearnEvent.DismissCompletionDialog -> {
+                _state.update { it.copy(showCompletionDialog = false) }
+            }
+            is LearnEvent.ClearError -> _state.update { it.copy(errorMessage = "") }
         }
     }
 
@@ -132,4 +144,174 @@ class LearnViewModel @Inject constructor(
                 }
         }
     }
+
+    private fun loadWords(topic: Topic) {
+        val topicId = topic.id
+        _state.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = "",
+                selectedTopic = topic // cập nhật trước
+            )
+        }
+
+        viewModelScope.launch {
+            userLearnRepository.getTopicWords(topicId)
+                .onRight { newWords ->
+                    if (_state.value.selectedTopic?.id == topicId) {
+                        _state.update {
+                            it.copy(
+                                words = newWords,
+                                isLoading = false,
+                                currentIndex = 0,
+                                isTyping = false,
+                                isLearning = true,
+                                isComplete = false,
+                                isFlipped = false,
+                            )
+                        }
+                    }
+                }
+                .onLeft { failure ->
+                    if (_state.value.selectedTopic?.id == topicId) {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "failed to load words"
+                            )
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun goToTyping() {
+        _state.update {
+            it.copy(
+                isTyping = true,
+                isLearning = false,
+                isFlipped = false
+            )
+        }
+    }
+
+    private var tempAnswerCorrect = false
+
+    private fun submitAnswer(answer: String) {
+        val currentState = state.value
+        val index = currentState.currentIndex
+        val words = currentState.words.toMutableList()
+
+        if (index >= words.size) return
+
+        val currentWord = words[index]
+        val isCorrect = currentWord.content.equals(answer.trim(), ignoreCase = true)
+
+        // Lưu kết quả tạm
+        tempAnswerCorrect = isCorrect
+
+        _state.update {
+            it.copy(
+                answerResult = isCorrect,
+                showResult = true,
+                isTyping = true,       // GIỮ nguyên typing view
+                isLearning = false     // Tắt flashcard view
+            )
+        }
+    }
+
+
+
+    private fun skipCurrentWord() {
+        val currentState = state.value
+        val index = currentState.currentIndex
+        val nextIndex = index + 1
+        val isDone = nextIndex >= currentState.words.size
+
+        _state.update {
+            it.copy(
+                currentIndex = nextIndex.coerceAtMost(currentState.words.lastIndex),
+                isTyping = false,
+                isLearning = !isDone,
+                isComplete = isDone,
+                isFlipped = false
+            )
+        }
+
+        if (isDone) {
+            _state.update {
+                it.copy(showCompletionDialog = true)
+            }
+
+            if (currentState.selectedTopic?.alreadyLearned == false) {
+                markTopicComplete()
+            }
+        }
+    }
+
+    private fun markTopicComplete() {
+        val topicId = _state.value.selectedTopic?.id ?: return
+        _state.update { it.copy(isMarkingComplete = true) }
+
+        viewModelScope.launch {
+            userLearnRepository.markTopicComplete(topicId)
+                .onRight {
+                    // Nếu vẫn đang ở đúng topic
+                    if (_state.value.selectedTopic?.id == topicId) {
+                        _state.update {
+                            it.copy(
+                                isMarkingComplete = false,
+                                isComplete = true,
+                                showCompletionDialog = true
+                            )
+                        }
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isMarkingComplete = false,
+                            errorMessage = failure.message ?: "Không thể đánh dấu hoàn thành"
+                        )
+                    }
+                }
+        }
+    }
+
+    fun continueAfterResult() {
+        val currentState = state.value
+        val index = currentState.currentIndex
+        val words = currentState.words.toMutableList()
+
+        if (index >= words.size) return
+
+        if (!tempAnswerCorrect) {
+            val wrongWord = words.removeAt(index)
+            words.add(wrongWord)
+        }
+
+        val nextIndex = if (tempAnswerCorrect) index + 1 else index
+        val isDone = nextIndex >= words.size
+
+        _state.update {
+            it.copy(
+                words = words,
+                currentIndex = nextIndex.coerceAtMost(words.lastIndex),
+                showResult = false,
+                answerResult = null,
+                isTyping = false,
+                isLearning = !isDone,
+                isComplete = isDone,
+                isFlipped = false
+            )
+        }
+
+        if (isDone) {
+            _state.update { it.copy(showCompletionDialog = true) }
+            if (currentState.selectedTopic?.alreadyLearned == false) {
+                markTopicComplete()
+            }
+        }
+    }
+
 }

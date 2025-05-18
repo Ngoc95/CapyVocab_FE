@@ -20,14 +20,12 @@ class AuthRepositoryImpl @Inject constructor(
         return Either.catch {
             val response = authApi.login(LoginRequest(username, password))
 
-            // Lưu accessToken và refreshToken vào DataStore
+            // Lưu accessToken, refreshToken, userId vào DataStore
             tokenManager.saveTokens(
                 accessToken = response.metaData.accessToken,
                 refreshToken = response.metaData.refreshToken
             )
-            tokenManager.saveUserId(
-                userId = response.metaData.user.id
-            )
+            tokenManager.saveUserId(response.metaData.user.id)
 
             response.metaData.user.toDomain()
         }.mapLeft {

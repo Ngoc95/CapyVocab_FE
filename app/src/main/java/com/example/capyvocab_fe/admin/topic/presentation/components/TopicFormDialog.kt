@@ -75,6 +75,7 @@ fun TopicFormDialog(
                             description = description,
                             type = "Free",
                             thumbnail = thumbnail,
+                            alreadyLearned = topic?.alreadyLearned ?: false
 //                            deletedAt = null,
 //                            createdAt = "",
 //                            updatedAt = "",

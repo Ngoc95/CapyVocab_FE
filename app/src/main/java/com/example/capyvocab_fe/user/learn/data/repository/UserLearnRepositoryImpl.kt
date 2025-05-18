@@ -8,6 +8,7 @@ import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
+import com.example.capyvocab_fe.user.learn.data.remote.model.CompleteTopicRequest
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
 import javax.inject.Inject
 
@@ -34,12 +35,9 @@ class UserLearnRepositoryImpl @Inject constructor(
         }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getTopicWords(
-        id: Int,
-        page: Int
-    ): Either<AppFailure, List<Word>> {
+    override suspend fun getTopicWords(id: Int): Either<AppFailure, List<Word>> {
         return Either.catch {
-            api.getTopicWords(id, page).metaData.words
+            api.getTopicWords(id).metaData.words
         }.mapLeft { it.toAppFailure() }
     }
 
@@ -47,5 +45,13 @@ class UserLearnRepositoryImpl @Inject constructor(
         return Either.catch {
             api.getTopicById(id).metaData
         }.mapLeft { it.toAppFailure() }
+    }
+
+    override suspend fun markTopicComplete(topicId: Int): Either<AppFailure, Unit> {
+        return Either.catch {
+            api.markTopicComplete(CompleteTopicRequest(topicId))
+        }.mapLeft { throwable ->
+            throwable.toAppFailure()
+        }.map { }
     }
 }
