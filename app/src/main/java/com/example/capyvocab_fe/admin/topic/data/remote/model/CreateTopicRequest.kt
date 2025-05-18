@@ -1,10 +1,10 @@
 package com.example.capyvocab_fe.admin.topic.data.remote.model
 
-data class CreateTopicRequest (
+data class CreateTopicRequest(
     val topics: List<CreateTopicBody>
 )
 
-data class CreateTopicBody (
+data class CreateTopicBody(
     val title: String,
     val description: String?,
     val thumbnail: String?,

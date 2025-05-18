@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.admin.course.presentation
 
-import android.net.http.SslCertificate.restoreState
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -25,17 +24,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,13 +44,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
@@ -63,11 +55,9 @@ import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseCard
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseFormDialog
-import com.example.capyvocab_fe.admin.user.presentation.UserListEvent
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.ui.components.RippleOverlay
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
@@ -86,8 +76,6 @@ fun CourseScreen(
 
     var courseToDelete by remember { mutableStateOf<Course?>(null) }
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
-
-    var isMultiDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
 
@@ -152,10 +140,6 @@ fun CourseScreen(
                 selectedCourse = course
                 isDialogOpen = true
             },
-            onCancelMultiSelect = { viewModel.onEvent(CourseEvent.CancelMultiSelect) },
-            onDeleteSelectedCourses = {
-                isMultiDeleteConfirmDialogOpen = true
-            },
             onCourseLongPress = { course ->
                 viewModel.onEvent(CourseEvent.OnCourseLongPress(course.id))
             },
@@ -178,17 +162,19 @@ fun CourseScreen(
                 isDialogOpen = false
             },
             onDelete = {
-                selectedCourse?.let { course ->
-                    viewModel.onEvent(CourseEvent.DeleteCourse(course.id))
+                selectedCourse?.let {
+                    courseToDelete = it
+                    isDeleteConfirmDialogOpen = true
                 }
                 isDialogOpen = false
+                selectedCourse = null
             }
         )
     }
     //AlertDialog xác nhận trước khi xoá user
     if (isDeleteConfirmDialogOpen && courseToDelete != null) {
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá người dùng \"${courseToDelete?.title}\" không?",
+            message = "Bạn có chắc chắn muốn xoá khoá học \"${courseToDelete?.title}\" không?",
             onConfirm = {
                 viewModel.onEvent(CourseEvent.DeleteCourse(courseToDelete!!.id))
                 isDeleteConfirmDialogOpen = false
@@ -199,34 +185,6 @@ fun CourseScreen(
                 courseToDelete = null
             }
         )
-    }
-
-    //multi-user delete confirmation dialog
-    if (isMultiDeleteConfirmDialogOpen) {
-        val selectedCount = state.selectedCourses.size
-        ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
-            onConfirm = {
-                viewModel.onEvent(CourseEvent.OnDeleteSelectedCourses)
-                isMultiDeleteConfirmDialogOpen = false
-            },
-            onDismiss = {
-                isMultiDeleteConfirmDialogOpen = false
-            }
-        )
-    }
-
-    //overlay when entering multi-select mode
-    if (multiSelectTransition.value && state.isMultiSelecting) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 4.dp)
-        ) {
-            RippleOverlay(
-                onFinished = {/* optional callback */ }
-            )
-        }
     }
 }
 
@@ -241,25 +199,10 @@ fun CoursesScreenContent(
     onAddCourse: () -> Unit,
     onEditCourse: (Course) -> Unit,
     onLoadMore: () -> Unit,
-    onCancelMultiSelect: () -> Unit,
-    onDeleteSelectedCourses: () -> Unit,
     onCourseLongPress: (Course) -> Unit,
     onCourseSelectToggle: (Course) -> Unit
 ) {
     val listState = rememberLazyListState()
-
-    //animation values
-    val topBarScale = animateFloatAsState(
-        targetValue = if (isMultiSelectMode) 1.05f else 1f,
-        animationSpec = tween(300),
-        label = "topBarScale"
-    )
-
-    val topBarElevation = animateDpAsState(
-        targetValue = if (isMultiSelectMode) 8.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "topBarElevation"
-    )
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -276,62 +219,6 @@ fun CoursesScreenContent(
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
-            // Top bar + animation
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-                    .scale(topBarScale.value)
-                    .shadow(topBarElevation.value, RoundedCornerShape(16.dp))
-                    .background(
-                        color = if (isMultiSelectMode) Color(0xFF8FD9FF) else Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                if (isMultiSelectMode) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        //left side with back button and selection count
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AnimatedVisibility(
-                                visible = true,
-                                enter = fadeIn() + slideInHorizontally(),
-                                exit = fadeOut() + slideOutHorizontally()
-                            ) {
-                                IconButton(onClick = { onCancelMultiSelect() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Cancel")
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "Đã chọn ${selectedCourses.size}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 25.sp
-                            )
-                        }
-
-                        //right side with delete button
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
-                            exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 })
-                        ) {
-                            IconButton(onClick = { onDeleteSelectedCourses() }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                            }
-                        }
-                    }
-
-                } else {
-                    TopBarTitle("Khóa học")
-                }
-            }
-
             // Search bar & Add button - hide if in multi-select mode + animation
             AnimatedVisibility(
                 visible = !isMultiSelectMode,
@@ -347,6 +234,7 @@ fun CoursesScreenContent(
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
+                        .padding(top = 12.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -421,7 +309,8 @@ fun CoursesScreenContent(
                             onEditClick = { onEditCourse(course) },
                             onLongClick = { onCourseLongPress(course) },
                             onCheckedChange = { onCourseSelectToggle(course) },
-                            cardElevation = cardElevation.value
+                            cardElevation = cardElevation.value,
+                            isAdmin = true
                         )
                     }
                     // Load thêm nếu gần cuối
@@ -484,8 +373,6 @@ fun CoursesScreenContentPreview() {
             onAddCourse = {},
             onEditCourse = {},
             onLoadMore = {},
-            onCancelMultiSelect = {},
-            onDeleteSelectedCourses = {},
             onCourseLongPress = {},
             onCourseSelectToggle = {},
             isMultiSelectMode = false,

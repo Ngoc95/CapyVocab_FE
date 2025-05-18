@@ -6,7 +6,7 @@ data class CourseListResponse(
     val metaData: MetaData
 )
 
-data class MetaData (
+data class MetaData(
     val courses: List<Course> = emptyList(),
     val total: Int = 0,
     val currentPage: Int = 1,

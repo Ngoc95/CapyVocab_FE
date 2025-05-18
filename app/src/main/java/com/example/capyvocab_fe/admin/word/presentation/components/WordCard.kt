@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.admin.word.presentation.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -65,7 +64,7 @@ fun WordCard(
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
-                    if(isMultiSelecting) {
+                    if (isMultiSelecting) {
                         onCheckedChange(!isSelected)
                     }
                 },
@@ -189,14 +188,10 @@ fun WordCardPreview() {
             pronunciation = "/ˈæpl/",
             position = "noun",
             meaning = "a round fruit with red or green skin",
-            rank = "2",
             audio = "https://example.com/audio.mp3",
             image = "https://example.com/image.jpg",
             example = "She ate an apple for lunch.",
-            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa.",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = ""
+            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa."
         )
 
         WordCard(

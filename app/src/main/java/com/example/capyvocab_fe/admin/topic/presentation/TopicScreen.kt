@@ -24,17 +24,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,34 +44,23 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
-import com.example.capyvocab_fe.admin.course.domain.model.Course
-import com.example.capyvocab_fe.admin.course.presentation.CourseEvent
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.ui.components.RippleOverlay
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
-import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
 
 @Composable
 fun TopicScreen(
-    course: Course,
-    onBackClick: () -> Unit,
     onTopicClick: (Topic) -> Unit,
     viewModel: TopicListViewModel = hiltViewModel(),
     navController: NavController
@@ -88,8 +73,6 @@ fun TopicScreen(
     var topicToDelete by remember { mutableStateOf<Topic?>(null) }
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
-    var isMultiDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
-
     var visibleError by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
@@ -98,9 +81,10 @@ fun TopicScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(course) {
-        viewModel.onEvent(TopicEvent.LoadTopics(course))
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(TopicEvent.LoadAllTopics)
     }
+
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
         multiSelectTransition.value = state.isMultiSelecting
@@ -109,8 +93,8 @@ fun TopicScreen(
         if (state.isMultiSelecting) {
             viewModel.onEvent(TopicEvent.CancelMultiSelect)
         } else {
-            navController.navigate(Route.CoursesScreen.route) {
-                popUpTo(Route.CoursesScreen.route) {
+            navController.navigate(Route.HomeScreen.route) {
+                popUpTo(Route.HomeScreen.route) {
                     inclusive = false
                 }
                 launchSingleTop = true
@@ -133,15 +117,15 @@ fun TopicScreen(
             selectedTopic = null
         }
     }
+
     FocusComponent {
-        TopicsScreenContent(
-            courseTitle = course.title,
+        TopicScreenContent(
             topics = state.topics,
             selectedTopics = state.topics.filter { state.selectedTopics.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
-            onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreTopics(course)) },
+            onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreAllTopics) },
             onTopicClick = { topic ->
                 onTopicClick(topic)
             },
@@ -152,11 +136,6 @@ fun TopicScreen(
             onEditTopic = { topic ->
                 selectedTopic = topic
                 isDialogOpen = true
-            },
-            onBackClick = onBackClick,
-            onCancelMultiSelect = { viewModel.onEvent(TopicEvent.CancelMultiSelect) },
-            onDeleteSelectedTopics = {
-                isMultiDeleteConfirmDialogOpen = true
             },
             onTopicLongPress = { topic ->
                 viewModel.onEvent(TopicEvent.OnTopicLongPress(topic.id))
@@ -175,27 +154,28 @@ fun TopicScreen(
                 selectedTopic = null
                 isDialogOpen = false
             },
-            onSave = {
-                topic ->
+            onSave = { topic ->
                 if (topic.id == 0) {
-                    viewModel.onEvent(TopicEvent.CreateTopic(course, topic))
+                    viewModel.onEvent(TopicEvent.CreateTopic(1, topic))
                 } else {
                     viewModel.onEvent(TopicEvent.UpdateTopic(topic))
                 }
                 isDialogOpen = false
             },
             onDelete = {
-                selectedTopic?.let { topic ->
-                    viewModel.onEvent(TopicEvent.DeleteTopic(topic.id))
+                selectedTopic?.let {
+                    topicToDelete = it
+                    isDeleteConfirmDialogOpen = true
                 }
                 isDialogOpen = false
+                selectedTopic = null
             }
         )
     }
     //AlertDialog xác nhận trước khi xoá user
     if (isDeleteConfirmDialogOpen && topicToDelete != null) {
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá người dùng \"${topicToDelete?.title}\" không?",
+            message = "Bạn có chắc chắn muốn xoá chủ đề \"${topicToDelete?.title}\" không?",
             onConfirm = {
                 viewModel.onEvent(TopicEvent.DeleteTopic(topicToDelete!!.id))
                 isDeleteConfirmDialogOpen = false
@@ -207,39 +187,10 @@ fun TopicScreen(
             }
         )
     }
-
-    //multi-user delete confirmation dialog
-    if (isMultiDeleteConfirmDialogOpen) {
-        val selectedCount = state.selectedTopics.size
-        ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
-            onConfirm = {
-                viewModel.onEvent(TopicEvent.OnDeleteSelectedTopics)
-                isMultiDeleteConfirmDialogOpen = false
-            },
-            onDismiss = {
-                isMultiDeleteConfirmDialogOpen = false
-            }
-        )
-    }
-
-    //overlay when entering multi-select mode
-    if (multiSelectTransition.value && state.isMultiSelecting) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 4.dp)
-        ) {
-            RippleOverlay(
-                onFinished = {/* optional callback */ }
-            )
-        }
-    }
 }
 
 @Composable
-fun TopicsScreenContent(
-    courseTitle: String,
+fun TopicScreenContent(
     topics: List<Topic>,
     selectedTopics: List<Topic>,
     isMultiSelectMode: Boolean,
@@ -248,27 +199,11 @@ fun TopicsScreenContent(
     onTopicClick: (Topic) -> Unit,
     onAddTopic: () -> Unit,
     onEditTopic: (Topic) -> Unit,
-    onBackClick: () -> Unit,
     onLoadMore: () -> Unit,
-    onCancelMultiSelect: () -> Unit,
-    onDeleteSelectedTopics: () -> Unit,
     onTopicLongPress: (Topic) -> Unit,
     onTopicSelectToggle: (Topic) -> Unit
 ) {
     val listState = rememberLazyListState()
-
-    //animation values
-    val topBarScale = animateFloatAsState(
-        targetValue = if (isMultiSelectMode) 1.05f else 1f,
-        animationSpec = tween(300),
-        label = "topBarScale"
-    )
-
-    val topBarElevation = animateDpAsState(
-        targetValue = if (isMultiSelectMode) 8.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "topBarElevation"
-    )
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -285,73 +220,6 @@ fun TopicsScreenContent(
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
-            // Top bar + animation
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-                    .scale(topBarScale.value)
-                    .shadow(topBarElevation.value, RoundedCornerShape(16.dp))
-                    .background(
-                        color = if (isMultiSelectMode) Color(0xFF8FD9FF) else Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                if (isMultiSelectMode) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        //left side with back button and selection count
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AnimatedVisibility(
-                                visible = true,
-                                enter = fadeIn() + slideInHorizontally(),
-                                exit = fadeOut() + slideOutHorizontally()
-                            ) {
-                                IconButton(onClick = { onCancelMultiSelect() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Cancel")
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "Đã chọn ${selectedTopics.size}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 25.sp
-                            )
-                        }
-
-                        //right side with delete button
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
-                            exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 })
-                        ) {
-                            IconButton(onClick = { onDeleteSelectedTopics() }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                            }
-                        }
-                    }
-
-                } else {
-                    Row (
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { onBackClick() },
-                            modifier = Modifier.padding(top = 8.dp)) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        // Top bar
-                        TopBarTitle(courseTitle, 25.sp)
-                    }
-                }
-            }
-
-
             // Search bar & Add button - hide if in multi-select mode + animation
             AnimatedVisibility(
                 visible = !isMultiSelectMode,
@@ -367,6 +235,7 @@ fun TopicsScreenContent(
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
+                        .padding(top = 12.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -441,7 +310,8 @@ fun TopicsScreenContent(
                             onCheckedChange = { onTopicSelectToggle(topic) },
                             isMultiSelecting = isMultiSelectMode,
                             isSelected = isSelected,
-                            cardElevation = cardElevation.value
+                            cardElevation = cardElevation.value,
+                            isAdmin = true
                         )
                     }
                     // Load thêm nếu gần cuối
@@ -464,46 +334,5 @@ fun TopicsScreenContent(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TopicScreenPreview() {
-    CapyVocab_FETheme {
-        val sampleTopic = Topic(
-            id = 1,
-            title = "Friendship",
-            description = "Tình bạn",
-            thumbnail = null,
-            type = "Free",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = "",
-            displayOrder = 1
-        )
-        val sampleTopics = listOf(
-            sampleTopic,
-            sampleTopic.copy(id = 2, title = "Chủ đề số 2 ahihi", type = "Premium"),
-            sampleTopic.copy(id = 3, title = "Chủ đề số 3")
-        )
-
-        TopicsScreenContent(
-            courseTitle = "Tiếng Anh giao tiếp",
-            topics = sampleTopics,
-            onTopicClick = {},
-            onAddTopic = {},
-            onEditTopic = {},
-            onBackClick = {},
-            onLoadMore = {},
-            onCancelMultiSelect = {},
-            onDeleteSelectedTopics = {},
-            onTopicLongPress = {},
-            onTopicSelectToggle = {},
-            isMultiSelectMode = false,
-            isLoading = false,
-            isEndReached = false,
-            selectedTopics = emptyList()
-        )
     }
 }

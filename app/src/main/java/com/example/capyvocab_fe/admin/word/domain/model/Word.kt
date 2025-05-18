@@ -6,12 +6,8 @@ data class Word(
     val pronunciation: String,
     val position: String,
     val meaning: String,
-    val rank: String,
     val audio: String,
     val image: String,
     val example: String,
     val translateExample: String,
-    val deletedAt: String?,
-    val createdAt: String,
-    val updatedAt: String
 )

@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.admin.user.presentation
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -29,13 +28,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,12 +43,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
@@ -61,7 +53,6 @@ import com.example.capyvocab_fe.admin.user.presentation.components.UserCard
 import com.example.capyvocab_fe.admin.user.presentation.components.UserFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.ui.components.RippleOverlay
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
@@ -77,8 +68,6 @@ fun UserScreen(
 
     var userToDelete by remember { mutableStateOf<User?>(null) }
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
-
-    var isMultiDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
 
@@ -147,10 +136,6 @@ fun UserScreen(
             onLoadMore = { onEvent(UserListEvent.LoadMoreUsers) },
             onUserLongPress = { user -> onEvent(UserListEvent.OnUserLongPress(user.id)) },
             onUserSelectToggle = { user -> onEvent(UserListEvent.OnUserSelectToggle(user.id)) },
-            onCancelMultiSelect = { onEvent(UserListEvent.CancelMultiSelect) },
-            onDeleteSelectedUsers = {
-                isMultiDeleteConfirmDialogOpen = true
-            }
         )
     }
 
@@ -199,34 +184,6 @@ fun UserScreen(
             }
         )
     }
-
-    //multi-user delete confirmation dialog
-    if (isMultiDeleteConfirmDialogOpen) {
-        val selectedCount = state.selectedUsers.size
-        ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
-            onConfirm = {
-                onEvent(UserListEvent.OnDeleteSelectedUsers)
-                isMultiDeleteConfirmDialogOpen = false
-            },
-            onDismiss = {
-                isMultiDeleteConfirmDialogOpen = false
-            }
-        )
-    }
-
-    //overlay when entering multi-select mode
-    if (multiSelectTransition.value && state.isMultiSelecting) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 4.dp)
-        ) {
-            RippleOverlay(
-                onFinished = {/* optional callback */ }
-            )
-        }
-    }
 }
 
 @Composable
@@ -243,23 +200,8 @@ fun UserScreenContent(
     onLoadMore: () -> Unit,
     onUserLongPress: (User) -> Unit,
     onUserSelectToggle: (User) -> Unit,
-    onCancelMultiSelect: () -> Unit,
-    onDeleteSelectedUsers: () -> Unit
 ) {
     val listState = rememberLazyListState()
-
-    //animation values
-    val topBarScale = animateFloatAsState(
-        targetValue = if (isMultiSelectMode) 1.05f else 1f,
-        animationSpec = tween(300),
-        label = "topBarScale"
-    )
-
-    val topBarElevation = animateDpAsState(
-        targetValue = if (isMultiSelectMode) 8.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "topBarElevation"
-    )
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -276,80 +218,6 @@ fun UserScreenContent(
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = modifier.fillMaxSize()) {
-            // Top bar + animation
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-                    .scale(topBarScale.value)
-                    .shadow(topBarElevation.value, RoundedCornerShape(16.dp))
-                    .background(
-                        color = if (isMultiSelectMode) Color(0xFF8FD9FF) else Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                if (isMultiSelectMode) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        //left side with back button and selection count
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AnimatedVisibility(
-                                visible = true,
-                                enter = fadeIn() + slideInHorizontally(),
-                                exit = fadeOut() + slideOutHorizontally()
-                            ) {
-                                IconButton(onClick = { onCancelMultiSelect() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Cancel")
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "Đã chọn ${selectedUsers.size}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 25.sp
-                            )
-                        }
-
-                        //right side with delete button
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
-                            exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 })
-                        ) {
-                            IconButton(onClick = { onDeleteSelectedUsers() }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                            }
-                        }
-                    }
-
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Người dùng",
-                            fontSize = 33.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF5E4A45)
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(53.dp),
-                            tint = Color(0xFF5E4A45)
-                        )
-                    }
-                }
-            }
-
             // Search bar & Add button - hide if in multi-select mode + animation
             AnimatedVisibility(
                 visible = !isMultiSelectMode,
@@ -365,6 +233,7 @@ fun UserScreenContent(
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
+                        .padding(top = 12.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

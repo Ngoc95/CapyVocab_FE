@@ -23,6 +23,9 @@ class LoginViewModel @Inject constructor(
     private val _navigateToAdmin = MutableSharedFlow<Unit>()
     val navigateToAdmin = _navigateToAdmin.asSharedFlow()
 
+    private val _navigateToUser = MutableSharedFlow<Unit>()
+    val navigateToUser = _navigateToUser.asSharedFlow()
+
     fun onUsernameChanged(newUsername: String) {
         _state.update { it.copy(username = newUsername) }
     }
@@ -46,7 +49,7 @@ class LoginViewModel @Inject constructor(
                         if (user.roleId == 1) {
                             _navigateToAdmin.emit(Unit)  // Gửi tín hiệu điều hướng đến Admin
                         } else {
-                            _state.update { it.copy(isLoading = false, isLoggedIn = true) }
+                            _navigateToUser.emit(Unit)   // Gửi tín hiệu điều hướng đến User
                         }
 
                         _state.update { it.copy(isLoading = false, isLoggedIn = true) }
@@ -70,5 +73,4 @@ class LoginViewModel @Inject constructor(
             )
         }
     }
-
 }

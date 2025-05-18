@@ -5,7 +5,7 @@ import com.example.capyvocab_fe.admin.course.data.remote.model.CourseTopicsRespo
 import com.example.capyvocab_fe.admin.course.data.remote.model.CreateCourseRequest
 import com.example.capyvocab_fe.admin.course.data.remote.model.UpdateCourseRequest
 import com.example.capyvocab_fe.admin.course.domain.model.Course
-import com.example.capyvocab_fe.admin.user.data.remote.model.ApiResponse
+import com.example.capyvocab_fe.core.network.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

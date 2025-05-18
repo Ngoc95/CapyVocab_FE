@@ -25,7 +25,7 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.navBarBackground
 
 @Composable
-fun BottomNavigation(
+fun AdminBottomNavigation(
     items: List<BottomNavigationItem>,
     selected: Int,
     onItemClick: (Int) -> Unit
@@ -36,6 +36,7 @@ fun BottomNavigation(
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
+                modifier = Modifier.weight(1f),
                 selected = selected == index,
                 onClick = { onItemClick(index) },
                 icon = {
@@ -43,12 +44,12 @@ fun BottomNavigation(
                         Icon(
                             painter = painterResource(if (selected == index) item.selectedIcon else item.icon),
                             contentDescription = null,
-                            modifier = Modifier.size(34.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = item.text,
-                            fontSize = (if (selected == index) 14.sp else 12.sp),
+                            fontSize = 10.sp,
                             style = MaterialTheme.typography.labelSmall
                         )
                     }
@@ -74,12 +75,39 @@ data class BottomNavigationItem(
 @Composable
 private fun BottomNavigationPreview() {
     CapyVocab_FETheme {
-        BottomNavigation(items = listOf(
-            BottomNavigationItem(icon = R.drawable.admin_home, selectedIcon = R.drawable.admin_selected_home, text = "Trang chủ"),
-            BottomNavigationItem(icon = R.drawable.admin_course, selectedIcon = R.drawable.admin_selected_course, text = "Khoá học"),
-            BottomNavigationItem(icon = R.drawable.admin_user,selectedIcon = R.drawable.admin_selected_user, text = "Người dùng"),
-            BottomNavigationItem(icon = R.drawable.ic_setting,selectedIcon = R.drawable.ic_selected_setting, text = "Cài đặt")
-        ), selected = 0, onItemClick = {}
+        AdminBottomNavigation(
+            items = listOf(
+                BottomNavigationItem(
+                    icon = R.drawable.admin_home,
+                    selectedIcon = R.drawable.admin_selected_home,
+                    text = "Trang chủ"
+                ),
+                BottomNavigationItem(
+                    icon = R.drawable.admin_course,
+                    selectedIcon = R.drawable.admin_selected_course,
+                    text = "Khoá học"
+                ),
+                BottomNavigationItem(
+                    icon = R.drawable.admin_topic,
+                    selectedIcon = R.drawable.admin_selected_topic,
+                    text = "Chủ đề"
+                ),
+                BottomNavigationItem(
+                    icon = R.drawable.admin_word,
+                    selectedIcon = R.drawable.admin_selected_word,
+                    text = "Từ vựng"
+                ),
+                BottomNavigationItem(
+                    icon = R.drawable.admin_user,
+                    selectedIcon = R.drawable.admin_selected_user,
+                    text = "Người dùng"
+                ),
+                BottomNavigationItem(
+                    icon = R.drawable.user_profile,
+                    selectedIcon = R.drawable.ic_selected_profile,
+                    text = "Hồ sơ"
+                )
+            ), selected = 5, onItemClick = {}
         )
     }
 }

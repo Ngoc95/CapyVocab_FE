@@ -24,17 +24,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,33 +44,23 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
-import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
 import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.admin.word.presentation.components.WordCard
 import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.ui.components.RippleOverlay
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
 @Composable
 fun WordScreen(
-    topic: Topic,
-    onBackClick: () -> Unit,
     viewModel: WordListViewModel = hiltViewModel(),
     navController: NavController
 ) {
@@ -86,8 +72,6 @@ fun WordScreen(
     var wordToDelete by remember { mutableStateOf<Word?>(null) }
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
-    var isMultiDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
-
     var visibleError by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
@@ -96,8 +80,8 @@ fun WordScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(topic.id) {
-        viewModel.onEvent(WordEvent.LoadWords(topic))
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(WordEvent.LoadAllWords)
     }
 
     //launchEffect to track transition to multi-select mode
@@ -134,13 +118,12 @@ fun WordScreen(
     }
 
     FocusComponent {
-        WordScreenContent (
+        WordScreenContent(
             words = state.words,
-            topicTitle = topic.title,
-            isLoading = state.isLoading,
-            isEndReached = state.isEndReached,
             selectedWords = state.words.filter { state.selectedWords.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
+            isLoading = state.isLoading,
+            isEndReached = state.isEndReached,
             onPlayAudio = { audioUrl ->
                 // TODO: Play audio
             },
@@ -152,12 +135,7 @@ fun WordScreen(
                 selectedWord = null
                 isDialogOpen = true
             },
-            onBackClick = onBackClick,
-            onLoadMore = { viewModel.onEvent(WordEvent.LoadMoreWords(topic))},
-            onCancelMultiSelect = { viewModel.onEvent(WordEvent.CancelMultiSelect) },
-            onDeleteSelectedWords = {
-                isMultiDeleteConfirmDialogOpen = true
-            },
+            onLoadMore = { viewModel.onEvent(WordEvent.LoadMoreAllWords) },
             onWordLongPress = { word ->
                 viewModel.onEvent(WordEvent.OnWordLongPress(word.id))
             },
@@ -177,24 +155,26 @@ fun WordScreen(
             },
             onSave = { word, uri ->
                 if (word.id == 0) {
-                    viewModel.onEvent(WordEvent.CreateWord(topic, word))
+                    viewModel.onEvent(WordEvent.CreateWord(1, word))
                 } else {
                     viewModel.onEvent(WordEvent.UpdateWord(word))
                 }
                 isDialogOpen = false
             },
             onDelete = {
-                selectedWord?.let { word ->
-                    viewModel.onEvent(WordEvent.DeleteWord(word.id))
+                selectedWord?.let {
+                    wordToDelete = it
+                    isDeleteConfirmDialogOpen = true
                 }
                 isDialogOpen = false
+                selectedWord = null
             }
         )
     }
     //AlertDialog xác nhận trước khi xoá user
     if (isDeleteConfirmDialogOpen && wordToDelete != null) {
         ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá người dùng \"${wordToDelete?.content}\" không?",
+            message = "Bạn có chắc chắn muốn xoá từ \"${wordToDelete?.content}\" không?",
             onConfirm = {
                 viewModel.onEvent(WordEvent.DeleteWord(wordToDelete!!.id))
                 isDeleteConfirmDialogOpen = false
@@ -206,40 +186,11 @@ fun WordScreen(
             }
         )
     }
-
-    //multi-user delete confirmation dialog
-    if (isMultiDeleteConfirmDialogOpen) {
-        val selectedCount = state.selectedWords.size
-        ConfirmDeleteDialog(
-            message = "Bạn có chắc chắn muốn xoá $selectedCount người dùng đã chọn không?",
-            onConfirm = {
-                viewModel.onEvent(WordEvent.OnDeleteSelectedWords)
-                isMultiDeleteConfirmDialogOpen = false
-            },
-            onDismiss = {
-                isMultiDeleteConfirmDialogOpen = false
-            }
-        )
-    }
-
-    //overlay when entering multi-select mode
-    if (multiSelectTransition.value && state.isMultiSelecting) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 4.dp)
-        ) {
-            RippleOverlay(
-                onFinished = {/* optional callback */ }
-            )
-        }
-    }
 }
 
 @Composable
 fun WordScreenContent(
     words: List<Word>,
-    topicTitle: String,
     selectedWords: List<Word>,
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
@@ -247,27 +198,11 @@ fun WordScreenContent(
     onPlayAudio: (String) -> Unit,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
-    onBackClick: () -> Unit,
     onLoadMore: () -> Unit,
-    onCancelMultiSelect: () -> Unit,
-    onDeleteSelectedWords: () -> Unit,
     onWordLongPress: (Word) -> Unit,
     onWordSelectToggle: (Word) -> Unit
 ) {
     val listState = rememberLazyListState()
-
-    //animation values
-    val topBarScale = animateFloatAsState(
-        targetValue = if (isMultiSelectMode) 1.05f else 1f,
-        animationSpec = tween(300),
-        label = "topBarScale"
-    )
-
-    val topBarElevation = animateDpAsState(
-        targetValue = if (isMultiSelectMode) 8.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "topBarElevation"
-    )
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -284,72 +219,6 @@ fun WordScreenContent(
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
-            // Top bar + animation
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-                    .scale(topBarScale.value)
-                    .shadow(topBarElevation.value, RoundedCornerShape(16.dp))
-                    .background(
-                        color = if (isMultiSelectMode) Color(0xFF8FD9FF) else Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                if (isMultiSelectMode) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        //left side with back button and selection count
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AnimatedVisibility(
-                                visible = true,
-                                enter = fadeIn() + slideInHorizontally(),
-                                exit = fadeOut() + slideOutHorizontally()
-                            ) {
-                                IconButton(onClick = { onCancelMultiSelect() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Cancel")
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "Đã chọn ${selectedWords.size}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 25.sp
-                            )
-                        }
-
-                        //right side with delete button
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
-                            exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 })
-                        ) {
-                            IconButton(onClick = { onDeleteSelectedWords() }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                            }
-                        }
-                    }
-
-                } else {
-                    Row (
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { onBackClick() },
-                            modifier = Modifier.padding(top = 8.dp)) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        // Top bar
-                        TopBarTitle(topicTitle, 25.sp)
-                    }
-                }
-            }
-
             // Search bar & Add button - hide if in multi-select mode + animation
             AnimatedVisibility(
                 visible = !isMultiSelectMode,
@@ -365,6 +234,7 @@ fun WordScreenContent(
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
+                        .padding(top = 12.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -464,60 +334,3 @@ fun WordScreenContent(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun WordListScreenContentPreview() {
-    val sampleWords = listOf(
-        Word(
-            id = 1,
-            content = "apple",
-            pronunciation = "/ˈæpl/",
-            position = "noun",
-            meaning = "a round fruit with red or green skin",
-            rank = "2",
-            audio = "https://example.com/audio1.mp3",
-            image = "https://example.com/image1.jpg",
-            example = "She ate an apple for lunch.",
-            translateExample = "Cô ấy đã ăn một quả táo vào bữa trưa.",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = ""
-        ),
-        Word(
-            id = 2,
-            content = "run",
-            pronunciation = "/rʌn/",
-            position = "verb",
-            meaning = "to move quickly on foot",
-            rank = "2",
-            audio = "https://example.com/audio2.mp3",
-            image = "https://example.com/image2.jpg",
-            example = "He runs every morning.",
-            translateExample = "Anh ấy chạy mỗi sáng.",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = ""
-        )
-    )
-
-    WordScreenContent(
-        words = sampleWords,
-        topicTitle = "Cuộc sống hằng ngày",
-        isLoading = false,
-        onPlayAudio = {},
-        onEditWord = {},
-        onAddWord = {},
-        onBackClick = {},
-        onLoadMore = {},
-        onCancelMultiSelect = {},
-        onDeleteSelectedWords = {},
-        onWordLongPress = {},
-        onWordSelectToggle = {},
-        selectedWords = emptyList(),
-        isMultiSelectMode = false,
-        isEndReached = false,
-    )
-}
-
-

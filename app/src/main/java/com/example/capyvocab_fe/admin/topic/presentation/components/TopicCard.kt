@@ -1,11 +1,9 @@
 package com.example.capyvocab_fe.admin.topic.presentation.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,7 +54,8 @@ fun TopicCard(
     onEditClick: () -> Unit,
     onLongClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
-    cardElevation: Dp = 8.dp
+    cardElevation: Dp = 8.dp,
+    isAdmin: Boolean
 ) {
     //animation for checkbox
     val checkboxScale = animateFloatAsState(
@@ -69,7 +68,7 @@ fun TopicCard(
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
-                    if(isMultiSelecting) {
+                    if (isMultiSelecting) {
                         onCheckedChange(!isSelected)
                     } else {
                         onClick()
@@ -126,9 +125,14 @@ fun TopicCard(
                 Box(
                     modifier = Modifier
                         .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(Color(0xFF00D9FF), Color(0xFFBEEBF9))
-                            )
+                            brush = if (topic.alreadyLearned)
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFFB9FBC0), Color(0xFF70E000))
+                                )
+                            else
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFF00D9FF), Color(0xFFBEEBF9))
+                                )
                         )
                         .fillMaxSize()
                 ) {
@@ -165,7 +169,18 @@ fun TopicCard(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                Badge(text = topic.type, textColor = Color(0xFF125C00), backgroundColor = Color(0xFF00FF00))
+                                if (topic.type == "Free")
+                                    Badge(
+                                        text = topic.type,
+                                        textColor = Color(0xFF125C00),
+                                        backgroundColor = Color(0xFF00FF00)
+                                    )
+                                else if (topic.type == "Premium")
+                                    Badge(
+                                        text = topic.type,
+                                        textColor = Color(0xFFDF1E71),
+                                        backgroundColor = Color(0xFFFFE0F0)
+                                    )
                             }
 
                             topic.description?.let {
@@ -178,17 +193,19 @@ fun TopicCard(
                             }
                         }
 
-                        IconButton(
-                            onClick = { onEditClick() },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .align(Alignment.Top)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                tint = Color(0xFF5E4A45)
-                            )
+                        if(isAdmin) {
+                            IconButton(
+                                onClick = { onEditClick() },
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .align(Alignment.Top)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = Color(0xFF5E4A45)
+                                )
+                            }
                         }
                     }
                 }
@@ -205,12 +222,13 @@ fun TopicCardPreview() {
             id = 1,
             title = "Friendship",
             description = "Tình bạn",
-            thumbnail = null,
+            thumbnail = "",
             type = "Free",
-            deletedAt = null,
-            createdAt = "",
-            updatedAt = "",
-            displayOrder = 1
+            alreadyLearned = false
+//            deletedAt = null,
+//            createdAt = "",
+//            updatedAt = "",
+//            displayOrder = 1
         )
 
         TopicCard(
@@ -220,7 +238,8 @@ fun TopicCardPreview() {
             onLongClick = {},
             onCheckedChange = {},
             isMultiSelecting = false,
-            isSelected = false
+            isSelected = false,
+            isAdmin = true
         )
     }
 }

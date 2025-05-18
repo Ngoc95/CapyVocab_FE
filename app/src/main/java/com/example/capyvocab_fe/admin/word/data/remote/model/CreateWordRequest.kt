@@ -9,7 +9,6 @@ data class CreateWordBody(
     val pronunciation: String,
     val position: String,
     val meaning: String,
-    val rank: String,
     val audio: String,
     val image: String,
     val example: String,

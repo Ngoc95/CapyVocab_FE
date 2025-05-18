@@ -1,7 +1,9 @@
 package com.example.capyvocab_fe.admin.word.presentation
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.topic.domain.repository.AdminTopicRepository
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordBody
@@ -27,11 +29,13 @@ class WordListViewModel @Inject constructor(
 
     fun onEvent(event: WordEvent) {
         when (event) {
+            is WordEvent.LoadAllWords -> loadAllWords()
+            is WordEvent.LoadMoreAllWords -> loadAllWords(loadMore = true)
             is WordEvent.LoadWords -> loadWords(event.topic)
             is WordEvent.LoadMoreWords -> loadWords(event.topic, loadMore = true)
-            is WordEvent.UpdateWord -> updateWord(event.word)
+            is WordEvent.UpdateWord -> updateWord(event.word, event.imageUri)
             is WordEvent.DeleteWord -> deleteWord(event.wordId)
-            is WordEvent.CreateWord -> createWord(event.topic, event.word)
+            is WordEvent.CreateWord -> createWord(event.topicId, event.word, event.imageUri)
             is WordEvent.CancelMultiSelect -> cancelMultiSelect()
             is WordEvent.OnDeleteSelectedWords -> deleteSelectedTopics()
             is WordEvent.OnSelectAllToggle -> selectAll()
@@ -40,11 +44,39 @@ class WordListViewModel @Inject constructor(
         }
     }
 
+    private fun loadAllWords(loadMore: Boolean = false) {
+        viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
+            _state.update { it.copy(isLoading = true, errorMessage = "", currentTopic = null) }
+
+            wordRepository.getAllWords(nextPage)
+                .onRight { newWords ->
+                    _state.update {
+                        val allWords = if (loadMore) it.words + newWords else newWords
+                        it.copy(
+                            isLoading = false,
+                            words = allWords,
+                            currentPage = nextPage,
+                            isEndReached = allWords.isEmpty()
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Failed to load all words"
+                        )
+                    }
+                }
+        }
+    }
+
     private fun loadWords(topic: Topic, loadMore: Boolean = false) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
 
-            _state.update { it.copy(isLoading = false, errorMessage = "") }
+            _state.update { it.copy(isLoading = false, errorMessage = "", currentTopic = topic) }
 
             topicRepository.getTopicWords(topic.id, nextPage)
                 .onRight { newWords ->
@@ -60,15 +92,19 @@ class WordListViewModel @Inject constructor(
                 }
                 .onLeft { failure ->
                     _state.update {
-                        it.copy(isLoading = false, errorMessage = failure.message ?: "failed to load words")
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "failed to load words"
+                        )
                     }
                 }
         }
     }
 
-    private fun createWord(topic: Topic, word: Word) {
+    private fun createWord(topicId: Int, word: Word, imageUri: Uri?) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
+            val imageUrl = uploadImageIfNeeded(imageUri, word.image) ?: return@launch
 
             val createWordRequest = CreateWordRequest(
                 words = listOf(
@@ -77,12 +113,11 @@ class WordListViewModel @Inject constructor(
                         pronunciation = word.pronunciation,
                         position = word.position,
                         meaning = word.meaning,
-                        rank = word.rank,
                         audio = word.audio,
-                        image = word.image,
+                        image = imageUrl,
                         example = word.example,
                         translateExample = word.translateExample,
-                        topicIds = listOf(topic.id)
+                        topicIds = listOf(topicId)
                     )
                 )
             )
@@ -108,18 +143,19 @@ class WordListViewModel @Inject constructor(
         }
     }
 
-    private fun updateWord(word: Word) {
+    private fun updateWord(word: Word, imageUri: Uri?) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            val imageUrl = uploadImageIfNeeded(imageUri, word.image) ?: return@launch
 
             val updateWordReq = UpdateWordRequest(
                 content = word.content,
                 pronunciation = word.pronunciation,
                 position = word.position,
                 meaning = word.meaning,
-                rank = word.rank,
                 audio = word.audio,
-                image = word.image,
+                image = imageUrl,
                 example = word.example,
                 translateExample = word.translateExample
             )
@@ -135,7 +171,7 @@ class WordListViewModel @Inject constructor(
                             errorMessage = "",
                             words = updatedWords
                         )
-                        }
+                    }
                 }
                 .onLeft { failure ->
                     _state.update {
@@ -149,17 +185,127 @@ class WordListViewModel @Inject constructor(
     }
 
     private fun deleteWord(wordId: Int) {
-//        viewModelScope.launch {
-//            adminWordRepository.deleteWord(wordId)
-//                .onRight {
-//                    onEvent(WordEvent.Load) // Reload
-//                }
-//                .onLeft { failure ->
-//                    _state.value = _state.value.copy(
-//                        error = failure.message ?: "Error deleting word"
-//                    )
-//                }
-//        }
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            // Check if we're in a topic context or main word screen
+            val currentTopic = state.value.currentTopic
+
+            if (currentTopic != null) {
+                // Case 2: In WordsInTopicScreen - only remove word from topic
+                // Get current topic's words excluding the one to delete
+                val updatedWordIds = currentTopic.words
+                    .filterNot { it.id == wordId }
+                    .map { it.id }
+
+                // Create update request with the filtered word list
+                val updateTopicRequest = UpdateTopicRequest(
+                    title = currentTopic.title,
+                    description = currentTopic.description,
+                    thumbnail = currentTopic.thumbnail,
+                    type = currentTopic.type,
+                    wordIds = updatedWordIds
+                )
+
+                // Update the topic with the new word list
+                topicRepository.updateTopic(currentTopic.id, updateTopicRequest)
+                    .onRight {
+                        _state.update { currentState ->
+                            val updatedWords = currentState.words.filterNot { it.id == wordId }
+                            currentState.copy(
+                                isLoading = false,
+                                words = updatedWords
+                            )
+                        }
+                    }
+                    .onLeft { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "Không thể xoá từ khỏi chủ đề"
+                            )
+                        }
+                    }
+            } else {
+                // Case 1: In WordScreen - delete word from database
+                wordRepository.deleteWord(wordId)
+                    .onRight {
+                        _state.update { currentState ->
+                            val updatedWords = currentState.words.filterNot { it.id == wordId }
+                            currentState.copy(
+                                isLoading = false,
+                                words = updatedWords
+                            )
+                        }
+                    }
+                    .onLeft { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "Không thể xoá từ"
+                            )
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun deleteSelectedTopics() {
+        viewModelScope.launch {
+            val selectedIds = state.value.selectedWords
+            if (selectedIds.isEmpty()) return@launch
+
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = ""
+                )
+            }
+
+            // Check if we're in a topic context or main word screen
+            val currentTopic = state.value.currentTopic
+            var hasError = false
+
+            if (currentTopic != null) {
+                // Case 2: In WordsInTopicScreen - only remove words from topic
+                // Get current topic's words excluding the ones to delete
+                val updatedWordIds = currentTopic.words
+                    .filterNot { it.id in selectedIds }
+                    .map { it.id }
+
+                // Create update request with the filtered word list
+                val updateTopicRequest = UpdateTopicRequest(
+                    title = currentTopic.title,
+                    description = currentTopic.description,
+                    thumbnail = currentTopic.thumbnail,
+                    type = currentTopic.type,
+                    wordIds = updatedWordIds
+                )
+
+                // Update the topic with the new word list
+                topicRepository.updateTopic(currentTopic.id, updateTopicRequest)
+                    .onLeft { hasError = true }
+            } else {
+                // Case 1: In WordScreen - delete words from database
+                selectedIds.forEach { wordId ->
+                    wordRepository.deleteWord(wordId)
+                        .onLeft { hasError = true }
+                }
+            }
+
+            // Update UI state
+            val remainingWords = state.value.words.filterNot { it.id in selectedIds }
+
+            _state.update {
+                it.copy(
+                    words = remainingWords,
+                    selectedWords = emptySet(),
+                    isMultiSelecting = false,
+                    isLoading = false,
+                    errorMessage = if (hasError) "Một số từ không thể xoá" else ""
+                )
+            }
+        }
     }
 
     private fun startMultiSelect(wordId: Int) {
@@ -185,7 +331,8 @@ class WordListViewModel @Inject constructor(
         _state.update { currentState ->
             val allSelected = currentState.isSelectAll
             currentState.copy(
-                selectedWords = if (allSelected) emptySet() else currentState.words.map { it.id }.toSet(),
+                selectedWords = if (allSelected) emptySet() else currentState.words.map { it.id }
+                    .toSet(),
                 isSelectAll = !allSelected
             )
         }
@@ -206,8 +353,20 @@ class WordListViewModel @Inject constructor(
         }
     }
 
-    private fun deleteSelectedTopics() {
-
+    private suspend fun uploadImageIfNeeded(uri: Uri?, currentImage: String?): String? {
+        if (uri == null) return currentImage
+        val uploadResult = wordRepository.uploadImage(uri)
+        return uploadResult.fold(
+            ifLeft = { failure ->
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Upload ảnh thất bại: ${failure.message}"
+                    )
+                }
+                null
+            },
+            ifRight = { url -> url }
+        )
     }
-
 }

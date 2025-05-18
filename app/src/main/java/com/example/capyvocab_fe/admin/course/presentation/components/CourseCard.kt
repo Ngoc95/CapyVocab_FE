@@ -59,7 +59,8 @@ fun CourseCard(
     onEditClick: () -> Unit,
     onLongClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
-    cardElevation: Dp = 8.dp
+    cardElevation: Dp = 8.dp,
+    isAdmin: Boolean
 ) {
     //animation for checkbox
     val checkboxScale = animateFloatAsState(
@@ -79,7 +80,7 @@ fun CourseCard(
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
-                    if(isMultiSelecting) {
+                    if (isMultiSelecting) {
                         onCheckedChange(!isSelected)
                     } else {
                         onClick()
@@ -125,11 +126,19 @@ fun CourseCard(
                     Column(
                         modifier = Modifier.align(Alignment.Center)
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Badge(text = "Đã công bố", textColor = Color.White, backgroundColor = Color(0xFF075743)) }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        if(isAdmin){
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Badge(
+                                    text = "Đã công bố",
+                                    textColor = Color.White,
+                                    backgroundColor = Color(0xFF075743)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
                         Text(
                             style = MaterialTheme.typography.labelMedium,
                             text = course.title,
@@ -138,19 +147,22 @@ fun CourseCard(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .align(Alignment.TopEnd)
-                            .clickable(onClick = onEditClick),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            tint = Color.White,
-                            modifier = Modifier.size(25.dp)
-                        )
+                    if (isAdmin){
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .align(Alignment.TopEnd)
+                                .clickable(onClick = onEditClick),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                tint = Color.White,
+                                modifier = Modifier.size(25.dp)
+                            )
+                        }
                     }
+
                 }
 
                 // Info phần dưới
@@ -181,6 +193,7 @@ fun CourseCard(
         }
     }
 }
+
 fun sampleCourses() = listOf(
     Course(
         id = 1,
@@ -207,10 +220,11 @@ fun sampleCourses() = listOf(
         courseTopics = emptyList()
     )
 )
+
 @Preview(showBackground = true)
 @Composable
 fun CourseCardPreview() {
-    CapyVocab_FETheme{
+    CapyVocab_FETheme {
         CourseCard(
             course = sampleCourses()[1],
             onClick = {},
@@ -218,7 +232,8 @@ fun CourseCardPreview() {
             onLongClick = {},
             onCheckedChange = {},
             isMultiSelecting = false,
-            isSelected = false
+            isSelected = false,
+            isAdmin = true
         )
     }
 
@@ -262,7 +277,7 @@ fun InfoRow(
 }
 
 
-private fun mapLevel(level: String): String {
+fun mapLevel(level: String): String {
     return when (level) {
         "Beginner" -> "Sơ cấp"
         "Intermediate" -> "Trung cấp"

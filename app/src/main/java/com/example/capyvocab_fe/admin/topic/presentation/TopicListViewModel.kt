@@ -1,7 +1,10 @@
 package com.example.capyvocab_fe.admin.topic.presentation
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capyvocab_fe.admin.course.data.remote.model.TopicRequest
+import com.example.capyvocab_fe.admin.course.data.remote.model.UpdateCourseRequest
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.repository.AdminCourseRepository
 import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicBody
@@ -27,11 +30,19 @@ class TopicListViewModel @Inject constructor(
 
     fun onEvent(event: TopicEvent) {
         when (event) {
+            is TopicEvent.LoadAllTopics -> loadAllTopics()
+            is TopicEvent.LoadMoreAllTopics -> loadAllTopics(loadMore = true)
             is TopicEvent.LoadTopics -> loadTopics(event.course)
             is TopicEvent.LoadMoreTopics -> loadTopics(event.course, loadMore = true)
             is TopicEvent.DeleteTopic -> deleteTopic(event.topicId)
-            is TopicEvent.UpdateTopic -> updateTopic(event.topic)
-            is TopicEvent.CreateTopic -> createTopic(event.course, event.topic)
+
+            is TopicEvent.UpdateTopic -> updateTopic(event.topic, event.thumbnailUri)
+            is TopicEvent.CreateTopic -> createTopic(
+                event.courseId,
+                event.topic,
+                event.thumbnailUri
+            )
+
             is TopicEvent.GetTopicById -> getTopicById(event.topicId)
             is TopicEvent.CancelMultiSelect -> cancelMultiSelect()
             is TopicEvent.OnDeleteSelectedTopics -> deleteSelectedTopics()
@@ -41,21 +52,52 @@ class TopicListViewModel @Inject constructor(
         }
     }
 
+    private fun loadAllTopics(loadMore: Boolean = false) {
+        viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
+            _state.update { it.copy(isLoading = true, errorMessage = "", currentCourse = null) }
+            topicRepository.getAllTopic(nextPage)
+                .onRight { newTopics ->
+                    _state.update {
+                        val allTopics = if (loadMore) it.topics + newTopics else newTopics
+                        it.copy(
+                            isLoading = false,
+                            topics = allTopics,
+                            currentPage = nextPage,
+                            isEndReached = newTopics.isEmpty()
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "failed to load topics"
+                        )
+                    }
+                }
+        }
+    }
+
     private fun createTopic(
-        course: Course,
-        topic: Topic
+        courseId: Int,
+        topic: Topic,
+        thumbnailUri: Uri?
     ) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            val thumbnailUrl =
+                uploadThumbnailIfNeeded(thumbnailUri, topic.thumbnail) ?: return@launch
 
             val createTopicRequest = CreateTopicRequest(
                 topics = listOf(
                     CreateTopicBody(
                         title = topic.title,
                         description = topic.description,
-                        thumbnail = topic.thumbnail,
+                        thumbnail = thumbnailUrl,
                         type = topic.type,
-                        courseIds = listOf(course.id)
+                        courseIds = listOf(courseId)
                     )
                 )
             )
@@ -85,7 +127,6 @@ class TopicListViewModel @Inject constructor(
     private fun getTopicById(topicId: Int) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-
             topicRepository.getTopicById(topicId)
                 .onRight { topic ->
                     _state.update {
@@ -109,7 +150,7 @@ class TopicListViewModel @Inject constructor(
     private fun loadTopics(course: Course, loadMore: Boolean = false) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
-            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            _state.update { it.copy(isLoading = true, errorMessage = "", currentCourse = course) }
             courseRepository.getCourseTopics(course.id, nextPage)
                 .onRight { newTopics ->
                     _state.update {
@@ -133,14 +174,17 @@ class TopicListViewModel @Inject constructor(
         }
     }
 
-    private fun updateTopic(topic: Topic) {
+    private fun updateTopic(topic: Topic, thumbnailUri: Uri?) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            val thumbnailUrl =
+                uploadThumbnailIfNeeded(thumbnailUri, topic.thumbnail) ?: return@launch
 
             val updateTopicRequest = UpdateTopicRequest(
                 title = topic.title,
                 description = topic.description,
-                thumbnail = topic.thumbnail,
+                thumbnail = thumbnailUrl,
                 type = topic.type
             )
 
@@ -169,27 +213,125 @@ class TopicListViewModel @Inject constructor(
     }
 
     private fun deleteTopic(topicId: Int) {
-//        viewModelScope.launch {
-//            _state.update { it.copy(isLoading = true, errorMessage = "") }
-//            topicRepository.deleteTopic(topicId)
-//                .onRight {
-//                    _state.update { currentState ->
-//                        val updatedTopics = currentState.topics.filterNot { it.id == topicId }
-//                        currentState.copy(
-//                            topics = updatedTopics,
-//                            isLoading = false
-//                        )
-//                    }
-//                }
-//                .onLeft { failure ->
-//                    _state.update {
-//                        it.copy(
-//                            isLoading = false,
-//                            errorMessage = failure.message ?: "failed to delete topic"
-//                        )
-//                    }
-//                }
-//        }
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            // check if in course context or main topic screen
+            val currentCourse = state.value.currentCourse
+
+            if (currentCourse != null) {
+                val remainingTopics = currentCourse.topics
+                    .filterNot { it.id == topicId }
+                    .mapIndexed { index, topic ->
+                        TopicRequest(topic.id, index + 1)
+                    }
+
+                val updateCourseRequest = UpdateCourseRequest(
+                    title = currentCourse.title,
+                    description = currentCourse.description,
+                    target = currentCourse.target,
+                    level = currentCourse.level,
+                    topics = remainingTopics
+                )
+
+                courseRepository.updateCourse(currentCourse.id, updateCourseRequest)
+                    .onRight {
+                        _state.update { currentState ->
+                            val updatedTopics = currentState.topics.filterNot { it.id == topicId }
+                            currentState.copy(
+                                topics = updatedTopics,
+                                isLoading = false
+                            )
+                        }
+                    }
+                    .onLeft { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message
+                                    ?: "Không thể xoá chủ đề ra khỏi khoá học"
+                            )
+                        }
+                    }
+            } else {
+                // case 1: in TopicScreen
+                topicRepository.deleteTopic(topicId)
+                    .onRight {
+                        _state.update { currentState ->
+                            val updatedTopics = currentState.topics.filterNot { it.id == topicId }
+                            currentState.copy(
+                                topics = updatedTopics,
+                                isLoading = false
+                            )
+                        }
+                    }
+                    .onLeft { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "Không thể xoá chủ đề"
+                            )
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun deleteSelectedTopics() {
+        viewModelScope.launch {
+            val selectedIds = state.value.selectedTopics
+            if (selectedIds.isEmpty()) return@launch
+
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = ""
+                )
+            }
+
+            // check if in course context or main topic screen
+            val currentCourse = state.value.currentCourse
+            var hasError = false
+
+            if (currentCourse != null) {
+                // case 2: in TopicsInCourseScreen - remove topics from course
+                val remainingTopics = currentCourse.topics
+                    .filterNot { it.id in selectedIds }
+                    // Reorder the remaining topics to ensure sequential displayOrder
+                    .mapIndexed { index, topic ->
+                        TopicRequest(topic.id, index + 1)
+                    }
+                val updateCourseRequest = UpdateCourseRequest(
+                    title = currentCourse.title,
+                    description = currentCourse.description,
+                    target = currentCourse.target,
+                    level = currentCourse.level,
+                    topics = remainingTopics
+                )
+
+                courseRepository.updateCourse(currentCourse.id, updateCourseRequest)
+                    .onLeft { hasError = true }
+            } else {
+                // case 1: in TopicScreen - delete topic from database
+                selectedIds.forEach { topicId ->
+                    topicRepository.deleteTopic(topicId)
+                        .onLeft { hasError = true }
+                }
+            }
+
+            //update UI state
+            val remainingTopics = state.value.topics.filterNot { it.id in selectedIds }
+
+            _state.update {
+                it.copy(
+                    topics = remainingTopics,
+                    selectedTopics = emptySet(),
+                    isMultiSelecting = false,
+                    isLoading = false,
+                    errorMessage = if (hasError) "Một số chủ đề không thể xoá" else ""
+                )
+            }
+        }
     }
 
     private fun startMultiSelect(topicId: Int) {
@@ -215,7 +357,8 @@ class TopicListViewModel @Inject constructor(
         _state.update { currentState ->
             val allSelected = currentState.isSelectAll
             currentState.copy(
-                selectedTopics = if (allSelected) emptySet() else currentState.topics.map { it.id }.toSet(),
+                selectedTopics = if (allSelected) emptySet() else currentState.topics.map { it.id }
+                    .toSet(),
                 isSelectAll = !allSelected
             )
         }
@@ -227,7 +370,7 @@ class TopicListViewModel @Inject constructor(
             currentSelected.remove(topicId)
         } else {
             currentSelected.add(topicId)
-            }
+        }
         _state.update { currentState ->
             currentState.copy(
                 selectedTopics = currentSelected,
@@ -236,7 +379,21 @@ class TopicListViewModel @Inject constructor(
         }
     }
 
-    private fun deleteSelectedTopics() {
+    private suspend fun uploadThumbnailIfNeeded(uri: Uri?, currentThumbnail: String?): String? {
+        if (uri == null) return currentThumbnail
+        val uploadResult = topicRepository.uploadThumbnailImage(uri)
+        return uploadResult.fold(
+            ifLeft = { failure ->
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Upload ảnh thất bại: ${failure.message}"
+                    )
+                }
+                null
+            },
+            ifRight = { url -> url }
+        )
 
     }
 }

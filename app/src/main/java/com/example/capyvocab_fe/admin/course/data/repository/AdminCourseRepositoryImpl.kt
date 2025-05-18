@@ -7,55 +7,55 @@ import com.example.capyvocab_fe.admin.course.data.remote.model.UpdateCourseReque
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.repository.AdminCourseRepository
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.user.domain.error.AdminFailure
-import com.example.capyvocab_fe.admin.user.domain.error.toAdminFailure
+import com.example.capyvocab_fe.core.error.AppFailure
+import com.example.capyvocab_fe.core.error.toAppFailure
 import javax.inject.Inject
 
 class AdminCourseRepositoryImpl @Inject constructor(
     private val api: AdminCourseApi
 ) : AdminCourseRepository {
-    override suspend fun getAllCourses(page: Int): Either<AdminFailure, List<Course>> {
+    override suspend fun getAllCourses(page: Int): Either<AppFailure, List<Course>> {
         return Either.catch {
             val response = api.getAllCourses(page)
             response.metaData.courses
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getCourseTopics(id: Int, page: Int): Either<AdminFailure, List<Topic>> {
+    override suspend fun getCourseTopics(id: Int, page: Int): Either<AppFailure, List<Topic>> {
         return Either.catch {
             val response = api.getCourseTopics(id, page)
             response.metaData.topics
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun createCourse(courseRequest: CreateCourseRequest): Either<AdminFailure, Course> {
+    override suspend fun createCourse(courseRequest: CreateCourseRequest): Either<AppFailure, Course> {
         return Either.catch {
             val response = api.createCourse(courseRequest)
             response.metaData
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
 
     override suspend fun updateCourse(
         id: Int,
         courseRequest: UpdateCourseRequest
-    ): Either<AdminFailure, Course> {
+    ): Either<AppFailure, Course> {
         return Either.catch {
             val response = api.updateCourse(id, courseRequest)
             response.metaData
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun deleteCourse(id: Int): Either<AdminFailure, Unit> {
+    override suspend fun deleteCourse(id: Int): Either<AppFailure, Unit> {
         return Either.catch {
             api.deleteCourse(id)
             Unit
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getCourseById(id: Int): Either<AdminFailure, Course> {
+    override suspend fun getCourseById(id: Int): Either<AppFailure, Course> {
         return Either.catch {
             api.getCourseById(id).metaData
-        }.mapLeft { it.toAdminFailure() }
+        }.mapLeft { it.toAppFailure() }
     }
 
 
