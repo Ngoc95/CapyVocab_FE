@@ -1,10 +1,9 @@
 package com.example.capyvocab_fe.admin.word.domain.repository
 
+import android.net.Uri
 import arrow.core.Either
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
-import com.example.capyvocab_fe.admin.word.data.remote.model.DeleteResponse
-import com.example.capyvocab_fe.admin.word.data.remote.model.RestoreResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.domain.model.Word
 
@@ -17,6 +16,6 @@ interface AdminWordRepository {
         updateWordRequest: UpdateWordRequest
     ): Either<AppFailure, Word>
 
-    suspend fun deleteWord(id: Int): Either<AppFailure, DeleteResponse>
-    suspend fun restoreWord(id: Int): Either<AppFailure, RestoreResponse>
+    suspend fun deleteWord(id: Int): Either<AppFailure, Unit>
+    suspend fun uploadImage(uri: Uri): Either<AppFailure, String>
 }

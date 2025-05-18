@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.admin.topic.presentation
 
+import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 
 data class TopicListState(
@@ -11,5 +12,6 @@ data class TopicListState(
     val selectedTopics: Set<Int> = emptySet(),
     val isMultiSelecting: Boolean = false,
     val isSelectAll: Boolean = false,
-    val selectedTopic: Topic? = null
+    val selectedTopic: Topic? = null,
+    val currentCourse: Course? = null
 )

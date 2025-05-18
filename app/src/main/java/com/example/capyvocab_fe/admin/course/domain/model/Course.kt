@@ -1,5 +1,7 @@
 package com.example.capyvocab_fe.admin.course.domain.model
 
+import com.example.capyvocab_fe.admin.topic.domain.model.Topic
+
 
 data class Course(
     val id: Int,
@@ -7,7 +9,8 @@ data class Course(
     val level: String,
     val target: String,
     val description: String?,
-    val courseTopics: List<CourseTopics>
+    val courseTopics: List<CourseTopics>,
+    val topics: List<Topic> = emptyList()
 )
 
 data class CourseTopics(

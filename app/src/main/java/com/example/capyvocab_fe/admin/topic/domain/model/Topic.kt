@@ -1,5 +1,7 @@
 package com.example.capyvocab_fe.admin.topic.domain.model
 
+import com.example.capyvocab_fe.admin.word.domain.model.Word
+
 data class Topic(
     val id: Int,
     val title: String,
@@ -7,4 +9,6 @@ data class Topic(
     val thumbnail: String,
     val type: String,
     val alreadyLearned: Boolean
+    val displayOrder: Int? = null,
+    val words: List<Word> = emptyList()
 )

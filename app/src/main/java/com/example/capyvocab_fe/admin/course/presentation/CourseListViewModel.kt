@@ -40,13 +40,12 @@ class CourseListViewModel @Inject constructor(
     private fun getCourseById(courseId: Int) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-
             courseRepository.getCourseById(courseId)
                 .onRight { course ->
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            selectedCourse = course
+                            selectedCourse = course.copy(courseTopics = emptyList())
                         )
                     }
                 }
@@ -100,8 +99,7 @@ class CourseListViewModel @Inject constructor(
                             title = course.title,
                             level = course.level,
                             target = course.target,
-                            description = course.description,
-                            topics = emptyList()
+                            description = course.description
                         )
                     )
                 )
@@ -112,8 +110,7 @@ class CourseListViewModel @Inject constructor(
                     title = course.title,
                     level = course.level,
                     target = course.target,
-                    description = course.description,
-                    topics = emptyList()
+                    description = course.description
                 )
                 courseRepository.updateCourse(course.id, updateCourseReq)
             }

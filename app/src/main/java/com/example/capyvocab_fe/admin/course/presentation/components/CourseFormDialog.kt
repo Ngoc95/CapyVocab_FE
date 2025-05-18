@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -114,7 +115,7 @@ fun CourseFormDialog(
                             .fillMaxWidth()
                     ) {
                         OutlinedTextField(
-                            value = level,
+                            value = mapLevel(level),
                             onValueChange = { /*read-only */ },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(15.dp),
@@ -143,7 +144,7 @@ fun CourseFormDialog(
                         ) {
                             CourseLevel.entries.forEach { courseLevel ->
                                 DropdownMenuItem(
-                                    text = { Text(courseLevel.value) },
+                                    text = { Text(text = mapLevel(courseLevel.value)) },
                                     onClick = {
                                         level = courseLevel.value
                                         expanded = false
@@ -177,14 +178,16 @@ fun CourseFormDialog(
                                 title = title,
                                 level = level,
                                 target = target,
-                                description = description
+                                description = description,
+                                topics = emptyList()
                             ) ?: Course(
                                 id = 0,
                                 title = title,
                                 level = level,
                                 target = target,
                                 description = description,
-                                courseTopics = emptyList()
+                                courseTopics = emptyList(),
+                                topics = emptyList()
                             )
                             onSave(updatedCourse)
                         }
@@ -196,3 +199,22 @@ fun CourseFormDialog(
     }
 }
 
+@Preview
+@Composable
+private fun CourseFormDialogPreview() {
+    val sample = Course(
+        id = 1,
+        title = "xxxxx",
+        level = CourseLevel.BEGINNER.value,
+        target = "xxxxxxxxxxxxxxx",
+        description = "xxxxxxxxxxxxx",
+        courseTopics = emptyList()
+    )
+    CourseFormDialog(
+        course = sample,
+        errorMessage = "",
+        onDismiss = {},
+        onSave = {},
+        onDelete = {}
+    )
+}
