@@ -19,6 +19,7 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.AdminBottomNavigation
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
 
 @Composable
@@ -121,7 +122,10 @@ fun UserNavigator() {
         ) {
             //user community screen
             composable(route = Route.UserCommunityScreen.route) {
-                //TODO: navigate to user home screen
+                //TODO: navigate to user community screen
+                CommunityScreen(
+                    navController = navController
+                )
             }
             //user review screen
             composable(route = Route.UserReviewScreen.route) {

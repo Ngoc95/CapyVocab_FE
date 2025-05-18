@@ -7,8 +7,9 @@ import androidx.compose.ui.graphics.Color
 
 val Black = Color(0xFF1C1E21) //Dark Background
 val Blue = Color(0xFF1877F2) //Primary
-val LightBlue = Color(0x1CB0F6)
+val MyLightBlue = Color(0xFF1CB0F6)
 val White = Color(0xFFFCFAF9) //Light Background
+val MyGray = Color(0xFFE5E5E3)
 
 val DarkRed = Color(0xFFC30052) //Dark Error
 val LightRed = Color(0xFFFF84B7)

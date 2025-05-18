@@ -14,11 +14,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,11 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
-import com.example.capyvocab_fe.user.community.domain.model.Post
-import com.example.capyvocab_fe.ui.theme.LightBlue
-import com.example.capyvocab_fe.ui.theme.TextButtonModifier
+import com.example.capyvocab_fe.ui.theme.MyLightBlue
+import com.example.capyvocab_fe.ui.theme.Styles.LightBlueTextStyle
+import com.example.capyvocab_fe.ui.theme.Styles.MyLikeButton
+import com.example.capyvocab_fe.ui.theme.Styles.TextButtonModifier
 
 @Composable
 fun PostCard(
@@ -84,7 +84,7 @@ fun PostCard(
                     onClick = onFollowClick,
                     modifier = TextButtonModifier)
                 {
-                    Text("THEO DÕI", fontSize = 12.sp)
+                    Text("THEO DÕI", style = LightBlueTextStyle)
                 }
             }
 
@@ -98,43 +98,33 @@ fun PostCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Footer: Trả lời + Like
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "$replyCount trả lời",
-                    color = LightBlue,
-                    fontSize = 12.sp
-                )
+                Column {
+                    Text(
+                        text = "$replyCount trả lời",
+                        color = MyLightBlue,
+                        fontSize = 12.sp
+                    )
+
+                    MyLikeButton(
+                        liked = false,
+                        onLikedChange = { }
+                    )
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 TextButton(
                     onClick = onReplyClick,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                    modifier = TextButtonModifier,
                 ) {
-                    Text("TRẢ LỜI", fontSize = 12.sp)
+                    Text("TRẢ LỜI", style = LightBlueTextStyle)
                 }
 
                 Spacer(modifier = Modifier.width(4.dp))
 
-                IconButton(onClick = onLikeClick) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Like",
-                            tint = Color.Blue,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = likeCount.toString(),
-                            color = Color.Black,
-                            fontSize = 12.sp
-                        )
-                    }
-                }
             }
         }
     }
@@ -163,9 +153,9 @@ fun TopicCardPreview()
             content = "Hi mọi người mình có cái bla bla cần blu blu. mong mng ble ble",
             replyCount = 11,
             likeCount = 200,
-            onFollowClick = { /* TODO */ },
-            onReplyClick = { /* TODO */ },
-            onLikeClick = { /* TODO */ },
+            onFollowClick = { },
+            onReplyClick = { },
+            onLikeClick = { },
         )
     }
 }
