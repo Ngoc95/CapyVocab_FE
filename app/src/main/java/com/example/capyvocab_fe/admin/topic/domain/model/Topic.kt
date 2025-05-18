@@ -8,7 +8,7 @@ data class Topic(
     val description: String,
     val thumbnail: String,
     val type: String,
-    val alreadyLearned: Boolean
+    val alreadyLearned: Boolean,
     val displayOrder: Int? = null,
     val words: List<Word> = emptyList()
 )
