@@ -49,7 +49,7 @@ class ExerciseViewModel @Inject constructor(
      */
     fun onEvent(event: ExerciseEvent) {
         when (event) {
-            is ExerciseEvent.GetAllFolders -> getAllFolders(event.page, event.limit)
+            is ExerciseEvent.GetAllFolders -> getAllFolders(event.page, event.limit, event.name, event.code)
             is ExerciseEvent.GetFolderById -> getFolderById(event.id)
             is ExerciseEvent.CreateFolder -> createFolder(event.request)
             is ExerciseEvent.UpdateFolder -> updateFolder(event.id, event.request)
@@ -110,11 +110,11 @@ class ExerciseViewModel @Inject constructor(
     /**
      * Fetches all folders with pagination.
      */
-    private fun getAllFolders(page: Int, limit: Int) {
+    private fun getAllFolders(page: Int, limit: Int, name: String? = null, code: String? = null) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            exerciseRepository.getAllFolders(page, limit).fold(
+            exerciseRepository.getAllFolders(page, limit, name, code).fold(
                 { failure ->
                     _state.update { it.copy(isLoading = false, error = failure) }
                 },
@@ -258,7 +258,8 @@ class ExerciseViewModel @Inject constructor(
                     _state.update { state ->
                         val updatedFolders = state.folders.map { folder ->
                             if (folder.id == id) {
-                                folder.copy(voteCount = folder.voteCount + 1)
+                                folder.copy(voteCount = folder.voteCount + 1,
+                                    isAlreadyVote = true)
                             } else {
                                 folder
                             }
@@ -266,7 +267,8 @@ class ExerciseViewModel @Inject constructor(
 
                         val updatedCurrentFolder = state.currentFolder?.let { folder ->
                             if (folder.id == id) {
-                                folder.copy(voteCount = folder.voteCount + 1)
+                                folder.copy(voteCount = folder.voteCount + 1,
+                                    isAlreadyVote = true)
                             } else {
                                 folder
                             }
@@ -296,7 +298,8 @@ class ExerciseViewModel @Inject constructor(
                     _state.update { state ->
                         val updatedFolders = state.folders.map { folder ->
                             if (folder.id == id) {
-                                folder.copy(voteCount = (folder.voteCount - 1).coerceAtLeast(0))
+                                folder.copy(voteCount = (folder.voteCount - 1).coerceAtLeast(0),
+                                    isAlreadyVote = false)
                             } else {
                                 folder
                             }
@@ -304,7 +307,8 @@ class ExerciseViewModel @Inject constructor(
 
                         val updatedCurrentFolder = state.currentFolder?.let { folder ->
                             if (folder.id == id) {
-                                folder.copy(voteCount = (folder.voteCount - 1).coerceAtLeast(0))
+                                folder.copy(voteCount = (folder.voteCount - 1).coerceAtLeast(0),
+                                    isAlreadyVote = false)
                             } else {
                                 folder
                             }

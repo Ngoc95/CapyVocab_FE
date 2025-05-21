@@ -7,7 +7,12 @@ import com.example.capyvocab_fe.user.test.domain.model.Question
 
 sealed class ExerciseEvent {
     // Folder-related events
-    data class GetAllFolders(val page: Int = 1, val limit: Int = 10) : ExerciseEvent()
+    data class GetAllFolders(
+        val page: Int = 1,
+        val limit: Int = 10,
+        val name: String? = null,
+        val code: String? = null
+    ) : ExerciseEvent()
     data class GetFolderById(val id: Int) : ExerciseEvent()
     data class CreateFolder(
         val request: CreateFolderRequest,

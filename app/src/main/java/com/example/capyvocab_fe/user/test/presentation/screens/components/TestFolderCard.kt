@@ -39,7 +39,9 @@ import com.example.capyvocab_fe.user.test.domain.model.Folder
 @Composable
 fun TestFolderCard(
     folder: Folder,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onVoteClick: (Int) -> Unit,
+    onUnVoteClick: (Int) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -119,7 +121,7 @@ fun TestFolderCard(
             ) {
                 // price
                 Text(
-                    text = "18,000đ",
+                    text = folder.price.toString() + " đồng",
                     fontSize = 14.sp,
                     color = Color.Black,
                 )
@@ -147,8 +149,12 @@ fun TestFolderCard(
                         tint = Color.Unspecified,
                         modifier = Modifier
                             .size(20.dp)
-                            .clickable{
-                                //TODO: Handle click on vote
+                            .clickable {
+                                if (folder.isAlreadyVote) {
+                                    onUnVoteClick(folder.id)
+                                } else {
+                                    onVoteClick(folder.id)
+                                }
                             }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -190,6 +196,7 @@ private fun TestFolderCardPreview() {
         id = 1,
         name = "Test Folder",
         code = "test123",
+        price = 0.0,
         createdBy = null,
         voteCount = 10,
         commentCount = 5,
@@ -199,6 +206,11 @@ private fun TestFolderCardPreview() {
         comments = null
     )
     CapyVocab_FETheme {
-        TestFolderCard(folder = sampleFolder, onClick = {})
+        TestFolderCard(
+            folder = sampleFolder,
+            onClick = {},
+            onVoteClick = {  },
+            onUnVoteClick = {}
+        )
     }
 }

@@ -49,6 +49,8 @@ fun TestDetailContent(
     modifier: Modifier = Modifier,
     folder: Folder,
     onBack: (() -> Unit)? = null,
+    onVoteClick: (Int) -> Unit,
+    onUnVoteClick: (Int) -> Unit,
     navController: NavController
 ) {
     Column(
@@ -139,7 +141,11 @@ fun TestDetailContent(
                     modifier = Modifier
                         .size(20.dp)
                         .clickable{
-                            //TODO: Handle click on vote
+                            if (folder.isAlreadyVote) {
+                                onUnVoteClick(folder.id)
+                            } else {
+                                onVoteClick(folder.id)
+                            }
                         }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -258,6 +264,7 @@ private fun TestDetailContentPreview() {
         id = 1,
         name = "Test Folder",
         code = "test123",
+        price = 10.0,
         createdBy = null,
         voteCount = 10,
         commentCount = 5,
@@ -270,6 +277,8 @@ private fun TestDetailContentPreview() {
         TestDetailContent(
             folder = sampleFolder,
             onBack = {},
+            onVoteClick = {},
+            onUnVoteClick = {},
             navController = NavController(LocalContext.current)
         )
     }

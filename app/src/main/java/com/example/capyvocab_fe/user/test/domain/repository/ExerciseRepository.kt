@@ -8,7 +8,12 @@ import com.example.capyvocab_fe.user.test.domain.model.Comment
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
 interface ExerciseRepository {
-    suspend fun getAllFolders(page: Int, limit: Int): Either<AppFailure, List<Folder>>
+    suspend fun getAllFolders(
+        page: Int,
+        limit: Int,
+        name: String? = null,
+        code: String? = null
+    ): Either<AppFailure, List<Folder>>
     suspend fun getFolderById(id: Int): Either<AppFailure, Folder>
     suspend fun createFolder(body: CreateFolderRequest): Either<AppFailure, Folder>
     suspend fun updateFolder(id: Int, body: UpdateFolderRequest): Either<AppFailure, Folder>

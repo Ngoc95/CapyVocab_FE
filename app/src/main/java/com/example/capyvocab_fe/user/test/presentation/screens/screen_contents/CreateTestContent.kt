@@ -37,6 +37,7 @@ fun CreateTestContent(
     onFolderCreated: (Folder) -> Unit = {}
 ) {
     var testTitle by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf("0") }
     var isCreating by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -56,6 +57,18 @@ fun CreateTestContent(
             value = testTitle,
             onValueChange = { testTitle = it },
             label = { Text("Tiêu đề folder") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = defaultTextFieldColors(),
+            isError = errorMessage != null
+        )
+
+        OutlinedTextField(
+            value = price,
+            onValueChange = { price = it },
+            label = { Text("Giá tiền") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -87,7 +100,7 @@ fun CreateTestContent(
 
                 viewModel?.onEvent(
                     ExerciseEvent.CreateFolder(
-                        CreateFolderRequest(testTitle),
+                        CreateFolderRequest(testTitle, price.toDouble()),
                         onSuccess = { folder ->
                             isCreating = false
                             testTitle = ""

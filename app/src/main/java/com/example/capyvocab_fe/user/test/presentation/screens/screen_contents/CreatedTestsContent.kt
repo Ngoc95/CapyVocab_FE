@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 import com.example.capyvocab_fe.user.test.presentation.screens.components.TestFolderCard
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -33,10 +36,6 @@ fun CreatedTestsContent(
     val state = viewModel?.state?.value
     val createdFolders = state?.folders?.filter { it.createdBy?.id == state.currentUser?.id } ?: emptyList()
     val isLoading = state?.isLoading ?: false
-
-    LaunchedEffect(key1 = true) {
-        //viewModel?.loadUserCreatedFolders()
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
@@ -67,8 +66,18 @@ fun CreatedTestsContent(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(createdFolders) { folder ->
-                    TestFolderCard(folder = folder, onClick = { onFolderClick(folder) })
+                items(createdFolders) { item ->
+                    TestFolderCard(
+                        folder = item,
+                        onClick = { onFolderClick(item) },
+                        onVoteClick = { folderId ->
+                            viewModel?.onEvent(ExerciseEvent.VoteFolder(folderId))
+                        },
+                        onUnVoteClick = { folderId ->
+                            viewModel?.onEvent(ExerciseEvent.UnvoteFolder(folderId))
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }

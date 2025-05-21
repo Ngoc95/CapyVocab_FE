@@ -21,7 +21,9 @@ interface ExerciseApi {
     @GET("exercise")
     suspend fun getAllFolders(
         @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 10
+        @Query("limit") limit: Int = 10,
+        @Query("name") name: String? = null,
+        @Query("code") code: String? = null
     ): ApiResponse<FolderListResponse>
 
     @GET("exercise/{id}")

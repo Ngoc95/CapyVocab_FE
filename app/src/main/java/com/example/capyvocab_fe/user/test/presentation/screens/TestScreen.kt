@@ -76,7 +76,6 @@ fun TestScreen(
         navController = navController,
         viewModel = viewModel
     )
-
 }
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -176,14 +175,23 @@ fun TestScreenContent(
         Spacer(modifier = Modifier.height(10.dp))
 
         // Phần nội dung - mặc định là Làm test
-        Box(modifier = Modifier.fillMaxHeight()){
+        Box(modifier = Modifier.fillMaxHeight()) {
             when (state.currentTab) {
                 0 -> {
                     // Nếu đã chọn folder thì hiển thị TestDetailContent, ngược lại hiển thị danh sách folder
                     if (selectedFolder != null) {
                         TestDetailContent(
                             folder = selectedFolder!!,
-                            onBack = { selectedFolder = null },
+                            onBack = {
+                                selectedFolder = null
+                                viewModel.onEvent(ExerciseEvent.GetAllFolders())
+                            },
+                            onVoteClick = { folderId ->
+                                viewModel.onEvent(ExerciseEvent.VoteFolder(folderId))
+                            },
+                            onUnVoteClick = { folderId ->
+                                viewModel.onEvent(ExerciseEvent.UnvoteFolder(folderId))
+                            },
                             navController = navController
                         )
                     } else {
@@ -191,10 +199,12 @@ fun TestScreenContent(
                             folders = folders,
                             onFolderClick = { folder ->
                                 selectedFolder = folder
-                            }
+                            },
+                            viewModel = viewModel
                         )
                     }
                 }
+
                 1 -> EnterCodeContent(
                     viewModel = viewModel,
                     onFolderFound = { folder ->
@@ -202,6 +212,7 @@ fun TestScreenContent(
                         viewModel.onEvent(ExerciseEvent.NavigateToDoTest) // Chuyển sang tab Làm test
                     }
                 )
+
                 2 -> CreatedTestsContent(
                     viewModel = viewModel,
                     onFolderClick = { folder ->
@@ -209,6 +220,7 @@ fun TestScreenContent(
                         viewModel.onEvent(ExerciseEvent.NavigateToDoTest) // Chuyển sang tab Làm test
                     }
                 )
+
                 3 -> CreateTestContent(
                     viewModel = viewModel,
                     onFolderCreated = { folder ->
@@ -240,7 +252,7 @@ fun UserInfoHeader(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f)
         )
-        
+
         // Icon thông báo
         Icon(
             imageVector = Icons.Default.Notifications,
@@ -249,7 +261,7 @@ fun UserInfoHeader(
             modifier = Modifier.size(24.dp)
         )
     }
-    
+
     // Thông tin người dùng
     Row(
         modifier = Modifier
@@ -286,18 +298,22 @@ fun UserInfoHeader(
 fun InfoRow(label: String, text: String) {
     Text(
         buildAnnotatedString {
-            withStyle(style = SpanStyle(
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontSize = 14.sp
-            )) {
+            withStyle(
+                style = SpanStyle(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    fontSize = 14.sp
+                )
+            ) {
                 append("$label: ")
             }
-            withStyle(style = SpanStyle(
-                fontWeight = FontWeight.Medium,
-                color = Color.Gray,
-                fontSize = 14.sp
-            )) {
+            withStyle(
+                style = SpanStyle(
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
+            ) {
                 append(text)
             }
         }

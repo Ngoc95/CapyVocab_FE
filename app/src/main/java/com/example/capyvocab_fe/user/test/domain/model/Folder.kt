@@ -6,6 +6,7 @@ data class Folder(
     val id: Int,
     val name: String,
     val code: String,
+    val price: Double,
     val createdBy: User?,
     val voteCount: Int,
     val commentCount: Int,
