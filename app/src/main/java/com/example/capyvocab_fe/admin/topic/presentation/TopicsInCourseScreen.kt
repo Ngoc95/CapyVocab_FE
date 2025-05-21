@@ -312,7 +312,8 @@ fun TopicsInCourseScreenContent(
                             onCheckedChange = { onTopicSelectToggle(topic) },
                             isMultiSelecting = isMultiSelectMode,
                             isSelected = isSelected,
-                            cardElevation = cardElevation.value
+                            cardElevation = cardElevation.value,
+                            isAdmin = true
                         )
                     }
                     // Load thêm nếu gần cuối
@@ -347,7 +348,8 @@ fun TopicsInCourseScreenPreview() {
             title = "Friendship",
             description = "Tình bạn",
             thumbnail = "",
-            type = "Free"
+            type = "Free",
+            alreadyLearned = false
         )
         val sampleTopics = listOf(
             sampleTopic,

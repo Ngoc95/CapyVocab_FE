@@ -271,7 +271,8 @@ fun TopicFormDialog(
                                 title = title,
                                 description = description,
                                 thumbnail = selectedImageUri.toString(),
-                                type = type
+                                type = type,
+                                alreadyLearned = false
                             )
                             onSave(updatedTopic)
                         }
@@ -293,6 +294,7 @@ private fun TopicFormDialogPreview() {
         description = "xxxxxxxxxxxxxxx",
         thumbnail = "xxxxxxxxxxxxx",
         type = "Free",
+        alreadyLearned = false
     )
     CapyVocab_FETheme {
         TopicFormDialog(

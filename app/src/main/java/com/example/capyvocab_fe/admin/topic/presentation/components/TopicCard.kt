@@ -54,7 +54,8 @@ fun TopicCard(
     onEditClick: () -> Unit,
     onLongClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
-    cardElevation: Dp = 8.dp
+    cardElevation: Dp = 8.dp,
+    isAdmin: Boolean
 ) {
     //animation for checkbox
     val checkboxScale = animateFloatAsState(
@@ -124,9 +125,14 @@ fun TopicCard(
                 Box(
                     modifier = Modifier
                         .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(Color(0xFF00D9FF), Color(0xFFBEEBF9))
-                            )
+                            brush = if (topic.alreadyLearned)
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFFB9FBC0), Color(0xFF70E000))
+                                )
+                            else
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFF00D9FF), Color(0xFFBEEBF9))
+                                )
                         )
                         .fillMaxSize()
                 ) {
@@ -187,17 +193,19 @@ fun TopicCard(
                             }
                         }
 
-                        IconButton(
-                            onClick = { onEditClick() },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .align(Alignment.Top)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                tint = Color(0xFF5E4A45)
-                            )
+                        if(isAdmin) {
+                            IconButton(
+                                onClick = { onEditClick() },
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .align(Alignment.Top)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = Color(0xFF5E4A45)
+                                )
+                            }
                         }
                     }
                 }
@@ -216,6 +224,7 @@ fun TopicCardPreview() {
             description = "Tình bạn",
             thumbnail = "",
             type = "Free",
+            alreadyLearned = false
 //            deletedAt = null,
 //            createdAt = "",
 //            updatedAt = "",
@@ -229,7 +238,8 @@ fun TopicCardPreview() {
             onLongClick = {},
             onCheckedChange = {},
             isMultiSelecting = false,
-            isSelected = false
+            isSelected = false,
+            isAdmin = true
         )
     }
 }
