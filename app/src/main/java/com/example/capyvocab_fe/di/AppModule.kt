@@ -10,6 +10,7 @@ import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
+import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi
 import com.example.capyvocab_fe.util.Constant.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -23,16 +24,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object AppModule {
-    @Provides
-    @Singleton
-    fun provideAuthApi(): AuthApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AuthApi::class.java)
-    }
-
     @Provides
     @Singleton
     fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor {
@@ -56,6 +47,12 @@ object AppModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthApi(retrofit: Retrofit): AuthApi {
+        return retrofit.create(AuthApi::class.java)
     }
 
     @Provides
@@ -87,6 +84,12 @@ object AppModule {
     @Singleton
     fun provideUserLearnApi(retrofit: Retrofit): UserLearnApi {
         return retrofit.create(UserLearnApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserExerciseApi(retrofit: Retrofit): ExerciseApi {
+        return retrofit.create(ExerciseApi::class.java)
     }
 
 }

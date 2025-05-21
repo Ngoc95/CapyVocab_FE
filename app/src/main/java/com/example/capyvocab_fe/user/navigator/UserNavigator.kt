@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.navigator
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -23,13 +24,18 @@ import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
-import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
+import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.test.presentation.screens.EditQuestionScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun UserNavigator() {
     val bottomNavigationItems = remember {
@@ -70,6 +76,9 @@ fun UserNavigator() {
 
     val learnViewModel: LearnViewModel = hiltViewModel()
     val learnState by learnViewModel.state.collectAsState()
+
+    val exerciseViewModel: ExerciseViewModel = hiltViewModel()
+    val exerciseState by exerciseViewModel.state.collectAsState()
 
     selectedItem = when(backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
@@ -173,7 +182,70 @@ fun UserNavigator() {
             }
             //user test screen
             composable(route = Route.UserTestScreen.route) {
-                TestScreen()
+                TestScreen(
+                    viewModel = exerciseViewModel,
+                    navController = navController
+                )
+            }
+            // màn hình chỉnh sửa chi tiết câu hỏi
+            composable(
+                route = "${Route.EditQuestionScreen.route}/{quizId}/{questionIndex}/{folderId}",
+                arguments = listOf(
+                    navArgument("quizId") { type = NavType.IntType },
+                    navArgument("questionIndex") { type = NavType.IntType },
+                    navArgument("folderId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val quizId = backStackEntry.arguments?.getInt("quizId") ?: 0
+                val questionIndex = backStackEntry.arguments?.getInt("questionIndex") ?: 0
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                EditQuestionScreen(
+                    quizId = quizId,
+                    questionIndex = questionIndex,
+                    folderId = folderId,
+                    navController = navController,
+                    viewModel = exerciseViewModel
+                )
+            }
+            // Thêm các route cho TestDetailContent
+            composable(
+                route = "${Route.QuizScreen.route}/{folderId}",
+                arguments = listOf(
+                    navArgument("folderId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: -1
+                LaunchedEffect(folderId) {
+                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId))
+                }
+                exerciseState.currentQuiz?.let {
+                    QuizScreen(
+                        navController = navController,
+                        quizId = it.id,
+                        folderId = folderId,
+                        state = exerciseViewModel.state.value,
+                        onEvent = exerciseViewModel::onEvent
+                    )
+                }
+            }
+            composable(
+                route = "${Route.FlashCardScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                // FlashCardScreen(folderId = folderId, ...)
+            }
+            composable(
+                route = "${Route.CommentScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+//                CommentScreen(
+//                    navController = navController,
+//                    folderId = folderId,
+//                    state = /* truyền state phù hợp */,
+//                    onEvent = {/* truyền event phù hợp */}
+//                )
             }
             //user profile screen
             composable(route = Route.UserProfileScreen.route) {
