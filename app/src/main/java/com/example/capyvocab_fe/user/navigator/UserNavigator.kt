@@ -31,6 +31,7 @@ import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.test.presentation.screens.DoQuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.EditQuestionScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
@@ -253,6 +254,24 @@ fun UserNavigator() {
                         onEvent = exerciseViewModel::onEvent
                     )
                 }
+            }
+            composable(
+                route = "${Route.DoQuizScreen.route}/{quizId}/{folderId}",
+                arguments = listOf(
+                    navArgument("quizId") { type = NavType.IntType },
+                    navArgument("folderId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val quizId = backStackEntry.arguments?.getInt("quizId") ?: 0
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+
+                DoQuizScreen(
+                    navController = navController,
+                    quizId = quizId,
+                    folderId = folderId,
+                    state = exerciseViewModel.state.value,
+                    onEvent = exerciseViewModel::onEvent
+                )
             }
             composable(
                 route = "${Route.FlashCardScreen.route}/{folderId}",

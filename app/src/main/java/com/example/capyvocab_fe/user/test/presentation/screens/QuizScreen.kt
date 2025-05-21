@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -75,7 +76,7 @@ fun QuizScreen(
     // Trạng thái chuyển đổi giữa chế độ thường và chỉnh sửa
     var editingMode by remember { mutableStateOf(isEditing) }
     var showBottomSheet by remember { mutableStateOf(false) }
-    var selectedQuestionIndex by remember { mutableStateOf(-1) }
+    var selectedQuestionIndex by remember { mutableIntStateOf(-1) }
 
     val quiz = state.currentQuiz
     var showAnswers by remember { mutableStateOf(false) }
@@ -177,7 +178,7 @@ fun QuizScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                val questions = quiz?.question ?: emptyList()
+                val questions = quiz.question
 
                 items(questions.size) { index ->
                     val question = questions[index]
@@ -186,29 +187,11 @@ fun QuizScreen(
                             questionNumber = index + 1,
                             question = question,
                             showAnswers = (showAnswers && isCreator) || (editingMode && isCreator),
-                            selectedAnswers = state.selectedAnswers[index] ?: emptyList(),
-                            onAnswerSelected = { answerId ->
-                                // Xử lý khi người dùng chọn đáp án
-//                                val currentAnswers = state.selectedAnswers[index]?.toMutableList() ?: mutableListOf()
-//
-//                                if (question.type == "MULTIPLE_CHOICE") {
-//                                    // Đối với câu hỏi nhiều đáp án
-//                                    if (currentAnswers.contains(answerId)) {
-//                                        currentAnswers.remove(answerId)
-//                                    } else {
-//                                        currentAnswers.add(answerId)
-//                                    }
-//                                } else {
-//                                    // Đối với câu hỏi một đáp án
-//                                    currentAnswers.clear()
-//                                    currentAnswers.add(answerId)
-//                                }
-//
-//                                // Cập nhật state
-//                                val updatedAnswers = state.selectedAnswers.toMutableMap()
-//                                updatedAnswers[index] = currentAnswers
-                                //onEvent(ExerciseEvent.UpdateSelectedAnswers(updatedAnswers))
-                            },
+                            selectedAnswers = if ((showAnswers && isCreator) || (editingMode && isCreator))
+                                question.correctAnswers
+                            else
+                                state.selectedAnswers[index] ?: emptyList(),
+                            onAnswerSelected = {},
                             isEditing = editingMode,
                             onMoreClick = {
                                 selectedQuestionIndex = index
@@ -259,8 +242,8 @@ fun QuizScreen(
         if (hasQuestions && !editingMode) {
             Button(
                 onClick = {
-                        // Submit answers
-                        // onEvent(ExerciseEvent.SubmitQuizAnswers(quizId))
+                    // Chuyển đến màn hình DoQuizScreen
+                    navController.navigate("${Route.DoQuizScreen.route}/${quizId}/${folderId}")
                 },
                 modifier = Modifier
                     .fillMaxWidth()

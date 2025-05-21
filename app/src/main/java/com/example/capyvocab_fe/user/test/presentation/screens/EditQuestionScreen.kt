@@ -35,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,7 +60,7 @@ import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewMod
  * @param questionIndex Vị trí câu hỏi trong quiz.
  * @param navController Điều hướng.
  */
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditQuestionScreen(
@@ -77,13 +78,13 @@ fun EditQuestionScreen(
     } else null
     // Loại câu hỏi: 0 = chọn đáp án, 1 = điền vào chỗ trống
     var questionType by remember {
-        mutableStateOf(
+        mutableIntStateOf(
             if (currentQuestion?.type == "FILL_IN_BLANK") 1 else 0
         )
     }
     // Nếu chọn đáp án: 0 = single, 1 = multiple
     var answerMode by remember {
-        mutableStateOf(
+        mutableIntStateOf(
             if (currentQuestion?.type == "MULTIPLE_CHOICE") 1 else 0
         )
     }
@@ -92,6 +93,12 @@ fun EditQuestionScreen(
     var questionText by remember {
         mutableStateOf(
             TextFieldValue(currentQuestion?.question ?: "")
+        )
+    }
+    // Thêm biến cho phần giải thích
+    var explanationText by remember {
+        mutableStateOf(
+            TextFieldValue(currentQuestion?.explanation ?: "")
         )
     }
 
@@ -111,7 +118,7 @@ fun EditQuestionScreen(
         mutableStateOf(
             if (currentQuestion != null && currentQuestion.options.isNotEmpty()) {
                 currentQuestion.correctAnswers
-                    .mapNotNull { correct ->
+                    .map { correct ->
                         currentQuestion.options.indexOfFirst { it == correct }
                     }
                     .filter { it >= 0 }
@@ -333,6 +340,15 @@ fun EditQuestionScreen(
                 )
             }
 
+            // trường giải thích
+            OutlinedTextField(
+                value = explanationText,
+                onValueChange = { explanationText = it },
+                label = { Text("Giải thích (tùy chọn)") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
+            )
+
             Spacer(modifier = Modifier.weight(1f))
 
             // Hiển thị lỗi nếu có
@@ -372,7 +388,7 @@ fun EditQuestionScreen(
                             question = questionText.text,
                             options = validOptionsList,
                             correctAnswers = correctAnswersList,
-                            explanation = null,
+                            explanation = explanationText.text.takeIf { it.isNotEmpty() },
                             image = null,
                             time = null,
                             type = if (answerMode == 0) "SINGLE_CHOICE" else "MULTIPLE_CHOICE"
@@ -407,7 +423,7 @@ fun EditQuestionScreen(
                             question = questionText.text,
                             options = emptyList(),
                             correctAnswers = listOf(fillAnswer.text.trim()),
-                            explanation = null,
+                            explanation = explanationText.text.takeIf { it.isNotEmpty() },
                             image = null,
                             time = null,
                             type = "FILL_IN_BLANK"

@@ -32,5 +32,6 @@ sealed class Route(
     object QuizScreen: Route(route = "quizScreen")
     object CommentScreen: Route(route = "commentScreen")
     object EditQuestionScreen : Route(route = "editQuestionScreen")
+    object DoQuizScreen: Route(route = "doQuizScreen")
     object UserProfileScreen: Route(route = "userProfileScreen")
 }
