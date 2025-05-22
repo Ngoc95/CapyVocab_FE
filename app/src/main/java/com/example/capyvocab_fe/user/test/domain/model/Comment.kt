@@ -5,8 +5,11 @@ import java.util.Date
 
 data class Comment(
     val id: Int,
-    val content: String,
+    val content: String = "",
     val createdBy: User,
     val parentComment: Comment? = null,
-    val createdAt: Date = Date()
+    val createdAt: Date = Date(),
+    val updatedAt: Date? = null,
+    val childComments: List<Comment>? = null,
+    val isEdited: Boolean = false
 )

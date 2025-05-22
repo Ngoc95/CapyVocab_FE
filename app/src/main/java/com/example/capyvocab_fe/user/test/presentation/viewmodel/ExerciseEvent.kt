@@ -29,7 +29,6 @@ sealed class ExerciseEvent {
     data class GetChildComments(val folderId: Int, val parentId: Int) : ExerciseEvent()
     data class UpdateComment(val folderId: Int, val commentId: Int, val content: String) : ExerciseEvent()
     data class DeleteComment(val folderId: Int, val commentId: Int) : ExerciseEvent()
-    data class GetFolderComments(val folderId: Int) : ExerciseEvent() // New event for fetching folder comments
 
     data class UpdateQuiz(val quizId: Int, val title: String, val questions: List<Question>) : ExerciseEvent()
     data class AddQuestionToQuiz(val quizId: Int, val question: Question) : ExerciseEvent()

@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,10 +34,10 @@ fun CreatedTestsContent(
 ) {
     val state = viewModel?.state?.value
     val createdFolders = state?.folders?.filter { it.createdBy?.id == state.currentUser?.id } ?: emptyList()
-    val isLoading = state?.isLoading ?: false
+    val isLoading = state?.isLoading
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isLoading) {
+        if (isLoading == true) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
                 color = Color(0xFF42B3FF)

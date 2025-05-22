@@ -271,7 +271,7 @@ private fun TestDetailContentPreview() {
         isAlreadyVote = false,
         quizzes = null,
         flashCards = null,
-        comments = null
+        comments = emptyList()
     )
     CapyVocab_FETheme {
         TestDetailContent(

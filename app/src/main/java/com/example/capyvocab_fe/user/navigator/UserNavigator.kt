@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,6 +30,7 @@ import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.DoQuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.EditQuestionScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
@@ -250,7 +250,7 @@ fun UserNavigator() {
                         navController = navController,
                         quizId = it.id,
                         folderId = folderId,
-                        state = exerciseViewModel.state.value,
+                        state = exerciseState,
                         onEvent = exerciseViewModel::onEvent
                     )
                 }
@@ -285,12 +285,17 @@ fun UserNavigator() {
                 arguments = listOf(navArgument("folderId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
-//                CommentScreen(
-//                    navController = navController,
-//                    folderId = folderId,
-//                    state = /* truyền state phù hợp */,
-//                    onEvent = {/* truyền event phù hợp */}
-//                )
+                LaunchedEffect(folderId) {
+                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId))
+                }
+
+                    CommentScreen(
+                        navController = navController,
+                        folderId = folderId,
+                        state = exerciseState,
+                        onEvent = exerciseViewModel::onEvent
+                    )
+
             }
             //user profile screen
             composable(route = Route.UserProfileScreen.route) {

@@ -20,7 +20,6 @@ interface ExerciseRepository {
     suspend fun deleteFolder(id: Int): Either<AppFailure, Unit>
     suspend fun voteFolder(id: Int): Either<AppFailure, Unit>
     suspend fun unVoteFolder(id: Int): Either<AppFailure, Unit>
-    suspend fun getFolderComments(folderId: Int): Either<AppFailure, List<Comment>>
     suspend fun createComment(
         folderId: Int,
         content: String,

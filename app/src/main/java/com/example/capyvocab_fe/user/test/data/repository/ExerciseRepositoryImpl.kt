@@ -69,12 +69,6 @@ class ExerciseRepositoryImpl @Inject constructor(
         }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getFolderComments(folderId: Int): Either<AppFailure, List<Comment>> {
-        return Either.catch {
-            api.getFolderComments(folderId).metaData
-        }.mapLeft { it.toAppFailure() }
-    }
-
     override suspend fun createComment(
         folderId: Int,
         content: String,

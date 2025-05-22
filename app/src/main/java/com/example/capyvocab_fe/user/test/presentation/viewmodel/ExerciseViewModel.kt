@@ -3,6 +3,8 @@ package com.example.capyvocab_fe.user.test.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
+import com.example.capyvocab_fe.core.error.AppError
+import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
 import com.example.capyvocab_fe.user.test.data.remote.model.QuestionRequest
 import com.example.capyvocab_fe.user.test.data.remote.model.QuizRequest
@@ -68,9 +70,7 @@ class ExerciseViewModel @Inject constructor(
                 event.commentId,
                 event.content
             )
-
             is ExerciseEvent.DeleteComment -> deleteComment(event.folderId, event.commentId)
-            is ExerciseEvent.GetFolderComments -> getFolderComments(event.folderId)
 
             is ExerciseEvent.UpdateQuiz -> updateQuiz(event.quizId, event.title, event.questions)
             is ExerciseEvent.AddQuestionToQuiz -> addQuestionToQuiz(event.quizId, event.question)
@@ -86,24 +86,6 @@ class ExerciseViewModel @Inject constructor(
             // Reset events
             is ExerciseEvent.ResetError -> _state.update { it.copy(error = null) }
             is ExerciseEvent.ResetSuccess -> _state.update { it.copy(successMessage = null) }
-        }
-    }
-
-    /**
-     * Fetches all comments for a folder
-     */
-    private fun getFolderComments(folderId: Int) {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-
-            exerciseRepository.getFolderComments(folderId).fold(
-                { failure ->
-                    _state.update { it.copy(isLoading = false, error = failure) }
-                },
-                { comments ->
-                    _state.update { it.copy(isLoading = false, comments = comments) }
-                }
-            )
         }
     }
 
@@ -146,7 +128,8 @@ class ExerciseViewModel @Inject constructor(
                     _state.update { it.copy(
                         isLoading = false,
                         currentFolder = folder,
-                        currentQuiz = folder.quizzes?.firstOrNull()
+                        currentQuiz = folder.quizzes?.firstOrNull(),
+                        comments = folder.comments
                     ) }
                     // Gọi hàm đảm bảo có quiz nếu chưa có
                     ensureQuizExists()
@@ -192,7 +175,7 @@ class ExerciseViewModel @Inject constructor(
      */
     private fun updateFolder(
         id: Int,
-        request: com.example.capyvocab_fe.user.test.data.remote.model.UpdateFolderRequest
+        request: UpdateFolderRequest
     ) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
@@ -330,7 +313,14 @@ class ExerciseViewModel @Inject constructor(
     private fun createComment(folderId: Int, content: String, parentId: Int?) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-
+            // Kiểm tra nội dung comment không null và không trống
+            if (content.isBlank()) {
+                _state.update { it.copy(
+                    isLoading = false,
+                    error = AppFailure(error = AppError.Unknown, message = "Nội dung comment không được để trống")
+                ) }
+                return@launch
+            }
             exerciseRepository.createComment(folderId, content, parentId).fold(
                 { failure ->
                     _state.update { it.copy(isLoading = false, error = failure) }
@@ -396,7 +386,14 @@ class ExerciseViewModel @Inject constructor(
     private fun updateComment(folderId: Int, commentId: Int, content: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-
+            // Kiểm tra nội dung comment không null và không trống
+            if (content.isBlank()) {
+                _state.update { it.copy(
+                    isLoading = false,
+                    error = AppFailure(error = AppError.Unknown, message = "Nội dung comment không được để trống")
+                ) }
+                return@launch
+            }
             exerciseRepository.updateComment(folderId, commentId, content).fold(
                 { failure ->
                     _state.update { it.copy(isLoading = false, error = failure) }

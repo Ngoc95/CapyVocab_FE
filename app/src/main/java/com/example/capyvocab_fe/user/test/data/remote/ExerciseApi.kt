@@ -47,9 +47,6 @@ interface ExerciseApi {
     @POST("exercise/{id}/unlike")
     suspend fun unVoteFolder(@Path("id") id: Int): ApiResponse<Any>
 
-    @GET("exercise/{id}/comments")
-    suspend fun getFolderComments(@Path("id") id: Int): ApiResponse<List<Comment>>
-
     @POST("exercise/{id}/comment")
     suspend fun createComment(
         @Path("id") id: Int,

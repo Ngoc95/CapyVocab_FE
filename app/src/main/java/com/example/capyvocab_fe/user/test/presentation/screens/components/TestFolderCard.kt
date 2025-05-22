@@ -203,7 +203,7 @@ private fun TestFolderCardPreview() {
         isAlreadyVote = false,
         quizzes = null,
         flashCards = null,
-        comments = null
+        comments = emptyList()
     )
     CapyVocab_FETheme {
         TestFolderCard(
