@@ -53,7 +53,7 @@ class ExerciseViewModel @Inject constructor(
         when (event) {
             is ExerciseEvent.GetAllFolders -> getAllFolders(event.page, event.limit, event.name, event.code)
             is ExerciseEvent.GetFolderById -> getFolderById(event.id)
-            is ExerciseEvent.CreateFolder -> createFolder(event.request)
+            is ExerciseEvent.CreateFolder -> createFolder(event.request, event.onSuccess, event.onError)
             is ExerciseEvent.UpdateFolder -> updateFolder(event.id, event.request)
             is ExerciseEvent.DeleteFolder -> deleteFolder(event.id)
             is ExerciseEvent.VoteFolder -> voteFolder(event.id)
@@ -129,7 +129,7 @@ class ExerciseViewModel @Inject constructor(
                         isLoading = false,
                         currentFolder = folder,
                         currentQuiz = folder.quizzes?.firstOrNull(),
-                        comments = folder.comments
+                        comments = folder.comments ?: emptyList()
                     ) }
                     // Gọi hàm đảm bảo có quiz nếu chưa có
                     ensureQuizExists()
@@ -159,9 +159,7 @@ class ExerciseViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             folders = it.folders + folder,
-                            successMessage = "Folder đã được tạo thành công",
-                            currentFolder = folder, // Lưu folder hiện tại
-                            currentTab = 0 // Chuyển sang tab Làm test để xem chi tiết
+                            successMessage = "Folder đã được tạo thành công"
                         )
                     }
                     onSuccess(folder)

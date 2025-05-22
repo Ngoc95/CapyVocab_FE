@@ -269,7 +269,7 @@ fun UserNavigator() {
                     navController = navController,
                     quizId = quizId,
                     folderId = folderId,
-                    state = exerciseViewModel.state.value,
+                    state = exerciseState,
                     onEvent = exerciseViewModel::onEvent
                 )
             }

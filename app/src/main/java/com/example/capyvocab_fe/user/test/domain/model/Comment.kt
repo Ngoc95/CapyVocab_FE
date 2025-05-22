@@ -11,5 +11,6 @@ data class Comment(
     val createdAt: Date = Date(),
     val updatedAt: Date? = null,
     val childComments: List<Comment>? = null,
-    val isEdited: Boolean = false
+    val targetType: String? = null,
+    val targetId: Int? = null
 )

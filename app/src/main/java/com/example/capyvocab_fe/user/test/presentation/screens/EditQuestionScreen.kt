@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -43,6 +45,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,6 +75,7 @@ fun EditQuestionScreen(
     navController: NavController,
     viewModel: ExerciseViewModel
 ) {
+    val focusManager = LocalFocusManager.current
     // Lấy câu hỏi hiện tại nếu đang chỉnh sửa
     val currentQuiz = viewModel.state.value.currentQuiz
     val currentQuestion = if (questionIndex >= 0 && currentQuiz != null &&
@@ -209,7 +215,16 @@ fun EditQuestionScreen(
                 value = questionText,
                 onValueChange = { questionText = it },
                 label = { Text("Nội dung câu hỏi") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
 
             // Nếu là chọn đáp án
@@ -285,7 +300,16 @@ fun EditQuestionScreen(
                                     options = newOptions // Gán lại để trigger recomposition
                                 },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("Nhập đáp án") }
+                                placeholder = { Text("Nhập đáp án") },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Done
+                                ),
+                                keyboardActions = KeyboardActions(
+                                    onDone = {
+                                        focusManager.clearFocus()
+                                    }
+                                )
                             )
 
                             // Nút xóa đáp án (chỉ hiện nếu > 2 đáp án)
@@ -336,7 +360,16 @@ fun EditQuestionScreen(
                     value = fillAnswer,
                     onValueChange = { fillAnswer = it },
                     label = { Text("Đáp án đúng") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                        }
+                    )
                 )
             }
 
@@ -346,7 +379,16 @@ fun EditQuestionScreen(
                 onValueChange = { explanationText = it },
                 label = { Text("Giải thích (tùy chọn)") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                minLines = 3,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
 
             Spacer(modifier = Modifier.weight(1f))

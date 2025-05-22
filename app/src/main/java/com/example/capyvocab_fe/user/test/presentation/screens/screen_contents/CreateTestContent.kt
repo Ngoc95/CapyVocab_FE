@@ -27,18 +27,16 @@ import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextField
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
 import com.example.capyvocab_fe.user.test.domain.model.Folder
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
 @Composable
 fun CreateTestContent(
     modifier: Modifier = Modifier,
-    viewModel: ExerciseViewModel? = null,
+    isCreating: Boolean = false,
+    onCreateFolder: (CreateFolderRequest, (Folder) -> Unit, (String) -> Unit) -> Unit,
     onFolderCreated: (Folder) -> Unit = {}
 ) {
     var testTitle by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("0") }
-    var isCreating by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
@@ -94,24 +92,17 @@ fun CreateTestContent(
                     errorMessage = "Vui lòng nhập tiêu đề folder"
                     return@Button
                 }
-
-                isCreating = true
                 errorMessage = null
-
-                viewModel?.onEvent(
-                    ExerciseEvent.CreateFolder(
-                        CreateFolderRequest(testTitle, price.toDouble()),
-                        onSuccess = { folder ->
-                            isCreating = false
-                            testTitle = ""
-                            // Chuyển đến màn hình chi tiết folder
-                            onFolderCreated(folder)
-                        },
-                        onError = { error ->
-                            isCreating = false
-                            errorMessage = error
-                        }
-                    )
+                onCreateFolder(
+                    CreateFolderRequest(testTitle, price.toDouble()),
+                    { folder ->
+                        testTitle = ""
+                        price = "0"
+                        onFolderCreated(folder)
+                    },
+                    { error ->
+                        errorMessage = error
+                    }
                 )
             },
             modifier = Modifier
@@ -137,6 +128,7 @@ fun CreateTestContent(
 @Composable
 private fun CreateTestContentPreview() {
     CapyVocab_FETheme {
-        CreateTestContent()
+        CreateTestContent(isCreating = false,
+            onCreateFolder = { _, _, _ -> })
     }
 }

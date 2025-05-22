@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.user.test.presentation.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +48,7 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.White
+import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 import com.example.capyvocab_fe.user.test.presentation.screens.screen_contents.CreateTestContent
 import com.example.capyvocab_fe.user.test.presentation.screens.screen_contents.CreatedTestsContent
@@ -73,22 +73,48 @@ fun TestScreen(
     TestScreenContent(
         folders = state.folders,
         user = state.currentUser,
+        currentTab = state.currentTab,
+        isLoading = state.isLoading,
+        successMessage = state.successMessage,
         navController = navController,
-        viewModel = viewModel
+        onNavigateToDoTest = { viewModel.onEvent(ExerciseEvent.NavigateToDoTest) },
+        onNavigateToEnterCode = { viewModel.onEvent(ExerciseEvent.NavigateToEnterCode) },
+        onNavigateToCreatedTests = { viewModel.onEvent(ExerciseEvent.NavigateToCreatedTests) },
+        onNavigateToCreateTest = { viewModel.onEvent(ExerciseEvent.NavigateToCreateTest) },
+        onGetAllFolders = { page, limit, name, code ->
+            viewModel.onEvent(ExerciseEvent.GetAllFolders(page, limit, name, code))
+        },
+        onCreateFolder = { request, onSuccess, onError ->
+            viewModel.onEvent(ExerciseEvent.CreateFolder(request, onSuccess, onError))
+        },
+        onVoteFolder = { id -> viewModel.onEvent(ExerciseEvent.VoteFolder(id)) },
+        onUnvoteFolder = { id -> viewModel.onEvent(ExerciseEvent.UnvoteFolder(id)) },
+        onClearSuccessMessage = { viewModel.onEvent(ExerciseEvent.ResetSuccess) }
     )
 }
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun TestScreenContent(
     folders: List<Folder>,
     user: User?,
+    currentTab: Int,
+    isLoading: Boolean,
+    successMessage: String?,
     navController: NavController,
-    viewModel: ExerciseViewModel
+    onNavigateToDoTest: () -> Unit,
+    onNavigateToEnterCode: () -> Unit,
+    onNavigateToCreatedTests: () -> Unit,
+    onNavigateToCreateTest: () -> Unit,
+    onGetAllFolders: (Int, Int, String?, String?) -> Unit,
+    onCreateFolder: (CreateFolderRequest, (Folder) -> Unit, (String) -> Unit) -> Unit,
+    onVoteFolder: (Int) -> Unit,
+    onUnvoteFolder: (Int) -> Unit,
+    onClearSuccessMessage: () -> Unit
 ) {
     val tabs = listOf("Làm test", "Nhập code", "Đã tạo", "Tạo mới")
     var selectedFolder by remember { mutableStateOf<Folder?>(null) }
-    val state = viewModel.state.value
+    var selectedCreatedFolder by remember { mutableStateOf<Folder?>(null) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,22 +128,22 @@ fun TestScreenContent(
 
         // Thanh điều hướng chức năng
         TabRow(
-            selectedTabIndex = state.currentTab,
+            selectedTabIndex = currentTab,
             containerColor = Color.White
         ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
-                    selected = state.currentTab == index,
+                    selected = currentTab == index,
                     onClick = {
                         // Gửi sự kiện navigation tương ứng
                         when (index) {
-                            0 -> viewModel.onEvent(ExerciseEvent.NavigateToDoTest)
-                            1 -> viewModel.onEvent(ExerciseEvent.NavigateToEnterCode)
-                            2 -> viewModel.onEvent(ExerciseEvent.NavigateToCreatedTests)
-                            3 -> viewModel.onEvent(ExerciseEvent.NavigateToCreateTest)
+                            0 -> onNavigateToDoTest()
+                            1 -> onNavigateToEnterCode()
+                            2 -> onNavigateToCreatedTests()
+                            3 -> onNavigateToCreateTest()
                         }
                         // Reset folder đã chọn khi chuyển tab
-                        if (state.currentTab != index) {
+                        if (currentTab != index) {
                             selectedFolder = null
                         }
                     },
@@ -146,7 +172,7 @@ fun TestScreenContent(
                             Text(
                                 text = title,
                                 fontSize = 14.sp,
-                                color = if (state.currentTab == index) Color(0xFF42B3FF) else Color.Black
+                                color = if (currentTab == index) Color(0xFF42B3FF) else Color.Black
                             )
                         }
                     }
@@ -155,7 +181,7 @@ fun TestScreenContent(
         }
 
         // Hiển thị thông báo thành công nếu có
-        state.successMessage?.let { message ->
+        successMessage?.let { message ->
             Text(
                 text = message,
                 color = Color(0xFF4CAF50),
@@ -168,7 +194,7 @@ fun TestScreenContent(
             // Xóa thông báo sau 3 giây
             LaunchedEffect(message) {
                 delay(3000)
-                viewModel.clearSuccessMessage()
+                onClearSuccessMessage()
             }
         }
 
@@ -176,7 +202,7 @@ fun TestScreenContent(
 
         // Phần nội dung - mặc định là Làm test
         Box(modifier = Modifier.fillMaxHeight()) {
-            when (state.currentTab) {
+            when (currentTab) {
                 0 -> {
                     // Nếu đã chọn folder thì hiển thị TestDetailContent, ngược lại hiển thị danh sách folder
                     if (selectedFolder != null) {
@@ -184,14 +210,10 @@ fun TestScreenContent(
                             folder = selectedFolder!!,
                             onBack = {
                                 selectedFolder = null
-                                viewModel.onEvent(ExerciseEvent.GetAllFolders())
+                                onGetAllFolders(1, 10, null, null)
                             },
-                            onVoteClick = { folderId ->
-                                viewModel.onEvent(ExerciseEvent.VoteFolder(folderId))
-                            },
-                            onUnVoteClick = { folderId ->
-                                viewModel.onEvent(ExerciseEvent.UnvoteFolder(folderId))
-                            },
+                            onVoteClick = onVoteFolder,
+                            onUnVoteClick = onUnvoteFolder,
                             navController = navController
                         )
                     } else {
@@ -200,32 +222,59 @@ fun TestScreenContent(
                             onFolderClick = { folder ->
                                 selectedFolder = folder
                             },
-                            viewModel = viewModel
+                            onSearchFolders = { query ->
+                                onGetAllFolders(1, 10, query, null)
+                            },
+                            onVoteClick = onVoteFolder,
+                            onUnVoteClick = onUnvoteFolder,
                         )
                     }
                 }
 
                 1 -> EnterCodeContent(
-                    viewModel = viewModel,
+                    folders = folders,
+                    isSearching = isLoading,
+                    onSearchByCode = { code ->
+                        onGetAllFolders(1, 10, null, code)
+                    },
                     onFolderFound = { folder ->
                         selectedFolder = folder
-                        viewModel.onEvent(ExerciseEvent.NavigateToDoTest) // Chuyển sang tab Làm test
+                        onNavigateToDoTest() // Chuyển sang tab Làm test
                     }
                 )
 
-                2 -> CreatedTestsContent(
-                    viewModel = viewModel,
-                    onFolderClick = { folder ->
-                        selectedFolder = folder
-                        viewModel.onEvent(ExerciseEvent.NavigateToDoTest) // Chuyển sang tab Làm test
+                2 -> {
+                    if (selectedCreatedFolder != null) {
+                        TestDetailContent(
+                            folder = selectedCreatedFolder!!,
+                            onBack = {
+                                selectedCreatedFolder = null
+                                onGetAllFolders(1, 10, null, null)
+                            },
+                            onVoteClick = onVoteFolder,
+                            onUnVoteClick = onUnvoteFolder,
+                            navController = navController
+                        )
+                    } else {
+                        CreatedTestsContent(
+                            folders = folders,
+                            isLoading = isLoading,
+                            currentUser = user,
+                            onFolderClick = { folder ->
+                                selectedCreatedFolder = folder // Không chuyển tab, chỉ set folder
+                            },
+                            onVoteFolder = onVoteFolder,
+                            onUnvoteFolder = onUnvoteFolder
+                        )
                     }
-                )
+                }
 
                 3 -> CreateTestContent(
-                    viewModel = viewModel,
+                    isCreating = isLoading,
+                    onCreateFolder = onCreateFolder,
                     onFolderCreated = { folder ->
-                        // Chuyển đến tab Đã tạo thay vì chi tiết folder
-                        viewModel.onEvent(ExerciseEvent.NavigateToCreatedTests)
+                        selectedCreatedFolder = folder
+                        onNavigateToCreatedTests()
                     }
                 )
             }

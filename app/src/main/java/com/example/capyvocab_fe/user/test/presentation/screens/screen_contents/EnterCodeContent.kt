@@ -14,8 +14,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,31 +30,19 @@ import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.test.domain.model.Folder
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
 @Composable
 fun EnterCodeContent(
     modifier: Modifier = Modifier,
-    viewModel: ExerciseViewModel? = null,
+    folders: List<Folder>,
+    isSearching: Boolean,
+    onSearchByCode: (String) -> Unit,
     onFolderFound: (Folder) -> Unit
 ) {
     var folderCode by remember { mutableStateOf("") }
-    var isSearching by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val focusManager = LocalFocusManager.current
-    // Theo dõi trạng thái để phát hiện khi folder được tìm thấy
-    val state = viewModel?.state?.collectAsState()
 
-    // Kiểm tra nếu có folder được tìm thấy với mã code
-    LaunchedEffect(state?.value?.folders) {
-        state?.value?.folders?.firstOrNull { it.code == folderCode }?.let { folder ->
-            if (isSearching) {
-                isSearching = false
-                onFolderFound(folder)
-            }
-        }
-    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -107,11 +93,15 @@ fun EnterCodeContent(
                     errorMessage = "Vui lòng nhập mã folder"
                     return@Button
                 }
-
-                isSearching = true
                 errorMessage = null
-
-                viewModel?.onEvent(ExerciseEvent.GetAllFolders(code = folderCode))
+                onSearchByCode(folderCode)
+                val found = folders.firstOrNull { it.code == folderCode }
+                if (found != null) {
+                    errorMessage = null
+                    onFolderFound(found)
+                } else {
+                    errorMessage = "Không tìm thấy folder với mã này"
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -136,7 +126,10 @@ fun EnterCodeContent(
 private fun EnterCodeContentPreview() {
     CapyVocab_FETheme {
         EnterCodeContent(
-            onFolderFound = {}
+            onFolderFound = {},
+            onSearchByCode = {},
+            folders = emptyList(),
+            isSearching = false
         )
     }
 }

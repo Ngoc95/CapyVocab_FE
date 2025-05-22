@@ -30,8 +30,6 @@ import androidx.compose.ui.unit.dp
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 import com.example.capyvocab_fe.user.test.presentation.screens.components.TestFolderCard
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 import kotlinx.coroutines.delay
 
 @Composable
@@ -63,7 +61,9 @@ fun SearchBar(
 fun DoTestContent(
     folders: List<Folder>,
     onFolderClick: (Folder) -> Unit,
-    viewModel: ExerciseViewModel? = null
+    onSearchFolders: (String) -> Unit,
+    onVoteClick: (Int) -> Unit,
+    onUnVoteClick: (Int) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
@@ -73,10 +73,10 @@ fun DoTestContent(
         if (searchQuery.isNotEmpty()) {
             isSearching = true
             delay(500) // Đợi 500ms sau khi người dùng ngừng gõ
-            viewModel?.onEvent(ExerciseEvent.GetAllFolders(name = searchQuery))
+            onSearchFolders(searchQuery)
         } else {
             // Nếu xóa hết từ khóa tìm kiếm, load lại tất cả folder
-            viewModel?.onEvent(ExerciseEvent.GetAllFolders())
+            onSearchFolders("")
         }
     }
 
@@ -99,16 +99,12 @@ fun DoTestContent(
                         .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(folders) { item ->
+                    items(folders) { folder ->
                         TestFolderCard(
-                            folder = item,
-                            onClick = { onFolderClick(item) },
-                            onVoteClick = { folderId ->
-                                viewModel?.onEvent(ExerciseEvent.VoteFolder(folderId))
-                            },
-                            onUnVoteClick = { folderId ->
-                                viewModel?.onEvent(ExerciseEvent.UnvoteFolder(folderId))
-                            }
+                            folder = folder,
+                            onClick = { onFolderClick(folder) },
+                            onVoteClick = onVoteClick,
+                            onUnVoteClick = onUnVoteClick
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                     }

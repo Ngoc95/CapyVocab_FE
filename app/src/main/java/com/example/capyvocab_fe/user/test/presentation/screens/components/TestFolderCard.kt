@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.test.presentation.screens.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun TestFolderCard(
     folder: Folder,
@@ -121,7 +123,7 @@ fun TestFolderCard(
             ) {
                 // price
                 Text(
-                    text = folder.price.toString() + " đồng",
+                    text = if (folder.price == 0.0) "Miễn phí" else "${String.format("%,.0f", folder.price)} đồng",
                     fontSize = 14.sp,
                     color = Color.Black,
                 )

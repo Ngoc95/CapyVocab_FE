@@ -21,23 +21,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 import com.example.capyvocab_fe.user.test.presentation.screens.components.TestFolderCard
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
-import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun CreatedTestsContent(
-    viewModel: ExerciseViewModel? = null,
-    onFolderClick: (Folder) -> Unit
+    folders: List<Folder>,
+    isLoading: Boolean,
+    currentUser: User?,
+    onFolderClick: (Folder) -> Unit,
+    onVoteFolder: (Int) -> Unit,
+    onUnvoteFolder: (Int) -> Unit
 ) {
-    val state = viewModel?.state?.value
-    val createdFolders = state?.folders?.filter { it.createdBy?.id == state.currentUser?.id } ?: emptyList()
-    val isLoading = state?.isLoading
+    val createdFolders = folders.filter { it.createdBy?.id == currentUser?.id }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isLoading == true) {
+        if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
                 color = Color(0xFF42B3FF)
@@ -69,12 +70,8 @@ fun CreatedTestsContent(
                     TestFolderCard(
                         folder = item,
                         onClick = { onFolderClick(item) },
-                        onVoteClick = { folderId ->
-                            viewModel?.onEvent(ExerciseEvent.VoteFolder(folderId))
-                        },
-                        onUnVoteClick = { folderId ->
-                            viewModel?.onEvent(ExerciseEvent.UnvoteFolder(folderId))
-                        }
+                        onVoteClick = onVoteFolder,
+                        onUnVoteClick = onUnvoteFolder
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                 }

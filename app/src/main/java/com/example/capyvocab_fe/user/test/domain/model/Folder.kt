@@ -13,5 +13,5 @@ data class Folder(
     val isAlreadyVote: Boolean,
     val quizzes: List<Quiz>?,
     val flashCards: List<FlashCard>?,
-    val comments: List<Comment> = emptyList()
+    val comments: List<Comment>?
 )
