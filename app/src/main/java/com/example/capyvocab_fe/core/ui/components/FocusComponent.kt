@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.core.util.components
+package com.example.capyvocab_fe.core.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
