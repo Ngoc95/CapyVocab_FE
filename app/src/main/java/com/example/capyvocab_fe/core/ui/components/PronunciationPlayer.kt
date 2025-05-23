@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.user.learn.presentation.components
+package com.example.capyvocab_fe.core.ui.components
 
 import android.media.MediaPlayer
 import androidx.compose.foundation.Image

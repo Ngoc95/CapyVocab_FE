@@ -1,9 +1,10 @@
 package com.example.capyvocab_fe.user.navigator
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -30,7 +31,11 @@ import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.review.presentation.ReviewEvent
+import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
+import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserNavigator() {
     val bottomNavigationItems = remember {
@@ -72,6 +77,9 @@ fun UserNavigator() {
     val learnViewModel: LearnViewModel = hiltViewModel()
     val learnState by learnViewModel.state.collectAsState()
 
+    val reviewViewModel: ReviewViewModel = hiltViewModel()
+    val reviewState = reviewViewModel.state
+
     selectedItem = when(backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
         Route.UserReviewScreen.route -> 1
@@ -82,12 +90,15 @@ fun UserNavigator() {
     }
 
     //hide navbar when in topic, word
-    val isBottomVisible = remember(backStackState) {
-        backStackState?.destination?.route == Route.UserCommunityScreen.route ||
-                backStackState?.destination?.route == Route.UserReviewScreen.route ||
-                backStackState?.destination?.route == Route.UserLearnScreen.route ||
-                backStackState?.destination?.route == Route.UserTestScreen.route ||
-                backStackState?.destination?.route == Route.UserProfileScreen.route
+    val isBottomVisible = remember(backStackState, reviewState.hasStarted) {
+        when (backStackState?.destination?.route) {
+            Route.UserReviewScreen.route -> !reviewState.hasStarted // ẩn nếu đang ôn tập
+            Route.UserCommunityScreen.route,
+            Route.UserLearnScreen.route,
+            Route.UserTestScreen.route,
+            Route.UserProfileScreen.route -> true
+            else -> false
+        }
     }
 
     Scaffold(
@@ -139,7 +150,10 @@ fun UserNavigator() {
             }
             //user review screen
             composable(route = Route.UserReviewScreen.route) {
-                //TODO: navigate to user learn screen
+                ReviewScreen(
+                    viewModel = reviewViewModel,
+                    navController = navController
+                )
             }
             //user course screen
             composable(route = Route.UserLearnScreen.route) {

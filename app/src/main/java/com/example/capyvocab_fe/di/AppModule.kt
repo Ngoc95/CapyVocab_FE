@@ -10,6 +10,7 @@ import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
+import com.example.capyvocab_fe.user.review.data.remote.UserReviewApi
 import com.example.capyvocab_fe.util.Constant.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -87,6 +88,12 @@ object AppModule {
     @Singleton
     fun provideUserLearnApi(retrofit: Retrofit): UserLearnApi {
         return retrofit.create(UserLearnApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserReviewApi(retrofit: Retrofit): UserReviewApi {
+        return retrofit.create(UserReviewApi::class.java)
     }
 
 }

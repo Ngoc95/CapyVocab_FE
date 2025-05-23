@@ -55,7 +55,7 @@ import com.example.capyvocab_fe.admin.word.presentation.components.WordCard
 import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 

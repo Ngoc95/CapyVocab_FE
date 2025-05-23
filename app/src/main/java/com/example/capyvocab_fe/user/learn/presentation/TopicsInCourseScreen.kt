@@ -37,7 +37,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,9 +46,8 @@ import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
-import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
 
 @Composable
