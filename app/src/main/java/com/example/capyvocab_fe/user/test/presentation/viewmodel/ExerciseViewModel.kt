@@ -23,11 +23,10 @@ import javax.inject.Inject
 @HiltViewModel
 class ExerciseViewModel @Inject constructor(
     private val exerciseRepository: ExerciseRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExerciseState())
     val state: StateFlow<ExerciseState> = _state
-
     init {
         getCurrentUser()
     }
@@ -88,7 +87,6 @@ class ExerciseViewModel @Inject constructor(
             is ExerciseEvent.ResetSuccess -> _state.update { it.copy(successMessage = null) }
         }
     }
-
     /**
      * Fetches all folders with pagination.
      */

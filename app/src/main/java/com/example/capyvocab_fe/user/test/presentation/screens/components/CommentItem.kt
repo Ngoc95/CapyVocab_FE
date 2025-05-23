@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.user.test.presentation.screens.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,8 +47,6 @@ import java.util.Locale
 /**
  * Composable for displaying a single comment
  * @param comment The comment to display
- * @param onReply Callback when the user replies to this comment
- * @param onReport Callback when the user reports this comment
  * @param onEdit Callback when the user edits this comment
  * @param onDelete Callback when the user deletes this comment
  * @param isOwner Whether the current user is the owner of this comment
@@ -58,11 +55,10 @@ import java.util.Locale
 @Composable
 fun CommentItem(
     comment: Comment,
-    onReply: () -> Unit,
-    onReport: () -> Unit,
     onEdit: (String) -> Unit,
     onDelete: () -> Unit,
-    isOwner: Boolean
+    isOwner: Boolean,
+    modifier: Modifier = Modifier
 ) {
     var showOptions by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
@@ -70,7 +66,7 @@ fun CommentItem(
     val dateFormat = SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault())
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         colors = CardDefaults.cardColors(
@@ -107,7 +103,7 @@ fun CommentItem(
                 ) {
                     // User email
                     Text(
-                        text = comment.createdBy.email,
+                        text = comment.createdBy.username,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -154,7 +150,7 @@ fun CommentItem(
                             DropdownMenuItem(
                                 text = { Text("Báo cáo") },
                                 onClick = {
-                                    onReport()
+                                   // onReport()
                                     showOptions = false
                                 }
                             )
@@ -174,13 +170,6 @@ fun CommentItem(
                     text = dateFormat.format(comment.createdAt),
                     fontSize = 12.sp,
                     color = Color.Gray
-                )
-
-                Text(
-                    text = "Trả lời",
-                    fontSize = 12.sp,
-                    color = Color(0xFF42B3FF),
-                    modifier = Modifier.clickable { onReply() }
                 )
             }
         }

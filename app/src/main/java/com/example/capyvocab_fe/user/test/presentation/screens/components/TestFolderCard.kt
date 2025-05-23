@@ -3,6 +3,7 @@ package com.example.capyvocab_fe.user.test.presentation.screens.components
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,9 +49,7 @@ fun TestFolderCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onClick()
-            },
+            .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -62,12 +61,19 @@ fun TestFolderCard(
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-            // Tiêu đề bài test
-            Text(
-                text = folder.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Tiêu đề bài test
+                Text(
+                    text = folder.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -128,64 +134,58 @@ fun TestFolderCard(
                     color = Color.Black,
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                // participants
-                Text(
-                    text = "Lượt tham gia: 200",
-                    fontSize = 14.sp,
-                    color = Color.Black,
-                )
+//                // participants
+//                Text(
+//                    text = "Lượt tham gia: 200",
+//                    fontSize = 14.sp,
+//                    color = Color.Black,
+//                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // vote and comment
+            // Vote button
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // vote
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable {
+                        if (folder.isAlreadyVote) {
+                            onUnVoteClick(folder.id)
+                        } else {
+                            onVoteClick(folder.id)
+                        }
+                    }
+                ) {
                     Icon(
                         painter = painterResource(id = if (folder.isAlreadyVote) R.drawable.ic_liked else R.drawable.ic_like),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                if (folder.isAlreadyVote) {
-                                    onUnVoteClick(folder.id)
-                                } else {
-                                    onVoteClick(folder.id)
-                                }
-                            }
+                        contentDescription = "Vote",
+                        tint = Color.Unspecified
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = folder.voteCount.toString(),
-                        fontSize = 14.sp,
-                        color = Color.Black
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(folder.voteCount.toString())
+                            }
+                        },
+                        fontSize = 14.sp
                     )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                // comment
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        buildAnnotatedString {
-                            withStyle(style = SpanStyle(
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )) {
-                                append("${folder.commentCount} ")
-                            }
-                            withStyle(style = SpanStyle(
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )) {
-                                append("nhận xét")
-                            }
+
+                // Comment count
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(folder.commentCount.toString())
                         }
-                    )
-                }
+                        append(" nhận xét")
+                    },
+                    fontSize = 14.sp
+                )
             }
         }
     }

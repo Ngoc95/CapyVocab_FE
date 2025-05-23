@@ -1,6 +1,7 @@
 package com.example.capyvocab_fe.user.test.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,17 +10,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -63,112 +66,116 @@ fun CommentScreen(
     onEvent: (ExerciseEvent) -> Unit
 ) {
     var commentText by remember { mutableStateOf("") }
+    var sortDescending by remember { mutableStateOf(true) }
     val focusManager = LocalFocusManager.current
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
-        // Top app bar
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Nhận xét",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .background(Color(0xFFF5F5F5))
+        ) {
+            // Top app bar
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Nhận xét",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    TextButton(onClick = { sortDescending = !sortDescending }) {
+                        Text(
+                            text = if (sortDescending) "Mới đến cũ" else "Cũ đến mới",
+                            color = Color(0xFF42B3FF)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
                 )
-            },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+            )
+
+            // Comments list
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                val sortedComments =
+                    if (sortDescending) state.comments.sortedByDescending { it.createdAt }
+                    else state.comments.sortedBy { it.createdAt }
+                items(sortedComments) { comment ->
+                    CommentItem(
+                        comment = comment,
+                        onEdit = { content ->
+                            onEvent(ExerciseEvent.UpdateComment(folderId, comment.id, content))
+                        },
+                        onDelete = {
+                            onEvent(ExerciseEvent.DeleteComment(folderId, comment.id))
+                        },
+                        isOwner = comment.createdBy.id == state.currentUser?.id
                     )
                 }
-            },
-            actions = {
-                Text(
-                    text = "Sắp theo: Mới đến cũ",
-                    color = Color(0xFF42B3FF),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.White
-            )
-        )
-
-        // Comments list
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            items(state.comments) { comment ->
-                CommentItem(
-                    comment = comment,
-                    onReply = { /* Handle reply */ },
-                    onReport = { /* Handle report */ },
-                    onEdit = { content ->
-                        onEvent(ExerciseEvent.UpdateComment(folderId, comment.id, content))
-                    },
-                    onDelete = {
-                        onEvent(ExerciseEvent.DeleteComment(folderId, comment.id))
-                    },
-                    isOwner = comment.createdBy.id == state.currentUser?.id
-                )
             }
         }
-
         // Comment input field
-        Surface(
+        Row(
             modifier = Modifier
-                .fillMaxWidth(),
-            color = Color.White,
-            shadowElevation = 4.dp
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            OutlinedTextField(
+                value = commentText,
+                onValueChange = { commentText = it },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = commentText,
-                    onValueChange = { commentText = it },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp),
-                    placeholder = { Text("Aa") },
-                    shape = RoundedCornerShape(24.dp),
-                    colors = defaultTextFieldColors(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            focusManager.clearFocus()
-                        }
-                    )
-                )
-
-                IconButton(
-                    onClick = {
-                        if (commentText.isNotBlank()) {
-                            onEvent(ExerciseEvent.CreateComment(folderId, commentText.trim()))
-                            commentText = ""
-                        }
+                    .weight(1f)
+                    .height(56.dp),
+                placeholder = { Text("Aa") },
+                shape = RoundedCornerShape(24.dp),
+                colors = defaultTextFieldColors(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
                     }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_send),
-                        contentDescription = "Send",
-                        tint = Color.Unspecified
-                    )
+                )
+            )
+
+            IconButton(
+                onClick = {
+                    if (commentText.isNotBlank()) {
+                        onEvent(ExerciseEvent.CreateComment(folderId, commentText.trim()))
+                        commentText = ""
+                    }
                 }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_send),
+                    contentDescription = "Send",
+                    tint = Color.Unspecified
+                )
             }
         }
     }

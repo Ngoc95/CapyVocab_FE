@@ -163,7 +163,7 @@ fun TestScreenContent(
                                 },
                                 contentDescription = title,
                                 modifier = Modifier.size(30.dp),
-                                tint = Color.Black
+                                tint = Color.Unspecified
                             )
 
                             Spacer(modifier = Modifier.height(4.dp))
@@ -261,7 +261,7 @@ fun TestScreenContent(
                             isLoading = isLoading,
                             currentUser = user,
                             onFolderClick = { folder ->
-                                selectedCreatedFolder = folder // Không chuyển tab, chỉ set folder
+                                selectedCreatedFolder = folder
                             },
                             onVoteFolder = onVoteFolder,
                             onUnvoteFolder = onUnvoteFolder

@@ -68,7 +68,7 @@ import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseState
 fun QuizScreen(
     navController: NavController,
     quizId: Int,
-    folderId: Int, // Thêm tham số folderId
+    folderId: Int,
     state: ExerciseState,
     onEvent: (ExerciseEvent) -> Unit,
     isEditing: Boolean = false
@@ -102,7 +102,13 @@ fun QuizScreen(
                 )
             },
             navigationIcon = {
-                IconButton(onClick = { if (editingMode) editingMode = false else navController.popBackStack() }) {
+                IconButton(onClick = { 
+                    if (editingMode) {
+                        editingMode = false
+                    } else {
+                        navController.popBackStack()
+                    }
+                }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back"
