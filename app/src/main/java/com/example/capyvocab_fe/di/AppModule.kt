@@ -11,6 +11,7 @@ import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
 import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi
+import com.example.capyvocab_fe.user.review.data.remote.UserReviewApi
 import com.example.capyvocab_fe.util.Constant.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -90,6 +91,8 @@ object AppModule {
     @Singleton
     fun provideUserExerciseApi(retrofit: Retrofit): ExerciseApi {
         return retrofit.create(ExerciseApi::class.java)
+    fun provideUserReviewApi(retrofit: Retrofit): UserReviewApi {
+        return retrofit.create(UserReviewApi::class.java)
     }
 
 }

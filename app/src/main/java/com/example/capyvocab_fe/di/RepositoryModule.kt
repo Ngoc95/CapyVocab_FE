@@ -14,6 +14,8 @@ import com.example.capyvocab_fe.user.learn.data.repository.UserLearnRepositoryIm
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
 import com.example.capyvocab_fe.user.test.data.repository.ExerciseRepositoryImpl
 import com.example.capyvocab_fe.user.test.domain.repository.ExerciseRepository
+import com.example.capyvocab_fe.user.review.data.repository.UserReviewRepositoryImpl
+import com.example.capyvocab_fe.user.review.domain.repository.UserReviewRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -53,4 +55,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
+    abstract fun bindUserReviewRepository(impl: UserReviewRepositoryImpl): UserReviewRepository
+
 }
