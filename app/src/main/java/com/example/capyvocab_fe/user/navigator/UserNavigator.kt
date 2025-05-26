@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,6 +25,7 @@ import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
@@ -136,6 +138,7 @@ fun UserNavigator() {
             //user community screen
             composable(route = Route.UserCommunityScreen.route) {
                 //TODO: navigate to user home screen
+
             }
             //user review screen
             composable(route = Route.UserReviewScreen.route) {
