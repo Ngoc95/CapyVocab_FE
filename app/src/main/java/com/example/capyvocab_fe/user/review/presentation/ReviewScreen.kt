@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -47,6 +51,7 @@ import com.example.capyvocab_fe.core.ui.components.BottomFeedbackCard
 import com.example.capyvocab_fe.core.ui.components.CustomProgressBarWithIcon
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import com.example.capyvocab_fe.user.review.presentation.components.ChooseMeaningQuestion
 import com.example.capyvocab_fe.user.review.presentation.components.FillInQuestion
 import com.example.capyvocab_fe.user.review.presentation.components.ListenAndChooseQuestion
@@ -129,18 +134,7 @@ fun ReviewScreen(
         state.isEmpty -> {
             Column {
                 // Top bar
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-
-                        .background(
-                            color = Color.Transparent
-                        )
-                        .padding(vertical = 8.dp)
-                ) {
-                    TopBarTitle("Ôn tập")
-                }
+                UserTopBar()
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -197,7 +191,7 @@ fun ReviewScreen(
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         // Các câu hỏi
                         key(word.id) {
@@ -337,13 +331,9 @@ fun ReviewOverviewScreen(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Top bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-        ) {
-            TopBarTitle("Ôn tập")
-        }
+        UserTopBar()
+
+        Spacer(Modifier.height(30.dp))
 
         Column(
             modifier = Modifier
@@ -351,19 +341,35 @@ fun ReviewOverviewScreen(
                 .padding(horizontal = 16.dp)
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+
         ) {
             ProgressChartView(items = progressItems, total = totalLearned)
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            //Text("Bạn có $totalWords từ cần ôn", style = MaterialTheme.typography.headlineSmall)
-            Text("Chuẩn bị ôn: $preparedCount từ")
+//            Text("Bạn có $totalWords từ cần ôn", style = MaterialTheme.typography.headlineSmall)
+            Text("Chuẩn bị ôn tập: $preparedCount từ", style = MaterialTheme.typography.titleMedium, fontSize = 16.sp)
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(10.dp))
 
-            Button(onClick = onStart) {
-                Text("Ôn tập ngay")
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF4FC3F7), Color(0xFF1565C0))
+                        )
+                    )
+                    .clickable { onStart() }
+                    .padding(horizontal = 48.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    "Ôn tập ngay",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
@@ -390,52 +396,92 @@ fun ProgressChartView(items: List<ProgressChartItem>, total: Int) {
        // Text("Tổng từ đã học: $total" , style = MaterialTheme.typography.titleMedium)
         Text(
             buildAnnotatedString {
-                withStyle(style = SpanStyle(fontSize = 40.sp, fontWeight = FontWeight.Bold)) {
+                withStyle(style = SpanStyle(fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Color(0xFF920000))) {
                     append("$total")
                 }
-                append("  từ đã học theo cấp độ")
+                append("  từ đã học chia theo cấp độ")
             },
             style = MaterialTheme.typography.titleMedium
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val maxBarHeight = 200.dp
-        val minBarHeight = 8.dp // để cột "0 từ" vẫn hiển thị màu
-
+        // Biểu đồ cột
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(maxBarHeight + 30.dp), // bar + count text (bỏ label ở đây)
+                .height(200.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.Bottom
         ) {
             items.forEachIndexed { index, item ->
                 val ratio = item.count.toFloat() / maxCount
-                val barHeight = if (item.count == 0) minBarHeight else maxBarHeight * ratio
+                val barHeight = if (item.count == 0) 8.dp else 180.dp * ratio
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Bottom
                 ) {
-                    // Số lượng từ phía trên cột
                     Text("${item.count} từ", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-
                     Spacer(modifier = Modifier.height(4.dp))
-
-                    // Cột màu
                     Box(
                         modifier = Modifier
                             .height(barHeight)
                             .width(28.dp)
                             .background(
-                                color = barColors.getOrNull(index) ?: Color.Gray,
+                                color = barColors.getOrElse(index) { Color.Gray },
                                 shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
                             )
                     )
                 }
             }
         }
+
+        // Đường kẻ ngang đặt riêng
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
+                .clip(RoundedCornerShape(50)) // Bo tròn tối đa
+                .background(Color(0xFFDDDDDD))
+                .padding(top = 2.dp, start = 20.dp, end = 20.dp)
+        )
+
+//        val maxBarHeight = 200.dp
+//        val minBarHeight = 8.dp // để cột "0 từ" vẫn hiển thị màu
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(maxBarHeight + 30.dp), // bar + count text (bỏ label ở đây)
+//            horizontalArrangement = Arrangement.SpaceEvenly,
+//            verticalAlignment = Alignment.Bottom
+//        ) {
+//            items.forEachIndexed { index, item ->
+//                val ratio = item.count.toFloat() / maxCount
+//                val barHeight = if (item.count == 0) minBarHeight else maxBarHeight * ratio
+//
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally,
+//                    verticalArrangement = Arrangement.Bottom
+//                ) {
+//                    // Số lượng từ phía trên cột
+//                    Text("${item.count} từ", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+//
+//                    Spacer(modifier = Modifier.height(4.dp))
+//
+//                    // Cột màu
+//                    Box(
+//                        modifier = Modifier
+//                            .height(barHeight)
+//                            .width(28.dp)
+//                            .background(
+//                                color = barColors.getOrNull(index) ?: Color.Gray,
+//                                shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
+//                            )
+//                    )
+//                }
+//            }
+//        }
 
         Spacer(modifier = Modifier.height(6.dp))
 

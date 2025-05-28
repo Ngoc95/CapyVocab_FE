@@ -168,6 +168,7 @@ class LearnViewModel @Inject constructor(
                                 isLearning = true,
                                 isComplete = false,
                                 isFlipped = false,
+                                correctCount = 0
                             )
                         }
                     }
@@ -234,7 +235,8 @@ class LearnViewModel @Inject constructor(
                 isTyping = false,
                 isLearning = !isDone,
                 isComplete = isDone,
-                isFlipped = false
+                isFlipped = false,
+                correctCount = it.correctCount + 1
             )
         }
 
@@ -285,6 +287,11 @@ class LearnViewModel @Inject constructor(
 
         if (index >= words.size) return
 
+        var newCorrectCount = currentState.correctCount
+        if (tempAnswerCorrect) {
+            newCorrectCount++   // tăng số từ trả lời đúng
+        }
+
         if (!tempAnswerCorrect) {
             val wrongWord = words.removeAt(index)
             words.add(wrongWord)
@@ -302,7 +309,8 @@ class LearnViewModel @Inject constructor(
                 isTyping = false,
                 isLearning = !isDone,
                 isComplete = isDone,
-                isFlipped = false
+                isFlipped = false,
+                correctCount = newCorrectCount
             )
         }
 
@@ -313,5 +321,4 @@ class LearnViewModel @Inject constructor(
             }
         }
     }
-
 }

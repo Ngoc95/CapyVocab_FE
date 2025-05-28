@@ -42,6 +42,7 @@ import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextField
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import kotlinx.coroutines.delay
 
 @Composable
@@ -110,18 +111,7 @@ fun CoursesScreenContent(
 
         Column(modifier = Modifier.fillMaxSize()) {
             // Top bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-
-                    .background(
-                        color = Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                    TopBarTitle("Khóa học")
-            }
+            UserTopBar()
 
             // Search bar
             Row(

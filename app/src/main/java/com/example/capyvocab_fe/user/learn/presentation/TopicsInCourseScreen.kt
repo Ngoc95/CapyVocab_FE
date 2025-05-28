@@ -199,7 +199,7 @@ fun TopicsInCourseScreenContent(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(30.dp)
             ) {
-                itemsIndexed(topics) { index, topic ->
+                itemsIndexed(topics, key = { _, topic -> topic.id }) { index, topic ->
                     val isSelected = selectedTopic == topic
 
                     TopicCard(
