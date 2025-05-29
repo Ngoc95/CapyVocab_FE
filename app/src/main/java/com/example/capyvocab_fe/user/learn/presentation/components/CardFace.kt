@@ -89,8 +89,9 @@ fun CardFaceFront(
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(word.image)
+                                .data(imageUrl)
                                 .crossfade(true)
+                                .size(150, 150)
                                 .placeholder(R.drawable.placeholder_img) // ảnh local tạm thời
                                 .build(),
                             contentDescription = "Illustration",

@@ -31,7 +31,6 @@ import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
-import com.example.capyvocab_fe.user.review.presentation.ReviewEvent
 import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
 import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
 

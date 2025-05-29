@@ -1,11 +1,14 @@
 package com.example.capyvocab_fe.user.learn.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -42,6 +45,17 @@ fun LearnFlashcardScreen(
     LaunchedEffect(topic.id) {
         viewModel.onEvent(LearnEvent.ClearWords)
         viewModel.onEvent(LearnEvent.LoadWords(topic))
+    }
+
+    if (state.isLoading ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+            Text(text = "Đang tải chủ đề...", color = Color.Black)
+        }
     }
 
     BackHandler {

@@ -18,20 +18,5 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-
-        val imageLoader = ImageLoader.Builder(this)
-            .memoryCache {
-                MemoryCache.Builder(this)
-                    .maxSizePercent(0.25) // Use 25% of app memory for the image cache
-                    .build()
-            }
-            .diskCache {
-                DiskCache.Builder()
-                    .directory(filesDir.resolve("image_cache"))
-                    .maxSizeBytes(50 * 1024 * 1024) // 50MB
-                    .build()
-            }
-            .build()
-        Coil.setImageLoader(imageLoader)
     }
 }
