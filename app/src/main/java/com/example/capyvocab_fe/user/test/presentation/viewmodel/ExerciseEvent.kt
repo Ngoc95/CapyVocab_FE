@@ -7,12 +7,11 @@ import com.example.capyvocab_fe.user.test.domain.model.Question
 
 sealed class ExerciseEvent {
     // Folder-related events
-    data class GetAllFolders(
-        val page: Int = 1,
-        val limit: Int = 10,
+    data class LoadFolders(
         val name: String? = null,
         val code: String? = null
     ) : ExerciseEvent()
+    object LoadMoreFolders : ExerciseEvent()
     data class GetFolderById(val id: Int) : ExerciseEvent()
     data class CreateFolder(
         val request: CreateFolderRequest,
@@ -45,4 +44,5 @@ sealed class ExerciseEvent {
     // UI state reset events
     object ResetError : ExerciseEvent()
     object ResetSuccess : ExerciseEvent()
+    object ClearCurrentFolder : ExerciseEvent()
 }

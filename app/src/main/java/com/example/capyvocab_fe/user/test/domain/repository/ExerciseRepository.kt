@@ -9,8 +9,7 @@ import com.example.capyvocab_fe.user.test.domain.model.Folder
 
 interface ExerciseRepository {
     suspend fun getAllFolders(
-        page: Int,
-        limit: Int,
+        page: Int = 1,
         name: String? = null,
         code: String? = null
     ): Either<AppFailure, List<Folder>>

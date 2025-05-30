@@ -50,7 +50,8 @@ class ExerciseViewModel @Inject constructor(
      */
     fun onEvent(event: ExerciseEvent) {
         when (event) {
-            is ExerciseEvent.GetAllFolders -> getAllFolders(event.page, event.limit, event.name, event.code)
+            is ExerciseEvent.LoadFolders -> loadFolders(name = event.name, code = event.code)
+            is ExerciseEvent.LoadMoreFolders -> loadFolders(loadMore = true)
             is ExerciseEvent.GetFolderById -> getFolderById(event.id)
             is ExerciseEvent.CreateFolder -> createFolder(event.request, event.onSuccess, event.onError)
             is ExerciseEvent.UpdateFolder -> updateFolder(event.id, event.request)
@@ -85,26 +86,29 @@ class ExerciseViewModel @Inject constructor(
             // Reset events
             is ExerciseEvent.ResetError -> _state.update { it.copy(error = null) }
             is ExerciseEvent.ResetSuccess -> _state.update { it.copy(successMessage = null) }
+            is ExerciseEvent.ClearCurrentFolder -> _state.update { it.copy(currentFolder = null) }
         }
     }
     /**
      * Fetches all folders with pagination.
      */
-    private fun getAllFolders(page: Int, limit: Int, name: String? = null, code: String? = null) {
+    private fun loadFolders(loadMore: Boolean = false, name: String? = null, code: String? = null) {
         viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
             _state.update { it.copy(isLoading = true) }
 
-            exerciseRepository.getAllFolders(page, limit, name, code).fold(
+            exerciseRepository.getAllFolders(nextPage, name, code).fold(
                 { failure ->
                     _state.update { it.copy(isLoading = false, error = failure) }
                 },
-                { folders ->
+                { newFolders ->
                     _state.update {
+                        val allFolders = if (loadMore) it.folders + newFolders else newFolders
                         it.copy(
                             isLoading = false,
-                            folders = if (page == 1) folders else it.folders + folders,
-                            currentPage = page,
-                            hasMorePages = folders.isNotEmpty() && folders.size == limit
+                            folders = allFolders,
+                            currentPage = nextPage,
+                            isEndReached = newFolders.isEmpty()
                         )
                     }
                 }

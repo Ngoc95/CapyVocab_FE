@@ -11,9 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.capyvocab_fe.auth.domain.model.User
+import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 import com.example.capyvocab_fe.user.test.presentation.screens.components.TestFolderCard
 
@@ -30,12 +36,28 @@ import com.example.capyvocab_fe.user.test.presentation.screens.components.TestFo
 fun CreatedTestsContent(
     folders: List<Folder>,
     isLoading: Boolean,
+    isEndReached: Boolean,
     currentUser: User?,
+    navController: NavController,
     onFolderClick: (Folder) -> Unit,
+    onLoadMoreFolders: () -> Unit,
     onVoteFolder: (Int) -> Unit,
     onUnvoteFolder: (Int) -> Unit
 ) {
     val createdFolders = folders.filter { it.createdBy?.id == currentUser?.id }
+    val listState = rememberLazyListState()
+
+    // detect khi list đã đến cuối
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .collect { visibleItems ->
+                val lastVisibleItem = visibleItems.lastOrNull()?.index ?: 0
+                val totalItems = listState.layoutInfo.totalItemsCount
+                if (lastVisibleItem >= totalItems - 2 && !isLoading && !isEndReached) {
+                    onLoadMoreFolders()
+                }
+            }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
@@ -66,14 +88,34 @@ fun CreatedTestsContent(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(createdFolders) { item ->
+                itemsIndexed(createdFolders) { index, item ->
                     TestFolderCard(
                         folder = item,
+                        isOwner = true,
                         onClick = { onFolderClick(item) },
                         onVoteClick = onVoteFolder,
-                        onUnVoteClick = onUnvoteFolder
+                        onUnVoteClick = onUnvoteFolder,
+                        onSettingClick = {
+                            navController.navigate("${Route.TestSettingScreen.route}/${it.id}")
+                        }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+                    // Load thêm nếu gần cuối
+                    if (createdFolders.size - 1 == index && !isLoading && !isEndReached) {
+                        onLoadMoreFolders()
+                    }
+                }
+                if (isLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             }
         }

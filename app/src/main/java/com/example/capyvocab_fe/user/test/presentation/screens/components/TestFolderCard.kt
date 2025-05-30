@@ -15,9 +15,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,9 +45,11 @@ import com.example.capyvocab_fe.user.test.domain.model.Folder
 @Composable
 fun TestFolderCard(
     folder: Folder,
+    isOwner: Boolean,
     onClick: () -> Unit,
     onVoteClick: (Int) -> Unit,
-    onUnVoteClick: (Int) -> Unit
+    onUnVoteClick: (Int) -> Unit,
+    onSettingClick: (Folder) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -73,6 +78,15 @@ fun TestFolderCard(
                     fontSize = 20.sp,
                     modifier = Modifier.weight(1f)
                 )
+                if (isOwner) {
+                    IconButton(onClick = { onSettingClick(folder) }) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Cài đặt",
+                            tint = Color.Gray
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -210,9 +224,11 @@ private fun TestFolderCardPreview() {
     CapyVocab_FETheme {
         TestFolderCard(
             folder = sampleFolder,
+            isOwner = true,
             onClick = {},
             onVoteClick = {  },
-            onUnVoteClick = {}
+            onUnVoteClick = {},
+            onSettingClick = {}
         )
     }
 }

@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.user.test.presentation.screens.screen_contents
+package com.example.capyvocab_fe.user.test.presentation.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -45,7 +45,7 @@ import com.example.capyvocab_fe.ui.theme.White
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
 @Composable
-fun TestDetailContent(
+fun TestDetailScreen(
     modifier: Modifier = Modifier,
     folder: Folder,
     onBack: (() -> Unit)? = null,
@@ -274,7 +274,7 @@ private fun TestDetailContentPreview() {
         comments = emptyList()
     )
     CapyVocab_FETheme {
-        TestDetailContent(
+        TestDetailScreen(
             folder = sampleFolder,
             onBack = {},
             onVoteClick = {},

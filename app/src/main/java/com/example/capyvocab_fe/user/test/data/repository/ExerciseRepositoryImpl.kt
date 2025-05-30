@@ -18,12 +18,11 @@ class ExerciseRepositoryImpl @Inject constructor(
 ) : ExerciseRepository {
     override suspend fun getAllFolders(
         page: Int,
-        limit: Int,
         name: String?,
         code: String?
     ): Either<AppFailure, List<Folder>> {
         return Either.catch {
-            api.getAllFolders(page, limit, name, code).metaData.folders
+            api.getAllFolders(page = page, name = name, code = code).metaData.folders
         }.mapLeft { it.toAppFailure() }
     }
 

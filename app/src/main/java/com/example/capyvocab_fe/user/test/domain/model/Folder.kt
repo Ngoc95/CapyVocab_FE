@@ -7,11 +7,14 @@ data class Folder(
     val name: String,
     val code: String,
     val price: Double,
+    val isPublic: Boolean = false,
     val createdBy: User?,
     val voteCount: Int,
     val commentCount: Int,
     val isAlreadyVote: Boolean,
-    val quizzes: List<Quiz>?,
-    val flashCards: List<FlashCard>?,
-    val comments: List<Comment>?
-)
+    val quizzes: List<Quiz>? = emptyList(),
+    val flashCards: List<FlashCard>? = emptyList(),
+    val comments: List<Comment>? = emptyList()
+) {
+    val isFree: Boolean get() = price == 0.0
+}

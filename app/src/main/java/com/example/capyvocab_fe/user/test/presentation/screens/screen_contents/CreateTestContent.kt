@@ -2,26 +2,32 @@ package com.example.capyvocab_fe.user.test.presentation.screens.screen_contents
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +45,7 @@ fun CreateTestContent(
 ) {
     var testTitle by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("0") }
+    var isPublic by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
@@ -75,8 +82,21 @@ fun CreateTestContent(
                 .padding(bottom = 16.dp),
             shape = RoundedCornerShape(8.dp),
             colors = defaultTextFieldColors(),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             isError = errorMessage != null
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            Switch(
+                checked = isPublic,
+                onCheckedChange = { isPublic = it }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Công khai folder")
+        }
 
         errorMessage?.let {
             Text(
@@ -97,10 +117,11 @@ fun CreateTestContent(
                 }
                 errorMessage = null
                 onCreateFolder(
-                    CreateFolderRequest(testTitle, price.toDouble()),
+                    CreateFolderRequest(testTitle, price.toDouble(), isPublic),
                     { folder ->
                         testTitle = ""
                         price = "0"
+                        isPublic = false
                         onFolderCreated(folder)
                     },
                     { error ->

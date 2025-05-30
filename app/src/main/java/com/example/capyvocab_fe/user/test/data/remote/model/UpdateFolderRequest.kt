@@ -2,6 +2,8 @@ package com.example.capyvocab_fe.user.test.data.remote.model
 
 data class UpdateFolderRequest(
     val name: String? = null,
+    val price: Double? = null,
+    val isPublic: Boolean? = null,
     val quizzes: List<QuizRequest>? = null,
     val flashCards: List<FlashCardRequest>? = null
 )

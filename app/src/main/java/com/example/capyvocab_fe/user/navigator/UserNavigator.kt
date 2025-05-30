@@ -32,19 +32,19 @@ import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
+import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
 import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.DoQuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.EditQuestionScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.TestDetailScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.TestSettingScreen
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
-import com.example.capyvocab_fe.user.review.presentation.ReviewEvent
-import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
-import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserNavigator() {
@@ -72,7 +72,7 @@ fun UserNavigator() {
             ),
             BottomNavigationItem(
                 icon = R.drawable.user_profile,
-                selectedIcon = R.drawable.user_selected_profile ,
+                selectedIcon = R.drawable.user_selected_profile,
                 text = "Hồ sơ"
             ),
         )
@@ -92,7 +92,7 @@ fun UserNavigator() {
     val reviewViewModel: ReviewViewModel = hiltViewModel()
     val reviewState = reviewViewModel.state
 
-    selectedItem = when(backStackState?.destination?.route) {
+    selectedItem = when (backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
         Route.UserReviewScreen.route -> 1
         Route.UserLearnScreen.route -> 2
@@ -109,10 +109,10 @@ fun UserNavigator() {
             Route.UserLearnScreen.route,
             Route.UserTestScreen.route,
             Route.UserProfileScreen.route -> true
+
             else -> false
         }
     }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -123,23 +123,27 @@ fun UserNavigator() {
                     onItemClick = { index ->
                         if (index == selectedItem) return@UserBottomNavigation
                         selectedItem = index
-                        when(index) {
+                        when (index) {
                             0 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserCommunityScreen.route
                             )
+
                             1 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserReviewScreen.route
                             )
+
                             2 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserLearnScreen.route
                             )
+
                             3 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserTestScreen.route
                             )
+
                             4 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserProfileScreen.route
@@ -215,7 +219,10 @@ fun UserNavigator() {
                         topic = topic,
                         viewModel = learnViewModel,
                         onComplete = {
-                            navController.popBackStack("${Route.UserWordsScreen.route}/${topic.id}", inclusive = true)
+                            navController.popBackStack(
+                                "${Route.UserWordsScreen.route}/${topic.id}",
+                                inclusive = true
+                            )
                         },
                         navController = navController
                     )
@@ -228,6 +235,54 @@ fun UserNavigator() {
                     viewModel = exerciseViewModel,
                     navController = navController
                 )
+            }
+            // test setting screen
+            composable(
+                route = "${Route.TestSettingScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId")
+                LaunchedEffect(folderId) {
+                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId!!))
+                }
+                exerciseState.currentFolder?.let {
+                    TestSettingScreen(
+                        folder = it,
+                        onSaveClick = { updated ->
+                            exerciseViewModel.onEvent(ExerciseEvent.UpdateFolder(it.id, updated))
+                            navController.popBackStack()
+                        },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+            }
+            // test detail screen
+            composable(
+                route = "${Route.TestDetailScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId")
+                LaunchedEffect(folderId) {
+                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId!!))
+                }
+                exerciseState.currentFolder?.let { folder ->
+                    TestDetailScreen(
+                        folder = folder,
+                        onBack = {
+                            exerciseViewModel.onEvent(ExerciseEvent.ClearCurrentFolder)
+                            navController.popBackStack()
+                        },
+                        onVoteClick = { exerciseViewModel.onEvent(ExerciseEvent.VoteFolder(folder.id)) },
+                        onUnVoteClick = {
+                            exerciseViewModel.onEvent(
+                                ExerciseEvent.UnvoteFolder(
+                                    folder.id
+                                )
+                            )
+                        },
+                        navController = navController
+                    )
+                }
             }
             // màn hình chỉnh sửa chi tiết câu hỏi
             composable(
@@ -257,9 +312,6 @@ fun UserNavigator() {
                 )
             ) { backStackEntry ->
                 val folderId = backStackEntry.arguments?.getInt("folderId") ?: -1
-                LaunchedEffect(folderId) {
-                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId))
-                }
                 exerciseState.currentQuiz?.let {
                     QuizScreen(
                         navController = navController,
@@ -279,7 +331,6 @@ fun UserNavigator() {
             ) { backStackEntry ->
                 val quizId = backStackEntry.arguments?.getInt("quizId") ?: 0
                 val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
-
                 DoQuizScreen(
                     navController = navController,
                     quizId = quizId,
@@ -300,16 +351,12 @@ fun UserNavigator() {
                 arguments = listOf(navArgument("folderId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
-                LaunchedEffect(folderId) {
-                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId))
-                }
-
-                    CommentScreen(
-                        navController = navController,
-                        folderId = folderId,
-                        state = exerciseState,
-                        onEvent = exerciseViewModel::onEvent
-                    )
+                CommentScreen(
+                    navController = navController,
+                    folderId = folderId,
+                    state = exerciseState,
+                    onEvent = exerciseViewModel::onEvent
+                )
 
             }
             //user profile screen

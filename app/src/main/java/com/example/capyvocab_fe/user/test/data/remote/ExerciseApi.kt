@@ -44,7 +44,7 @@ interface ExerciseApi {
     @POST("exercise/{id}/like")
     suspend fun voteFolder(@Path("id") id: Int): ApiResponse<Any>
 
-    @POST("exercise/{id}/unlike")
+    @DELETE("exercise/{id}/unlike")
     suspend fun unVoteFolder(@Path("id") id: Int): ApiResponse<Any>
 
     @POST("exercise/{id}/comment")

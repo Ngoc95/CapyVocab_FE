@@ -5,11 +5,11 @@ import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
 import com.example.capyvocab_fe.admin.user.data.remote.AdminUserApi
 import com.example.capyvocab_fe.admin.word.data.remote.AdminWordApi
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
-import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
-import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
+import com.example.capyvocab_fe.user.payment.data.remote.PaymentApi
+import com.example.capyvocab_fe.payout.data.remote.PayoutApi
 import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi
 import com.example.capyvocab_fe.user.review.data.remote.UserReviewApi
 import com.example.capyvocab_fe.util.Constant.BASE_URL
@@ -91,6 +91,22 @@ object AppModule {
     @Singleton
     fun provideUserExerciseApi(retrofit: Retrofit): ExerciseApi {
         return retrofit.create(ExerciseApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePaymentApi(retrofit: Retrofit): PaymentApi {
+        return retrofit.create(PaymentApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePayoutApi(retrofit: Retrofit): PayoutApi {
+        return retrofit.create(PayoutApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideUserReviewApi(retrofit: Retrofit): UserReviewApi {
         return retrofit.create(UserReviewApi::class.java)
     }

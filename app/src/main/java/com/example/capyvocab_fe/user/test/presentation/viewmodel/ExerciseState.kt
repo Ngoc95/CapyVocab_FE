@@ -22,8 +22,7 @@ data class ExerciseState(
 
     // Pagination
     val currentPage: Int = 1,
-    val totalPages: Int = 1,
-    val hasMorePages: Boolean = false,
+    val isEndReached: Boolean = false,
 
     // Quiz state
     val currentQuiz: Quiz? = null,
