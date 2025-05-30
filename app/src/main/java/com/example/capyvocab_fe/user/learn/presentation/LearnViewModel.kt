@@ -1,24 +1,37 @@
 package com.example.capyvocab_fe.user.learn.presentation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class LearnViewModel @Inject constructor(
-    private val userLearnRepository: UserLearnRepository
+    private val userLearnRepository: UserLearnRepository,
+    private val imageLoader: ImageLoader,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LearnState())
     val state: StateFlow<LearnState> = _state
+
+    private val _imagesLoaded = MutableStateFlow(false)
 
     fun onEvent(event: LearnEvent) {
         when (event) {
@@ -151,13 +164,18 @@ class LearnViewModel @Inject constructor(
             it.copy(
                 isLoading = true,
                 errorMessage = "",
-                selectedTopic = topic // cập nhật trước
+                selectedTopic = topic, // cập nhật trước
+                words = emptyList()
             )
         }
 
         viewModelScope.launch {
             userLearnRepository.getTopicWords(topicId)
                 .onRight { newWords ->
+                    // preload ảnh
+                    val imageUrls = newWords.mapNotNull { it.image.takeIf { it.isNotBlank() } }
+                    preloadAllImages(imageUrls) // blocking
+
                     if (_state.value.selectedTopic?.id == topicId) {
                         _state.update {
                             it.copy(
@@ -168,8 +186,10 @@ class LearnViewModel @Inject constructor(
                                 isLearning = true,
                                 isComplete = false,
                                 isFlipped = false,
+                                correctCount = 0
                             )
                         }
+                        _imagesLoaded.value = true  // Đánh dấu đã load xong ảnh
                     }
                 }
                 .onLeft { failure ->
@@ -181,6 +201,7 @@ class LearnViewModel @Inject constructor(
                             )
                         }
                     }
+                    _imagesLoaded.value = false
                 }
         }
     }
@@ -220,8 +241,6 @@ class LearnViewModel @Inject constructor(
         }
     }
 
-
-
     private fun skipCurrentWord() {
         val currentState = state.value
         val index = currentState.currentIndex
@@ -234,7 +253,8 @@ class LearnViewModel @Inject constructor(
                 isTyping = false,
                 isLearning = !isDone,
                 isComplete = isDone,
-                isFlipped = false
+                isFlipped = false,
+                correctCount = it.correctCount + 1
             )
         }
 
@@ -285,6 +305,11 @@ class LearnViewModel @Inject constructor(
 
         if (index >= words.size) return
 
+        var newCorrectCount = currentState.correctCount
+        if (tempAnswerCorrect) {
+            newCorrectCount++   // tăng số từ trả lời đúng
+        }
+
         if (!tempAnswerCorrect) {
             val wrongWord = words.removeAt(index)
             words.add(wrongWord)
@@ -302,7 +327,8 @@ class LearnViewModel @Inject constructor(
                 isTyping = false,
                 isLearning = !isDone,
                 isComplete = isDone,
-                isFlipped = false
+                isFlipped = false,
+                correctCount = newCorrectCount
             )
         }
 
@@ -313,5 +339,20 @@ class LearnViewModel @Inject constructor(
             }
         }
     }
+    private suspend fun preloadAllImages(imageUrls: List<String>) {
+        withContext(Dispatchers.IO) {
+            imageUrls.map { url ->
+                async {
+                    val request = ImageRequest.Builder(context)
+                        .data(url)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .size(150, 150)
+                        .build()
 
+                    imageLoader.execute(request) // Blocking load
+                }
+            }.awaitAll()
+        }
+    }
 }

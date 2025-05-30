@@ -47,7 +47,6 @@ import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
-import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
 @Composable
@@ -69,13 +68,7 @@ fun TopicsInCourseScreen(
     }
 
     BackHandler {
-        navController.navigate(Route.UserCoursesScreen.route) {
-            popUpTo(Route.UserCoursesScreen.route) {
-                inclusive = false
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
+        navController.popBackStack()
     }
 
     // Khi errorMessage thay đổi, show snackbar trong 3 giây
@@ -199,7 +192,7 @@ fun TopicsInCourseScreenContent(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(30.dp)
             ) {
-                itemsIndexed(topics) { index, topic ->
+                itemsIndexed(topics, key = { _, topic -> topic.id }) { index, topic ->
                     val isSelected = selectedTopic == topic
 
                     TopicCard(

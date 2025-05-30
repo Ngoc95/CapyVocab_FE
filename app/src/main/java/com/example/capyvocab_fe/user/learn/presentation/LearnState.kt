@@ -21,6 +21,7 @@ data class LearnState(
     //learn
     val words: List<Word> = emptyList(),
     val currentIndex: Int = 0,
+    val correctCount: Int = 0,
     val isFlipped: Boolean = false,
     val isTyping: Boolean = false,
     val answerResult: Boolean? = null,
