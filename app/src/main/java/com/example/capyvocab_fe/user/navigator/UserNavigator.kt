@@ -26,12 +26,15 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
+import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.profile.presentation.ProfileScreen
+import com.example.capyvocab_fe.user.profile.presentation.ProfileViewModel
 
 @Composable
 fun UserNavigator() {
@@ -73,6 +76,10 @@ fun UserNavigator() {
 
     val learnViewModel: LearnViewModel = hiltViewModel()
     val learnState by learnViewModel.state.collectAsState()
+
+    val communityViewModel: CommunityViewModel = hiltViewModel()
+
+    val profileViewModel: ProfileViewModel = hiltViewModel()
 
     selectedItem = when(backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
@@ -138,7 +145,9 @@ fun UserNavigator() {
             //user community screen
             composable(route = Route.UserCommunityScreen.route) {
                 //TODO: navigate to user home screen
-
+                CommunityScreen(
+                    viewModel = communityViewModel,
+                )
             }
             //user review screen
             composable(route = Route.UserReviewScreen.route) {
@@ -205,7 +214,9 @@ fun UserNavigator() {
             }
             //user profile screen
             composable(route = Route.UserProfileScreen.route) {
-                //TODO: navigate to user profile screen
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                )
             }
         }
     }

@@ -11,8 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,20 +38,21 @@ import com.example.capyvocab_fe.ui.theme.Styles.MyLikeButton
 import com.example.capyvocab_fe.ui.theme.Styles.TextButtonModifier
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun PostCard(
     post:Post,
     onFollowClick: () -> Unit,
-    onReplyClick: () -> Unit,
-    onVoteClick: (Boolean) -> Unit,
-    onThumbClick: (Int) -> Unit
+    onPostComment: () -> Unit,
+    onVoteClick: () -> Unit,
+    onImageClick:(String) -> Unit
 )
 {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp, 2.dp),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, Color.Black),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -65,11 +71,23 @@ fun PostCard(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Text(
-                    text = post.createdBy.email,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
+                Column {
+                    Text(
+                        text = post.createdBy.email,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.width(2.dp))
+
+                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+
+                    Text(
+                        text = sdf.format(post.createdAt),
+                        fontWeight = FontWeight.Thin,
+                        fontSize = 12.sp
+                    )
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -84,7 +102,7 @@ fun PostCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = post.tags.toString(),
+                text = post.tags?.joinToString("  ") { "#$it" } ?: "",
                 fontSize = 14.sp,
                 color = MyLightBlue,
             )
@@ -100,7 +118,7 @@ fun PostCard(
 
             PostThumbsGrid(
                 images = post.thumbnails,
-                onImageClick = onThumbClick
+                onImageClick = onImageClick
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -111,23 +129,32 @@ fun PostCard(
             ) {
                 Column {
                     Text(
-                        text = "${post.commentCount} trả lời",
+                        text = "${post.commentCount} trả lời, ${post.voteCount} lượt thích",
                         color = MyLightBlue,
                         fontSize = 12.sp
                     )
 
-                    MyLikeButton(
-                        liked = post.isAlreadyVote,
-                        onLikedChange ={
-                            onVoteClick
+                    IconToggleButton(
+                        checked = post.isAlreadyVote,
+                        onCheckedChange = {
+                            onVoteClick()
                         },
-                    )
+                        Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = if (post.isAlreadyVote) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = if (post.isAlreadyVote) "Liked" else "Like",
+                            tint = if (post.isAlreadyVote) Color.Red else Color.Gray
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 TextButton(
-                    onClick = onReplyClick,
+                    onClick = onPostComment,
                     modifier = TextButtonModifier,
                 ) {
                     Text("TRẢ LỜI", style = LightBlueTextStyle)
@@ -165,9 +192,9 @@ fun TopicCardPreview()
                 isAlreadyVote = true,
             ),
             onFollowClick = { },
-            onReplyClick = { },
+            onPostComment = { },
             onVoteClick = { },
-            onThumbClick = { }
+            onImageClick = { }
         )
     }
 }

@@ -5,10 +5,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,7 +30,7 @@ import com.example.capyvocab_fe.ui.theme.MyLightBlue
 @Composable
 fun PostThumbsGrid(
     images: List<String>?,
-    onImageClick: (Int) -> Unit
+    onImageClick: (String) -> Unit
 ) {
     if(images.isNullOrEmpty() == false) {
         when (images.size) {
@@ -41,7 +44,7 @@ fun PostThumbsGrid(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
-                        .clickable { onImageClick(0) },
+                        .clickable { onImageClick(images[0]) },
                     contentScale = ContentScale.Crop,
                     error = painterResource(id = R.drawable.default_avt),
                 )
@@ -56,16 +59,36 @@ fun PostThumbsGrid(
                             modifier = Modifier
                                 .weight(1f)
                                 .aspectRatio(1f)
-                                .clickable { onImageClick(index) },
+                                .clickable { onImageClick(images[index]) },
                             contentScale = ContentScale.Crop
                         )
-                        if (index == 0) Spacer(modifier = Modifier.width(4.dp))
+                        if (index == 0 ) Spacer(modifier = Modifier.width(4.dp))
+                    }
+                }
+            }
+
+            3 -> {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    images.forEachIndexed { index, url ->
+                        AsyncImage(
+                            model = url,
+                            contentDescription = "Image $index",
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .clickable { onImageClick(images[index]) },
+                            contentScale = ContentScale.Crop
+                        )
+                        if (index == 0 || index == 1) Spacer(modifier = Modifier.width(4.dp))
                     }
                 }
             }
 
             else -> {
                 LazyVerticalGrid(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(260.dp),
                     columns = GridCells.Fixed(3),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -76,7 +99,7 @@ fun PostThumbsGrid(
                                 contentDescription = "Image $index",
                                 modifier = Modifier
                                     .aspectRatio(1f)
-                                    .clickable { onImageClick(index) },
+                                    .clickable { onImageClick(images[index]) },
                                 contentScale = ContentScale.Crop
                             )
                         }
@@ -96,8 +119,7 @@ fun PostImageGridPreview()
     CapyVocab_FETheme {
 
         PostThumbsGrid(
-            images = listOf("1", "ff"
-            ),
+            images = listOf("1", "ff", "2", "3", "6", "3", "4", "44"),
             onImageClick = {},
         )
     }

@@ -9,7 +9,7 @@ data class Post (
     val thumbnails: List<String>?,
     val tags: List<String>?,
     val createdBy: User,
-    val createdAt: Date,
+    val createdAt: Date?,
     val updatedAt: Date?,
     val voteCount: Int,
     val commentCount: Int,

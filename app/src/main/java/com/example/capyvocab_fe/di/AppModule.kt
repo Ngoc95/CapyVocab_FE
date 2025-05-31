@@ -9,7 +9,9 @@ import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
+import com.example.capyvocab_fe.user.community.data.remote.UserCommunityApi
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
+import com.example.capyvocab_fe.user.profile.data.remote.UserProfileApi
 import com.example.capyvocab_fe.util.Constant.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -87,6 +89,18 @@ object AppModule {
     @Singleton
     fun provideUserLearnApi(retrofit: Retrofit): UserLearnApi {
         return retrofit.create(UserLearnApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserCommunityApi(retrofit: Retrofit): UserCommunityApi {
+        return retrofit.create(UserCommunityApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserProfileApi(retrofit: Retrofit): UserProfileApi {
+        return retrofit.create(UserProfileApi::class.java)
     }
 
 }

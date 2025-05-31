@@ -15,21 +15,23 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MyLikeButton(
-    liked: Boolean,
-    onLikedChange: (Boolean) -> Unit,
+    voted: Boolean,
+    onLikedChange: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     IconToggleButton(
-        checked = liked,
-        onCheckedChange = onLikedChange,
+        checked = voted,
+        onCheckedChange = { post ->
+            onLikedChange()
+        },
         modifier = modifier
             .size(36.dp)
             .clip(CircleShape)
     ) {
         Icon(
-            imageVector = if (liked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-            contentDescription = if (liked) "Liked" else "Like",
-            tint = if (liked) Color.Red else Color.Gray
+            imageVector = if (voted) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            contentDescription = if (voted) "Liked" else "Like",
+            tint = if (voted) Color.Red else Color.Gray
         )
     }
 }

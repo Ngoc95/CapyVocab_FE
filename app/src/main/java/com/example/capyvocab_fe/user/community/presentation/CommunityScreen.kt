@@ -11,6 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,12 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.MyLightBlue
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.community.presentation.components.PostCard
 import kotlinx.coroutines.delay
@@ -36,8 +45,7 @@ import java.text.SimpleDateFormat
 
 @Composable
 fun CommunityScreen(
-    viewModel: CommunityViewModel,
-    navController: NavController
+    viewModel: CommunityViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -60,15 +68,16 @@ fun CommunityScreen(
     }
 
     FocusComponent {
+
         CommunityScreenContent(
             posts = state.posts,
             isLoading = state.isLoading,
             isEndReached = state.isEndReachedPost,
             onLoadMore = { viewModel.onEvent(CommunityEvent.LoadMorePosts)},
+            onVoteClick = { post -> viewModel.onEvent(CommunityEvent.VotePost(post))},
             selectedPost = state.selectedPost
         )
     }
-
 }
 
 @Composable
@@ -77,6 +86,7 @@ fun CommunityScreenContent(
     isLoading: Boolean,
     isEndReached: Boolean,
     onLoadMore: () -> Unit,
+    onVoteClick: (Post) -> Unit,
     selectedPost: Post?
 )
 {
@@ -95,45 +105,59 @@ fun CommunityScreenContent(
             }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                shape = CircleShape,
+                onClick = {
 
-                    .background(
-                        color = Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
+                },
+                containerColor = MyLightBlue,
+                contentColor = Color.White
             ) {
-                TopBarTitle("CabyVocab")
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Create Post")
             }
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(30.dp)
-            ) {
-                itemsIndexed(posts) { index, post ->
-                    val isSelected = selectedPost == post
+                        .background(
+                            color = Color.Transparent
+                        )
+                        .padding(vertical = 8.dp)
+                ) {
+                    TopBarTitle("CabyVocab")
+                }
 
-                    PostCard(
-                        post = post,
-                        onVoteClick = {},
-                        onFollowClick = { },
-                        onReplyClick = { },
-                        onThumbClick = { }
-                    )
-                    // Load thêm nếu gần cuối
-                    if (index >= posts.size - 3 && !isLoading && !isEndReached) {
-                        onLoadMore()
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(30.dp)
+                ) {
+                    itemsIndexed(posts) { index, post ->
+                        val isSelected = selectedPost == post
+
+                        PostCard(
+                            post = post,
+                            onVoteClick = { onVoteClick(post) },
+                            onFollowClick = { },
+                            onPostComment = { },
+                            onImageClick = { }
+                        )
+                        if (index >= posts.size - 3 && !isLoading && !isEndReached) {
+                            onLoadMore()
+                        }
                     }
                 }
-        }
-    }
+            }
 
+        }
     }
 }
 
@@ -185,7 +209,9 @@ fun CommunitycreenPreview() {
             isLoading = false,
             isEndReached = false,
             onLoadMore = {},
+            onVoteClick = { },
             selectedPost = null,
         )
+
     }
 }
