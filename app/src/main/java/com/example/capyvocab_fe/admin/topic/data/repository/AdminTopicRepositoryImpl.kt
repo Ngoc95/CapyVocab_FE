@@ -20,9 +20,9 @@ import javax.inject.Inject
 class AdminTopicRepositoryImpl @Inject constructor(
     private val api: AdminTopicApi
 ) : AdminTopicRepository {
-    override suspend fun getAllTopic(page: Int): Either<AppFailure, List<Topic>> {
+    override suspend fun getAllTopic(page: Int, title: String?): Either<AppFailure, List<Topic>> {
         return Either.catch {
-            api.getAllTopic(page).metaData.topics
+            api.getAllTopic(page, title = title).metaData.topics
         }.mapLeft {
             it.toAppFailure()
         }
@@ -76,11 +76,11 @@ class AdminTopicRepositoryImpl @Inject constructor(
             val contentResolver = MyApplication.instance.contentResolver
             val inputStream =
                 contentResolver.openInputStream(uri) ?: throw IOException("Không mở được ảnh")
-            val fileName = "thumbnail_${System.currentTimeMillis()}.jpg"
+            val fileName = "topic_thumbnail_${System.currentTimeMillis()}.jpg"
             val requestBody = inputStream.readBytes().toRequestBody("image/*".toMediaTypeOrNull())
 
-            val multipart = MultipartBody.Part.createFormData("THUMBNAIL", fileName, requestBody)
-            val typePart = "THUMBNAIL".toRequestBody("text/plain".toMediaTypeOrNull())
+            val multipart = MultipartBody.Part.createFormData("WORD", fileName, requestBody)
+            val typePart = "WORD".toRequestBody("text/plain".toMediaTypeOrNull())
 
             val response = api.uploadThumbnailImage(typePart, multipart)
             response.metaData.firstOrNull()?.destination

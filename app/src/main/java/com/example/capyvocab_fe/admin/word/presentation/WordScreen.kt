@@ -73,6 +73,7 @@ fun WordScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -83,7 +84,16 @@ fun WordScreen(
     LaunchedEffect(Unit) {
         viewModel.onEvent(WordEvent.LoadAllWords)
     }
-
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(WordEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(WordEvent.OnSearch)
+        }
+    }
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
         multiSelectTransition.value = state.isMultiSelecting
@@ -116,6 +126,13 @@ fun WordScreen(
             selectedWord = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
 
     FocusComponent {
         WordScreenContent(
@@ -124,9 +141,6 @@ fun WordScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
-            onPlayAudio = { audioUrl ->
-                // TODO: Play audio
-            },
             onEditWord = { word ->
                 selectedWord = word
                 isDialogOpen = true
@@ -141,23 +155,26 @@ fun WordScreen(
             },
             onWordSelectToggle = { word ->
                 viewModel.onEvent(WordEvent.OnWordSelectToggle(word.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 
     if (isDialogOpen) {
         WordFormDialog(
             word = selectedWord,
-            errorMessage = "",
+            errorMessage = visibleError,
+            successMessage = visibleSuccess,
             onDismiss = {
                 isDialogOpen = false
                 selectedWord = null
             },
-            onSave = { word, uri ->
+            onSave = { word, imageUri, audioUri ->
                 if (word.id == 0) {
-                    viewModel.onEvent(WordEvent.CreateWord(1, word))
+                    viewModel.onEvent(WordEvent.CreateWord(1, word, imageUri, audioUri))
                 } else {
-                    viewModel.onEvent(WordEvent.UpdateWord(word))
+                    viewModel.onEvent(WordEvent.UpdateWord(word, imageUri, audioUri))
                 }
                 isDialogOpen = false
             },
@@ -195,12 +212,13 @@ fun WordScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
-    onPlayAudio: (String) -> Unit,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
     onLoadMore: () -> Unit,
     onWordLongPress: (Word) -> Unit,
-    onWordSelectToggle: (Word) -> Unit
+    onWordSelectToggle: (Word) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -238,11 +256,9 @@ fun WordScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm từ vựng") },
                         shape = RoundedCornerShape(30.dp),
@@ -303,7 +319,6 @@ fun WordScreenContent(
                     Box(modifier = Modifier.scale(cardScale.value)) {
                         WordCard(
                             word = word,
-                            onPlayAudio = onPlayAudio,
                             onEditClick = onEditWord,
                             onLongClick = { onWordLongPress(word) },
                             onCheckedChange = { onWordSelectToggle(word) },

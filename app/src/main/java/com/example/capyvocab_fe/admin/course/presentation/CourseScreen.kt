@@ -77,6 +77,7 @@ fun CourseScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visbileSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -86,6 +87,16 @@ fun CourseScreen(
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(CourseEvent.LoadCourses)
+    }
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(CourseEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(CourseEvent.OnSearch)
+        }
     }
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
@@ -119,6 +130,13 @@ fun CourseScreen(
             selectedCourse = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visbileSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visbileSuccess = "" // ẩn sau 3 giây
+        }
+    }
 
     FocusComponent {
         CoursesScreenContent(
@@ -144,14 +162,17 @@ fun CourseScreen(
             },
             onCourseSelectToggle = { course ->
                 viewModel.onEvent(CourseEvent.OnCourseSelectToggle(course.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = { searchBarText = it }
         )
     }
 
     if (isDialogOpen) {
         CourseFormDialog(
             course = selectedCourse,
-            errorMessage = "",
+            errorMessage = visibleError,
+            successMessage = visbileSuccess,
             onDismiss = {
                 selectedCourse = null
                 isDialogOpen = false
@@ -199,7 +220,9 @@ fun CoursesScreenContent(
     onEditCourse: (Course) -> Unit,
     onLoadMore: () -> Unit,
     onCourseLongPress: (Course) -> Unit,
-    onCourseSelectToggle: (Course) -> Unit
+    onCourseSelectToggle: (Course) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -237,11 +260,9 @@ fun CoursesScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm khóa học") },
                         shape = RoundedCornerShape(30.dp),
@@ -377,7 +398,9 @@ fun CoursesScreenContentPreview() {
             isMultiSelectMode = false,
             isLoading = false,
             isEndReached = false,
-            selectedCourses = emptyList()
+            selectedCourses = emptyList(),
+            searchBarText = "",
+            onSearchBarTextChange = {}
         )
     }
 }

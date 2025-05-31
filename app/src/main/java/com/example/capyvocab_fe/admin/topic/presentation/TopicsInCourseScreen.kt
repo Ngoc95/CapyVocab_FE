@@ -78,6 +78,7 @@ fun TopicsInCourseScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -120,6 +121,13 @@ fun TopicsInCourseScreen(
             selectedTopic = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
     FocusComponent {
         TopicsInCourseScreenContent(
             topics = state.topics,
@@ -151,16 +159,17 @@ fun TopicsInCourseScreen(
     if (isDialogOpen) {
         TopicFormDialog(
             topic = selectedTopic,
-            errorMessage = "",
+            errorMessage = visibleError,
+            successMessage = visibleSuccess,
             onDismiss = {
                 selectedTopic = null
                 isDialogOpen = false
             },
-            onSave = { topic ->
+            onSave = { topic, imageUri ->
                 if (topic.id == 0) {
-                    viewModel.onEvent(TopicEvent.CreateTopic(course.id, topic))
+                    viewModel.onEvent(TopicEvent.CreateTopic(course.id, topic, imageUri))
                 } else {
-                    viewModel.onEvent(TopicEvent.UpdateTopic(topic))
+                    viewModel.onEvent(TopicEvent.UpdateTopic(topic, imageUri))
                 }
                 isDialogOpen = false
             },

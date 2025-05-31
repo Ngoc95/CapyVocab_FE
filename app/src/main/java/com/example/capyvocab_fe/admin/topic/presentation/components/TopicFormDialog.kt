@@ -61,6 +61,7 @@ import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,8 +69,9 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 fun TopicFormDialog(
     topic: Topic?,
     errorMessage: String,
+    successMessage: String,
     onDismiss: () -> Unit,
-    onSave: (Topic) -> Unit,
+    onSave: (Topic, Uri?) -> Unit,
     onDelete: () -> Unit
 ) {
     var title by remember { mutableStateOf(topic?.title ?: "") }
@@ -263,24 +265,24 @@ fun TopicFormDialog(
                             val updatedTopic = topic?.copy(
                                 title = title,
                                 description = description,
-                                thumbnail = selectedImageUri.toString(),
                                 type = type,
                                 words = emptyList()
                             ) ?: Topic(
                                 id = 0,
                                 title = title,
                                 description = description,
-                                thumbnail = selectedImageUri.toString(),
+                                thumbnail = "N/A",
                                 type = type,
                                 alreadyLearned = false
                             )
-                            onSave(updatedTopic)
+                            onSave(updatedTopic, selectedImageUri)
                         }
                     )
                 }
             }
         }
         OverlaySnackbar(message = errorMessage)
+        OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
     }
 
 }
@@ -300,8 +302,9 @@ private fun TopicFormDialogPreview() {
         TopicFormDialog(
             topic = sample,
             errorMessage = "",
+            successMessage = "",
             onDismiss = {},
-            onSave = {},
+            onSave = {w,i ->},
             onDelete = {}
         )
     }

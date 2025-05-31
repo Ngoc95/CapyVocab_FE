@@ -37,16 +37,18 @@ class UserListViewModel @Inject constructor(
             is UserListEvent.OnUserSelectToggle -> toggleUserSelection(event.userId)
             is UserListEvent.OnUserLongPress -> startMultiSelect(event.userId)
             is UserListEvent.CancelMultiSelect -> cancelMultiSelect()
+            is UserListEvent.OnSearch -> { loadUsers(query = state.value.searchQuery)}
+            is UserListEvent.OnSearchQueryChange -> { _state.update { it.copy(searchQuery = event.query) }}
         }
     }
 
-    private fun loadUsers(loadMore: Boolean = false) {
+    private fun loadUsers(loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
 
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
-            adminUserRepository.getAllUsers(nextPage)
+            adminUserRepository.getAllUsers(nextPage, username = if (query?.isNotEmpty() == true) query else null)
                 .onRight { newUsers ->
                     _state.update {
                         val allUsers = if (loadMore) it.users + newUsers else newUsers
@@ -78,7 +80,7 @@ class UserListViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
 
             val avatarUrl = uploadAvatarIfNeeded(avatarUri, user.avatar) ?: return@launch
 
@@ -95,7 +97,8 @@ class UserListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "Lỗi khi lưu người dùng"
+                            errorMessage = failure.message ?: "Lỗi khi lưu người dùng",
+                            successMessage = ""
                         )
                     }
                 },
@@ -108,6 +111,7 @@ class UserListViewModel @Inject constructor(
                         currentState.copy(
                             isLoading = false,
                             errorMessage = "",
+                            successMessage = "Lưu người dùng thành công",
                             users = updatedUsers
                         )
                     }
@@ -135,7 +139,7 @@ class UserListViewModel @Inject constructor(
 
     private fun deleteUser(userId: Int) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
 
             adminUserRepository.deleteUser(userId)
                 .onRight {
@@ -143,7 +147,9 @@ class UserListViewModel @Inject constructor(
                         val updatedList = currentState.users.filterNot { it.id == userId }
                         currentState.copy(
                             users = updatedList,
-                            isLoading = false
+                            isLoading = false,
+                            errorMessage = "",
+                            successMessage = "Xoá người dùng thành công"
                         )
                     }
                 }
@@ -151,7 +157,8 @@ class UserListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "Xoá người dùng thất bại"
+                            errorMessage = failure.message ?: "Xoá người dùng thất bại",
+                            successMessage = ""
                         )
                     }
                 }

@@ -14,12 +14,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
+enum class SnackbarType {
+    Error,
+    Success,
+}
+
 @Composable
 fun OverlaySnackbar(
     message: String,
     modifier: Modifier = Modifier,
+    type: SnackbarType = SnackbarType.Error
 ) {
     if (message.isNotEmpty()) {
+        val (containerColor, contentColor) = when (type) {
+            SnackbarType.Error -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+            SnackbarType.Success -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+        }
         // Dùng Popup thay vì Dialog để không block interaction
         Popup(
             alignment = Alignment.BottomCenter,
@@ -30,8 +40,8 @@ fun OverlaySnackbar(
                     .padding(horizontal = 16.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .shadow(10.dp),
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                containerColor = containerColor,
+                contentColor = contentColor
             ) {
                 Text(text = message, style = MaterialTheme.typography.bodySmall)
             }

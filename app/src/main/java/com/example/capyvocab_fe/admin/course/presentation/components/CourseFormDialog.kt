@@ -40,11 +40,13 @@ import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 
 @Composable
 fun CourseFormDialog(
     course: Course?,
     errorMessage: String,
+    successMessage: String,
     onDismiss: () -> Unit,
     onSave: (Course) -> Unit,
     onDelete: () -> Unit
@@ -196,6 +198,7 @@ fun CourseFormDialog(
             }
         }
         OverlaySnackbar(message = errorMessage)
+        OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
     }
 }
 
@@ -213,6 +216,7 @@ private fun CourseFormDialogPreview() {
     CourseFormDialog(
         course = sample,
         errorMessage = "",
+        successMessage = "",
         onDismiss = {},
         onSave = {},
         onDelete = {}

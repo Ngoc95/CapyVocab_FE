@@ -29,4 +29,6 @@ sealed class TopicEvent {
     object OnSelectAllToggle : TopicEvent()
     object OnDeleteSelectedTopics : TopicEvent()
     object CancelMultiSelect : TopicEvent()
+    data class OnSearchQueryChange(val query: String) : TopicEvent()
+    object OnSearch: TopicEvent()
 }

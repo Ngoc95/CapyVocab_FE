@@ -24,6 +24,7 @@ interface AdminTopicApi {
     suspend fun getAllTopic(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("title") title: String? = null
     ): ApiResponse<TopicListResponse>
 
     @POST("/topics")

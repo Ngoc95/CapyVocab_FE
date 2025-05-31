@@ -13,13 +13,15 @@ sealed class WordEvent {
 
     data class UpdateWord(
         val word: Word,
-        val imageUri: Uri? = null
+        val imageUri: Uri? = null,
+        val audioUri: Uri? = null
     ) : WordEvent()
 
     data class CreateWord(
         val topicId: Int,
         val word: Word,
-        val imageUri: Uri? = null
+        val imageUri: Uri? = null,
+        val audioUri: Uri? = null
     ) : WordEvent()
 
     data class DeleteWord(val wordId: Int) : WordEvent()
@@ -29,4 +31,6 @@ sealed class WordEvent {
     object OnSelectAllToggle : WordEvent()
     object OnDeleteSelectedWords : WordEvent()
     object CancelMultiSelect : WordEvent()
+    data class OnSearchQueryChange(val query: String): WordEvent()
+    object OnSearch: WordEvent()
 }

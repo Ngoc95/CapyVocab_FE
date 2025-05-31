@@ -2,6 +2,7 @@ package com.example.capyvocab_fe.admin.word.data.remote
 
 import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
+import com.example.capyvocab_fe.admin.word.data.remote.model.AudioUploadResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.WordListResponse
@@ -24,6 +25,7 @@ interface AdminWordApi {
     suspend fun getAllWords(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("content") content: String? = null
     ): ApiResponse<WordListResponse>
 
     @GET("/words/{id}")
@@ -53,4 +55,11 @@ interface AdminWordApi {
         @Part("type") type: RequestBody,
         @Part images: MultipartBody.Part
     ): ImageUploadResponse
+
+    @Multipart
+    @POST("/upload/audios")
+    suspend fun uploadAudio(
+        @Part("type") type: RequestBody,
+        @Part audios: MultipartBody.Part
+    ): AudioUploadResponse
 }

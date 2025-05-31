@@ -56,14 +56,17 @@ import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.admin.word.domain.model.WordPosition
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.PronunciationPlayer
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
 fun WordFormDialog(
     word: Word?,
     errorMessage: String,
+    successMessage: String,
     onDismiss: () -> Unit,
-    onSave: (Word, Uri?) -> Unit,
+    onSave: (Word, Uri?, Uri?) -> Unit,
     onDelete: (() -> Unit)
 ) {
     var content by remember { mutableStateOf(word?.content ?: "") }
@@ -134,8 +137,6 @@ fun WordFormDialog(
                                 pronunciation = pronunciation,
                                 position = position,
                                 meaning = meaning,
-                                audio = selectedAudioUri?.toString() ?: "N/A",
-                                image = selectedImageUri?.toString() ?: "N/A",
                                 example = example,
                                 translateExample = translateExample
                             ) ?: Word(
@@ -149,13 +150,14 @@ fun WordFormDialog(
                                 example = example,
                                 translateExample = translateExample
                             )
-                            onSave(updatedWord, selectedImageUri)
+                            onSave(updatedWord, selectedImageUri, selectedAudioUri)
                         }
                     )
                 }
             }
         }
         OverlaySnackbar(message = errorMessage)
+        OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
     }
 }
 
@@ -197,7 +199,14 @@ fun WordFormHeader(
                     .fillMaxWidth()
                     .height(40.dp)
             )
-
+            val audioUrl = selectedAudioUri?.toString() ?: word?.audio
+            if (audioUrl?.isNotEmpty() == true) {
+                PronunciationPlayer(
+                    audioUrl = audioUrl,
+                    wordId = word?.id ?: 0,
+                    autoPlay = false
+                )
+            }
         }
     }
 }
@@ -434,8 +443,9 @@ fun WordFormDialogPreview() {
         WordFormDialog(
             word = sampleWord,
             errorMessage = "",
+            successMessage = "",
             onDismiss = {},
-            onSave = { Word, Uri -> },
+            onSave = { Word, Uri, a -> },
             onDelete = {},
         )
     }
