@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.community.presentation
 
+import com.example.capyvocab_fe.user.community.domain.model.Comment
 import com.example.capyvocab_fe.user.community.domain.model.Post
 
 data class CommunityState (
@@ -9,4 +10,9 @@ data class CommunityState (
     val currentPostPage: Int = 1,
     val isEndReachedPost: Boolean = false,
     val selectedPost: Post? = null,
+    val selectedPostComment: List<Comment> = emptyList(),
+    val childComment: Map<Int, List<Comment>> = mapOf(),
+
+    val selectedComment: Comment? = null,
+    val isCreateChildComment: Boolean = false,
 )

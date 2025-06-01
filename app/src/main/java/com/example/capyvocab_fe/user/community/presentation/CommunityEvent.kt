@@ -9,6 +9,11 @@ sealed class CommunityEvent {
     data class GetPostById(val postId: Int): CommunityEvent()
     data class VotePost(val post: Post): CommunityEvent()
 
-    data class LoadCommentsByPost(val post: Post) : CommunityEvent()
-    data class LoadChildComment(val comment: Comment) : CommunityEvent()
+    data class OnCreateChildCommentMode(val comment: Comment): CommunityEvent()
+    object OnCreateParentCommentMode: CommunityEvent()
+
+    data class LoadComments(val postId: Int, val parentCmtId: Int?) : CommunityEvent()
+
+    data class CreateComment(val content: String): CommunityEvent()
+    object ClearScreenPost : CommunityEvent()
 }

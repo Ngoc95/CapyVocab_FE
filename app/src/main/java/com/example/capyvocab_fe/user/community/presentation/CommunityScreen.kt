@@ -1,6 +1,7 @@
 package com.example.capyvocab_fe.user.community.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +27,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.ui.components.TopBarTitle
@@ -43,8 +48,10 @@ import com.example.capyvocab_fe.user.community.presentation.components.PostCard
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 
+
 @Composable
 fun CommunityScreen(
+    onPostComment:(Post) -> Unit,
     viewModel: CommunityViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -52,6 +59,8 @@ fun CommunityScreen(
     var selectedPost by remember { mutableStateOf<Course?>(null) }
 
     var visibleError by remember { mutableStateOf("") }
+
+    var selectedImage by remember { mutableStateOf<String?>(null) }
 
 
     LaunchedEffect(Unit) {
@@ -67,15 +76,35 @@ fun CommunityScreen(
         }
     }
 
-    FocusComponent {
+    if (selectedImage != null) {
+        Dialog( onDismissRequest = { selectedImage = null }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
+                    .clickable { selectedImage = null },
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = selectedImage,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+    }
 
+    FocusComponent {
         CommunityScreenContent(
             posts = state.posts,
             isLoading = state.isLoading,
             isEndReached = state.isEndReachedPost,
             onLoadMore = { viewModel.onEvent(CommunityEvent.LoadMorePosts)},
             onVoteClick = { post -> viewModel.onEvent(CommunityEvent.VotePost(post))},
-            selectedPost = state.selectedPost
+            onImageClick = {imgURL -> selectedImage = imgURL},
+            selectedPost = state.selectedPost,
+            onPostComment = {post -> onPostComment(post)}
         )
     }
 }
@@ -87,6 +116,8 @@ fun CommunityScreenContent(
     isEndReached: Boolean,
     onLoadMore: () -> Unit,
     onVoteClick: (Post) -> Unit,
+    onImageClick: (String) -> Unit,
+    onPostComment: (Post) -> Unit,
     selectedPost: Post?
 )
 {
@@ -147,8 +178,8 @@ fun CommunityScreenContent(
                             post = post,
                             onVoteClick = { onVoteClick(post) },
                             onFollowClick = { },
-                            onPostComment = { },
-                            onImageClick = { }
+                            onPostComment = { onPostComment(post) },
+                            onImageClick = onImageClick
                         )
                         if (index >= posts.size - 3 && !isLoading && !isEndReached) {
                             onLoadMore()
@@ -211,6 +242,8 @@ fun CommunitycreenPreview() {
             onLoadMore = {},
             onVoteClick = { },
             selectedPost = null,
+            onImageClick = {},
+            onPostComment = {}
         )
 
     }

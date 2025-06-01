@@ -65,8 +65,9 @@ interface UserCommunityApi {
     @GET("posts/{id}/child-comment/{parentId}")
     suspend fun getChildComments(
         @Path("id") postId: Int,
-        @Path("parentId") parentCommentId: Int
+        @Path("parentId") parentCommentId: String
     ): ApiResponse<List<Comment>>
+
 
     @PATCH("posts/{id}/comment/{commentId}")
     suspend fun updateComment(

@@ -7,8 +7,10 @@ import com.example.capyvocab_fe.MyApplication
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.user.community.data.remote.UserCommunityApi
+import com.example.capyvocab_fe.user.community.data.remote.model.CreateCommentRequest
 import com.example.capyvocab_fe.user.community.data.remote.model.CreatePostRequest
 import com.example.capyvocab_fe.user.community.data.remote.model.UpdatePostRequest
+import com.example.capyvocab_fe.user.community.domain.model.Comment
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.community.domain.model.Vote
 import com.example.capyvocab_fe.user.community.domain.repository.UserCommunityRepository
@@ -93,5 +95,24 @@ class UserCommunityRepositoryImpl @Inject constructor(
             response.metaData.firstOrNull()?.destination
                 ?: throw IOException("Không nhận được URL ảnh")
         }.mapLeft { it.toAppFailure() }
+    }
+
+    override suspend fun loadComment(
+        postId: Int,
+        parentCmtId: Int?
+    ): Either<AppFailure, List<Comment>> {
+        return catch {
+            api.getChildComments(postId, parentCmtId.toString()).metaData
+        }.mapLeft {
+            it.toAppFailure()
+        }
+    }
+
+    override suspend fun createComment(createCommentRequest: CreateCommentRequest, postId: Int): Either<AppFailure, Comment> {
+        return catch {
+            api.createComment(postId, createCommentRequest).metaData
+        }.mapLeft {
+            it.toAppFailure()
+        }
     }
 }

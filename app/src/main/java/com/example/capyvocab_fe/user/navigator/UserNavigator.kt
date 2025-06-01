@@ -25,8 +25,10 @@ import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
 import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
+import com.example.capyvocab_fe.user.community.presentation.PostScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
@@ -78,6 +80,7 @@ fun UserNavigator() {
     val learnState by learnViewModel.state.collectAsState()
 
     val communityViewModel: CommunityViewModel = hiltViewModel()
+    val communityState by communityViewModel.state.collectAsState()
 
     val profileViewModel: ProfileViewModel = hiltViewModel()
 
@@ -147,8 +150,36 @@ fun UserNavigator() {
                 //TODO: navigate to user home screen
                 CommunityScreen(
                     viewModel = communityViewModel,
+                    onPostComment = { post ->
+                        //communityViewModel.onEvent(CommunityEvent.LoadComments(post.id, null))
+                        navController.navigate("${Route.UserPostScreen.route}/${post.id}")
+                    }
                 )
             }
+            //Post screen in community Screen
+            composable(
+                route = "${Route.UserPostScreen.route}/{postId}",
+                arguments = listOf(navArgument("postId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getInt("postId")
+
+                LaunchedEffect(postId) {
+                    communityViewModel.onEvent(CommunityEvent.ClearScreenPost);
+                    communityViewModel.onEvent(CommunityEvent.GetPostById(postId!!.toInt()))
+                }
+
+                communityState.selectedPost?.let { post ->
+                    PostScreen(
+                        post = post,
+                        viewModel = communityViewModel,
+                        navController = navController,
+                        onBackClick = { navController.popBackStack() },
+                    )
+                }
+
+
+            }
+
             //user review screen
             composable(route = Route.UserReviewScreen.route) {
                 //TODO: navigate to user learn screen
@@ -163,6 +194,8 @@ fun UserNavigator() {
                     }
                 )
             }
+
+
             // Topics in learn screen
             composable(
                 route = "${Route.UserTopicsScreen.route}/{courseId}",
