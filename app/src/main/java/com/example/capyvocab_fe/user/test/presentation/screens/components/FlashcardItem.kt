@@ -1,17 +1,36 @@
 package com.example.capyvocab_fe.user.test.presentation.screens.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -20,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.test.domain.model.FlashCard
 
@@ -30,82 +50,148 @@ import com.example.capyvocab_fe.user.test.domain.model.FlashCard
 fun FlashcardItem(
     flashcard: FlashCard,
     isEditing: Boolean,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onUpdate: (FlashCard) -> Unit,
+    onDelete: () -> Unit,
+    onSelectFrontImage: () -> Unit,
+    onSelectBackImage: () -> Unit
 ) {
+    var frontContent by remember { mutableStateOf(flashcard.frontContent.orEmpty()) }
+    var backContent by remember { mutableStateOf(flashcard.backContent.orEmpty()) }
+
+    LaunchedEffect(flashcard.hashCode()) {
+        frontContent = flashcard.frontContent.orEmpty()
+        backContent = flashcard.backContent.orEmpty()
+    }
+
+    LaunchedEffect(frontContent, backContent) {
+        onUpdate(flashcard.copy(frontContent = frontContent, backContent = backContent))
+    }
+
+    val showFrontError = isEditing && frontContent.isBlank()
+    val showBackError = isEditing && backContent.isBlank()
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = isEditing) { onEdit() },
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(12.dp)
         ) {
-            // Term
-            Text(
-                text = "Từ vựng",
-                fontSize = 12.sp,
-                color = Color.Gray
-            )
+            // Mặt trước
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Từ vựng", fontSize = 12.sp, color = Color.Gray)
+                    OutlinedTextField(
+                        value = frontContent,
+                        onValueChange = {
+                            frontContent = it
+                        },
+                        colors = defaultTextFieldColors(),
+                        singleLine = true,
+                        enabled = isEditing,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (showFrontError) {
+                        Text(
+                            text = "Không được để trống từ vựng",
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
 
-            Text(
-                text = flashcard.frontContent,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-            Divider()
-
-            // Definition
-            Text(
-                text = "Định nghĩa",
-                fontSize = 12.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
-            Text(
-                text = flashcard.backContent,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-            // Front Image if available
-            flashcard.frontImage?.let {
-                AsyncImage(
-                    model = it,
-                    contentDescription = "Front Image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = R.drawable.add_avt),
-                    error = painterResource(id = R.drawable.add_avt)
-                )
+                if (isEditing || flashcard.frontImage != "N/A") {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable(enabled = isEditing) { onSelectFrontImage() }
+                    ) {
+                        AsyncImage(
+                            model = flashcard.frontImage ?: R.drawable.add_avt,
+                            contentDescription = "Front Image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(id = R.drawable.add_avt),
+                            error = painterResource(id = R.drawable.add_avt)
+                        )
+                    }
+                }
             }
 
-            // Back Image if available
-            flashcard.backImage?.let {
-                AsyncImage(
-                    model = it,
-                    contentDescription = "Back Image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = R.drawable.add_avt),
-                    error = painterResource(id = R.drawable.add_avt)
-                )
+            Spacer(modifier = Modifier.height(8.dp))
+            Divider()
+
+            // Mặt sau
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Định nghĩa", fontSize = 12.sp, color = Color.Gray)
+                    OutlinedTextField(
+                        value = backContent,
+                        onValueChange = {
+                            backContent = it
+                        },
+                        colors = defaultTextFieldColors(),
+                        singleLine = false,
+                        enabled = isEditing,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (showBackError) {
+                        Text(
+                            text = "Không được để trống định nghĩa",
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+
+                if (isEditing || flashcard.backImage != "N/A") {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable(enabled = isEditing) { onSelectBackImage() }
+                    ) {
+                        AsyncImage(
+                            model = flashcard.backImage ?: R.drawable.add_avt,
+                            contentDescription = "Back Image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(id = R.drawable.add_avt),
+                            error = painterResource(id = R.drawable.add_avt)
+                        )
+                    }
+                }
+            }
+
+            if (isEditing) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Delete, contentDescription = "Xóa", tint = Color.Red)
+                    }
+                }
             }
         }
     }
 }
+
 
 @Preview
 @Composable
@@ -113,15 +199,16 @@ private fun FlashcardItemPreview() {
     CapyVocab_FETheme {
         FlashcardItem(
             flashcard = FlashCard(
-                id = 1,
                 frontContent = "Hello",
                 backContent = "Xin chào",
                 frontImage = null,
                 backImage = null
             ),
             isEditing = true,
-            onEdit = {},
-            onDelete = {}
+            onUpdate = {},
+            onDelete = {},
+            onSelectFrontImage = {},
+            onSelectBackImage = {}
         )
     }
 }

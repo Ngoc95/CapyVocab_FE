@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.test.data.remote
 
+import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
 import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateCommentRequest
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
@@ -8,12 +9,16 @@ import com.example.capyvocab_fe.user.test.data.remote.model.UpdateCommentRequest
 import com.example.capyvocab_fe.user.test.data.remote.model.UpdateFolderRequest
 import com.example.capyvocab_fe.user.test.domain.model.Comment
 import com.example.capyvocab_fe.user.test.domain.model.Folder
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -71,4 +76,11 @@ interface ExerciseApi {
         @Path("id") id: Int,
         @Path("commentID") commentID: Int
     ): ApiResponse<Any>
+
+    @Multipart
+    @POST("/upload/images")
+    suspend fun uploadImage(
+        @Part("type") type: RequestBody,
+        @Part images: MultipartBody.Part
+    ): ImageUploadResponse
 }

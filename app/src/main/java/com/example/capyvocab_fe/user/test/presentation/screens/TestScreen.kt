@@ -1,7 +1,9 @@
 package com.example.capyvocab_fe.user.test.presentation.screens
 
+import android.app.Activity
 import android.content.Intent
-import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,8 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,6 +56,7 @@ import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.White
+import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import com.example.capyvocab_fe.user.payment.presentation.PaymentUiEvent
 import com.example.capyvocab_fe.user.payment.presentation.PaymentUiState
 import com.example.capyvocab_fe.user.payment.presentation.PaymentViewModel
@@ -70,9 +71,6 @@ import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewMod
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.util.Locale
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.app.Activity
 
 @Composable
 fun TestScreen(
@@ -466,30 +464,7 @@ fun PaymentConfirmationDialog(
 fun UserInfoHeader(
     user: User?
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(White)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Logo và tên ứng dụng
-        Text(
-            text = "CapyVocab",
-            color = Color(0xFF42B3FF),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
-
-        // Icon thông báo
-        Icon(
-            imageVector = Icons.Default.Notifications,
-            contentDescription = "Notifications",
-            tint = Color.Gray,
-            modifier = Modifier.size(24.dp)
-        )
-    }
+    UserTopBar()
 
     // Thông tin người dùng
     Row(

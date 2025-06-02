@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.test.domain.repository
 
+import android.net.Uri
 import arrow.core.Either
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
@@ -37,4 +38,5 @@ interface ExerciseRepository {
         folderId: Int,
         commentId: Int
     ): Either<AppFailure, Unit>
+    suspend fun uploadImage(uri: Uri): Either<AppFailure, String>
 }

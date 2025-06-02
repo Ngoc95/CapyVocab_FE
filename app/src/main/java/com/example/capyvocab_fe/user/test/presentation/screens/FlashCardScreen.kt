@@ -1,6 +1,10 @@
 package com.example.capyvocab_fe.user.test.presentation.screens
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,42 +14,55 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
-import com.example.capyvocab_fe.user.test.presentation.screens.components.EmptyFlashcardCard
+import com.example.capyvocab_fe.user.test.data.remote.model.FlashCardRequest
+import com.example.capyvocab_fe.user.test.data.remote.model.UpdateFolderRequest
+import com.example.capyvocab_fe.user.test.domain.model.FlashCard
 import com.example.capyvocab_fe.user.test.presentation.screens.components.FlashcardItem
-import com.example.capyvocab_fe.user.test.presentation.screens.components.NewFlashcardCard
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseState
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
+import kotlinx.coroutines.launch
 
 /**
  * Screen for displaying and editing flashcards
@@ -61,14 +78,67 @@ fun FlashcardScreen(
     folderId: Int,
     state: ExerciseState,
     onEvent: (ExerciseEvent) -> Unit,
-    isEditing: Boolean = false
+    isEditing: Boolean = false,
+    viewModel: ExerciseViewModel = hiltViewModel()
 ) {
+    var editingMode by remember { mutableStateOf(isEditing) }
+    val isCreator = state.currentFolder?.createdBy?.id == state.currentUser?.id
     val folder = state.currentFolder
     var searchQuery by remember { mutableStateOf("") }
 
-    // Load folder data when screen is first displayed
+    val listState = rememberLazyListState()
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    val editingFlashcards = remember { mutableStateListOf<FlashCard>() }
+
+    val flashcardsToDisplay = if (editingMode) editingFlashcards else folder?.flashCards.orEmpty()
+
+    val selectedImageIndex = remember { mutableIntStateOf(-1) }
+    val selectedImageSide = remember { mutableStateOf("front") } // "front" hoặc "back"
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                coroutineScope.launch {
+                    val result = viewModel.uploadImage(it)
+                    result.fold(
+                        ifLeft = {
+                            Toast.makeText(context, "Upload thất bại", Toast.LENGTH_SHORT).show()
+                        },
+                        ifRight = { url ->
+                            val index = selectedImageIndex.intValue
+                            if (index in editingFlashcards.indices) {
+                                val current = editingFlashcards[index]
+                                val updated = if (selectedImageSide.value == "front") {
+                                    current.copy(frontImage = url)
+                                } else {
+                                    current.copy(backImage = url)
+                                }
+                                editingFlashcards[index] = updated
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    )
+
+    // Dialog cảnh báo khi lưu
+    var showSaveErrorDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(folderId) {
         onEvent(ExerciseEvent.GetFolderById(folderId))
+    }
+
+    // Copy dữ liệu flashcard khi bật editing mode
+    LaunchedEffect(editingMode, folder?.flashCards) {
+        if (editingMode && folder?.flashCards != null) {
+            editingFlashcards.clear()
+            editingFlashcards.addAll(folder.flashCards)
+        }
     }
 
     Column(
@@ -76,40 +146,72 @@ fun FlashcardScreen(
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
-        // Top app bar
         TopAppBar(
-            title = {
-                Text(
-                    text = if (isEditing) "Chỉnh sửa" else "Thẻ ghi nhớ",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            },
+            title = { Text("Thẻ ghi nhớ", fontSize = 18.sp, fontWeight = FontWeight.Medium) },
             navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
+                IconButton(onClick = {
+                    if (editingMode) {
+                        // Hủy chỉnh sửa: reset flashcards và thoát editing mode
+                        editingFlashcards.clear()
+                        folder?.flashCards?.let { editingFlashcards.addAll(it) }
+                        editingMode = false
+                    } else {
+                        navController.popBackStack()
+                    }
+                }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             },
             actions = {
-                if (!isEditing) {
+                if (isCreator) {
                     Text(
-                        text = "Sắp theo: Mặc định",
-                        color = Color(0xFF42B3FF),
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(end = 16.dp)
+                        text = if (editingMode) "Lưu" else "Chỉnh sửa",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .clickable {
+                                if (editingMode) {
+                                    // Validate trước khi lưu
+                                    val hasEmptyCard = editingFlashcards.any {
+                                        it.frontContent.isBlank() || it.backContent.isBlank()
+                                    }
+                                    if (hasEmptyCard) {
+                                        showSaveErrorDialog = true
+                                    } else {
+                                        // Lưu thay đổi
+                                        editingMode = false
+                                        val flashcardRequests = editingFlashcards.map {
+                                            FlashCardRequest(
+                                                frontContent = it.frontContent,
+                                                frontImage = it.frontImage,
+                                                backContent = it.backContent,
+                                                backImage = it.backImage
+                                            )
+                                        }
+                                        onEvent(
+                                            ExerciseEvent.UpdateFolder(
+                                                id = folderId,
+                                                request = UpdateFolderRequest(
+                                                    name = folder?.name ?: "",
+                                                    flashCards = flashcardRequests,
+                                                    quizzes = null
+                                                )
+                                            )
+                                        )
+                                    }
+                                } else {
+                                    // Bật chỉnh sửa
+                                    editingMode = true
+                                }
+                            }
                     )
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.White
-            )
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
         )
 
-        // Search bar (only in edit mode)
-        if (isEditing) {
+        if (!editingMode && flashcardsToDisplay.isNotEmpty()) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -118,11 +220,7 @@ fun FlashcardScreen(
                     .padding(16.dp),
                 placeholder = { Text("Tìm kiếm") },
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = Color.Gray
-                    )
+                    Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray)
                 },
                 shape = RoundedCornerShape(30.dp),
                 singleLine = true,
@@ -130,54 +228,15 @@ fun FlashcardScreen(
             )
         }
 
-        // Folder title input (only when creating/editing)
-        if (isEditing) {
-            var folderTitle by remember { mutableStateOf(folder?.name ?: "") }
-
-            OutlinedTextField(
-                value = folderTitle,
-                onValueChange = { folderTitle = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                placeholder = { Text("Bài tập chương 3") },
-                shape = RoundedCornerShape(8.dp),
-                colors = defaultTextFieldColors()
-            )
-        }
-
-        // Flashcards list
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Only show "Add new" section in edit mode
-            if (isEditing) {
-                item {
-                    Text(
-                        text = "Thêm từ",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-                    )
-                }
-
-                // Add new flashcard card
-                item {
-                    NewFlashcardCard(
-                        selectedImageUri = null,
-                        onAddImage = { /* Handle image selection */ }
-                    )
-                }
-            }
-
-            // Existing flashcards
-            val flashcards = folder?.flashCards ?: emptyList()
-
-            if (flashcards.isNotEmpty()) {
+            if (flashcardsToDisplay.isNotEmpty()) {
                 item {
                     Text(
                         text = "Danh sách từ vựng",
@@ -187,16 +246,33 @@ fun FlashcardScreen(
                     )
                 }
 
-                items(flashcards) { flashcard ->
+                itemsIndexed(flashcardsToDisplay) { index, flashcard ->
                     FlashcardItem(
                         flashcard = flashcard,
-                        isEditing = isEditing,
-                        onEdit = { /* Handle edit */ },
-                        onDelete = { /* Handle delete */ }
+                        isEditing = editingMode,
+                        onUpdate = {
+                            if (index in editingFlashcards.indices) {
+                                editingFlashcards[index] = it
+                            }
+                        },
+                        onDelete = {
+                            if (index in editingFlashcards.indices) {
+                                editingFlashcards.removeAt(index)
+                            }
+                        },
+                        onSelectFrontImage = {
+                            selectedImageIndex.intValue = index
+                            selectedImageSide.value = "front"
+                            imagePickerLauncher.launch("image/*")
+                        },
+                        onSelectBackImage = {
+                            selectedImageIndex.intValue = index
+                            selectedImageSide.value = "back"
+                            imagePickerLauncher.launch("image/*")
+                        }
                     )
                 }
-            } else if (!isEditing) {
-                // Show empty state when no flashcards and not in edit mode
+            } else {
                 item {
                     Box(
                         modifier = Modifier
@@ -204,52 +280,79 @@ fun FlashcardScreen(
                             .padding(vertical = 32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "Không có từ vựng nào",
-                            color = Color.Gray
-                        )
+                        Text("Không có từ vựng nào", color = Color.Gray)
                     }
                 }
             }
+        }
 
-            // Empty card at the end (for adding new cards when not in edit mode)
-            if (!isEditing && flashcards.isNotEmpty()) {
-                item {
-                    EmptyFlashcardCard(
-                        onAddImage = { /* Handle image selection */ }
-                    )
+        // Nút thêm flashcard nếu đang chỉnh sửa
+        if (editingMode && isCreator) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        editingFlashcards.add(
+                            FlashCard(
+                                frontContent = "",
+                                frontImage = "N/A",
+                                backContent = "",
+                                backImage = "N/A"
+                            )
+                        )
+                        // Cuộn xuống phần tử cuối sau khi thêm
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(editingFlashcards.lastIndex)
+                        }
+                    },
+                    containerColor = Color(0xFF42B3FF),
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Flashcard")
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(80.dp))
             }
         }
 
-        // Bottom button
-        Button(
-            onClick = {
-                if (isEditing) {
-                    // Save changes
-                    navController.popBackStack()
-                } else {
-                    // Navigate to flashcard learning screen
+        // Nút học
+        if (!editingMode && flashcardsToDisplay.isNotEmpty()) {
+            Button(
+                onClick = {
+                    // TODO: Navigate tới phần học
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .height(48.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF42B3FF))
+            ) {
+                Text("Học bằng flashcard", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
+        }
+    }
+
+    // Dialog cảnh báo khi lưu lỗi
+    if (showSaveErrorDialog) {
+        Dialog(onDismissRequest = { showSaveErrorDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Có lỗi khi lưu!", color = Color.Red)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { showSaveErrorDialog = false }) {
+                        Text("Đóng")
+                    }
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .height(48.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF42B3FF)
-            )
-        ) {
-            Text(
-                text = if (isEditing) "Lưu thay đổi" else "Học bằng flashcard",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
+            }
         }
     }
 }

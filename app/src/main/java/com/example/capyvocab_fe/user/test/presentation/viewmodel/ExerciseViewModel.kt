@@ -1,7 +1,9 @@
 package com.example.capyvocab_fe.user.test.presentation.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.Either
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.error.AppError
 import com.example.capyvocab_fe.core.error.AppFailure
@@ -754,6 +756,10 @@ class ExerciseViewModel @Inject constructor(
                 state
             }
         }
+    }
+
+    suspend fun uploadImage(uri: Uri): Either<AppFailure, String> {
+        return exerciseRepository.uploadImage(uri)
     }
 
     fun clearSuccessMessage() {

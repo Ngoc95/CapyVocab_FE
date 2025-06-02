@@ -37,6 +37,7 @@ import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
 import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.DoQuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.EditQuestionScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestDetailScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
@@ -344,7 +345,12 @@ fun UserNavigator() {
                 arguments = listOf(navArgument("folderId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
-                // FlashCardScreen(folderId = folderId, ...)
+                FlashcardScreen(
+                    navController = navController,
+                    folderId = folderId,
+                    state = exerciseState,
+                    onEvent = exerciseViewModel::onEvent
+                )
             }
             composable(
                 route = "${Route.CommentScreen.route}/{folderId}",
