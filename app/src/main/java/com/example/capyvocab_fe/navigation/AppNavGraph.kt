@@ -16,8 +16,7 @@ import com.example.capyvocab_fe.user.navigator.UserNavigator
 
 @Composable
 fun AppNavGraph(
-    startDestination: String,
-    modifier: Modifier = Modifier
+    startDestination: String
 ) {
     val navController = rememberNavController()
 

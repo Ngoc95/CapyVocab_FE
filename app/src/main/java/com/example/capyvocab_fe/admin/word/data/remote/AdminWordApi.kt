@@ -1,9 +1,9 @@
 package com.example.capyvocab_fe.admin.word.data.remote
 
-import com.example.capyvocab_fe.admin.common.UploadResponse
+import com.example.capyvocab_fe.core.network.ApiResponse
+import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
+import com.example.capyvocab_fe.admin.word.data.remote.model.AudioUploadResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
-import com.example.capyvocab_fe.admin.word.data.remote.model.DeleteResponse
-import com.example.capyvocab_fe.admin.word.data.remote.model.RestoreResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.WordListResponse
 import com.example.capyvocab_fe.admin.word.domain.model.Word
@@ -25,53 +25,41 @@ interface AdminWordApi {
     suspend fun getAllWords(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
-        @Query("content") content: String? = null,
-        @Query("example") example: String? = null,
-        @Query("meaning") meaning: String? = null,
-        @Query("position") position: String? = null,
-        @Query("pronunciation") pronunciation: String? = null,
-        @Query("rank") rank: String? = null,
-        @Query("translateExample") translateExample: String? = null,
-        @Query("sort") sort: String? = null
-    ): WordListResponse
+        @Query("content") content: String? = null
+    ): ApiResponse<WordListResponse>
 
     @GET("/words/{id}")
     suspend fun getWordById(
         @Path("id") id: Int
-    ): Word
+    ): ApiResponse<Word>
 
     @POST("/words")
     suspend fun createWords(
-        @Body words: List<CreateWordRequest>
-    ): List<Word>
+        @Body createWordRequest: CreateWordRequest
+    ): ApiResponse<List<Word>>
 
     @PATCH("/words/{id}")
     suspend fun updateWord(
         @Path("id") id: Int,
-        @Body word: UpdateWordRequest
-    ): Word
+        @Body updateWordRequest: UpdateWordRequest
+    ): ApiResponse<Word>
 
     @DELETE("/words/{id}")
     suspend fun deleteWordById(
         @Path("id") id: Int
-    ): DeleteResponse
-
-    @PATCH("/words/{id}/restore")
-    suspend fun restoreWord(
-        @Path("id") id: Int
-    ): RestoreResponse
+    ): ApiResponse<Any>
 
     @Multipart
     @POST("/upload/images")
     suspend fun uploadImage(
         @Part("type") type: RequestBody,
-        @Part image: MultipartBody.Part
-    ): UploadResponse
+        @Part images: MultipartBody.Part
+    ): ImageUploadResponse
 
     @Multipart
     @POST("/upload/audios")
     suspend fun uploadAudio(
         @Part("type") type: RequestBody,
-        @Part audio: MultipartBody.Part
-    ): UploadResponse
+        @Part audios: MultipartBody.Part
+    ): AudioUploadResponse
 }

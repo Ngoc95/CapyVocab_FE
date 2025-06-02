@@ -13,13 +13,20 @@ sealed class Route(
     object AdminNavigator : Route(route = "adminNavigator")
     object HomeScreen : Route(route = "homeScreen")
     object CoursesScreen : Route(route = "coursesScreen")
-    object TopicsScreen: Route(route = "topicsScreen/{courseId}")
-    object WordsScreen: Route(route = "wordsScreen/{TopicId}")
+    object TopicsScreen: Route(route = "topicsScreen")
+    object WordsScreen: Route(route = "wordsScreen")
     object UsersScreen : Route(route = "usersScreen")
     object SettingScreen : Route(route = "settingScreen")
 
     //user navigator
     object UserNavigation : Route(route = "userNavigation")
     object UserNavigator : Route(route = "userNavigator")
-    object ProfileScreen : Route(route = "profileScreen")
+    object UserCommunityScreen: Route(route = "userCommunityScreen")
+    object UserReviewScreen : Route(route = "userReviewScreen")
+    object UserLearnScreen: Route(route = "userLearnScreen")
+    object UserCoursesScreen : Route(route = "userCoursesScreen")
+    object UserTopicsScreen: Route(route = "userTopicsScreen")
+    object UserWordsScreen: Route(route = "userWordsScreen")
+    object UserTestScreen: Route(route = "userTestScreen")
+    object UserProfileScreen: Route(route = "userProfileScreen")
 }

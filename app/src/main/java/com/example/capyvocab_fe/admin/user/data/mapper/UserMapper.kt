@@ -1,8 +1,13 @@
 package com.example.capyvocab_fe.admin.user.data.mapper
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.capyvocab_fe.admin.user.data.model.UserData
 import com.example.capyvocab_fe.admin.user.domain.model.User
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun UserData.toDomain(): User = User(
     id = id,
     email = email,
@@ -10,26 +15,23 @@ fun UserData.toDomain(): User = User(
     avatar = avatar,
     status = status,
     roleId = role.id,
-
-    // sửa lại sau khi be update
-    streak = 0,
-    lastStudyDate = "18/04/2025",
-    totalStudyDay = 16,
+    streak = streak,
+    lastStudyDate = formatLastStudyDate(lastStudyDate),
+    totalStudyDay = totalStudyDay,
     totalLearnedCard = 100,
     totalMasteredCard = 70,
-
-//    streak = streak,
-//    lastStudyDate = lastStudyDate,
-//    totalStudyDay = totalStudyDay,
+    // sửa lại sau khi be update
 //    totalLearnedCard = totalLearnedCard,
 //    totalMasteredCard = totalMasteredCard,
-//    roleId = roleId
 )
 
-//fun User.toUserData(): UserData = UserData(
-//    id = id,
-//    email = email,
-//    username = username,
-//    avatar = avatar,
-//    status = status
-//)
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatLastStudyDate(isoDate: String?): String {
+    return try {
+        val zonedDateTime = ZonedDateTime.parse(isoDate)
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        zonedDateTime.format(formatter)
+    } catch (e: Exception) {
+        "N/A" // hoặc trả về chuỗi mặc định nếu parse lỗi
+    }
+}

@@ -8,23 +8,10 @@ data class User(
     val avatar: String?,
     val status: String,
     val streak: Int,
-    val lastStudyDate: String,
+    val lastStudyDate: String?,
     val totalStudyDay: Int,
     val totalLearnedCard: Int,
     val totalMasteredCard: Int,
     val roleId: Int
     //val role: UserRole
 )
-//enum class UserRole {
-//    ADMIN, PREMIUM, USER;
-//
-//    companion object {
-//        fun from(roleData: RoleData): UserRole {
-//            return when (roleData.name.uppercase()) {
-//                "ADMIN" -> ADMIN
-//                "PREMIUM" -> PREMIUM
-//                else -> USER
-//            }
-//        }
-//    }
-//}
