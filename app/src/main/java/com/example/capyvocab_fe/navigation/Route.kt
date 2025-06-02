@@ -31,6 +31,7 @@ sealed class Route(
     object TestSettingScreen: Route(route = "testSettingScreen")
     object TestDetailScreen: Route(route = "testDetailScreen")
     object FlashCardScreen: Route(route = "flashCardScreen")
+    object FlashCardLearningScreen: Route(route = "flashCardLearningScreen")
     object QuizScreen: Route(route = "quizScreen")
     object CommentScreen: Route(route = "commentScreen")
     object EditQuestionScreen : Route(route = "editQuestionScreen")

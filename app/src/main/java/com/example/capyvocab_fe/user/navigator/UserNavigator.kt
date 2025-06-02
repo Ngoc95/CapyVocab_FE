@@ -42,6 +42,7 @@ import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestDetailScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestSettingScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.screen_contents.FlashcardLearningScreen
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
@@ -350,6 +351,16 @@ fun UserNavigator() {
                     folderId = folderId,
                     state = exerciseState,
                     onEvent = exerciseViewModel::onEvent
+                )
+            }
+            composable(
+                route = "${Route.FlashCardLearningScreen}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                FlashcardLearningScreen(
+                    folderId = folderId,
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(

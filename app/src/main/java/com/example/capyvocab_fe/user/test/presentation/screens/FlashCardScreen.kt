@@ -43,6 +43,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +56,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.test.data.remote.model.FlashCardRequest
 import com.example.capyvocab_fe.user.test.data.remote.model.UpdateFolderRequest
@@ -319,18 +322,27 @@ fun FlashcardScreen(
 
         // Nút học
         if (!editingMode && flashcardsToDisplay.isNotEmpty()) {
-            Button(
-                onClick = {
-                    // TODO: Navigate tới phần học
-                },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF42B3FF))
+                    .height(48.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF4FC3F7), Color(0xFF1565C0))
+                        ),
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                    .clickable { navController.navigate("${Route.FlashCardLearningScreen}/$folderId") },
+                contentAlignment = Alignment.Center
             ) {
-                Text("Học bằng flashcard", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    "Học bằng flashcard",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
