@@ -46,7 +46,6 @@ import com.example.capyvocab_fe.core.ui.components.SnackbarType
 fun CourseFormDialog(
     course: Course?,
     errorMessage: String,
-    successMessage: String,
     onDismiss: () -> Unit,
     onSave: (Course) -> Unit,
     onDelete: () -> Unit
@@ -198,7 +197,6 @@ fun CourseFormDialog(
             }
         }
         OverlaySnackbar(message = errorMessage)
-        OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
     }
 }
 
@@ -216,7 +214,6 @@ private fun CourseFormDialogPreview() {
     CourseFormDialog(
         course = sample,
         errorMessage = "",
-        successMessage = "",
         onDismiss = {},
         onSave = {},
         onDelete = {}

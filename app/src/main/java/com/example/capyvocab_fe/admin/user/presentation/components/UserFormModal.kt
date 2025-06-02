@@ -67,17 +67,15 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
-import com.example.capyvocab_fe.core.ui.components.FocusComponent
-import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
 fun UserFormDialog(
     user: User?,
     errorMessage: String,
-    successMessage: String,
     onDismiss: () -> Unit,
     onSave: (User, String?, String?, Uri?) -> Unit,
     onDelete: (() -> Unit)
@@ -189,7 +187,6 @@ fun UserFormDialog(
             }
         }
         OverlaySnackbar(message = errorMessage)
-        OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
     }
 }
 
@@ -517,7 +514,6 @@ private fun UserFormModalPreview() {
         UserFormDialog(
             user = sampleUser,
             errorMessage = "",
-            successMessage = "",
             onDismiss = {},
             onSave = { User, password, confirmPassword, selectedAvt ->
             },

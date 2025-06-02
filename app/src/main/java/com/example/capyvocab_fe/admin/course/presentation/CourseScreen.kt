@@ -58,6 +58,8 @@ import com.example.capyvocab_fe.admin.course.presentation.components.CourseFormD
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
@@ -77,7 +79,7 @@ fun CourseScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
-    var visbileSuccess by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -132,9 +134,9 @@ fun CourseScreen(
     }
     LaunchedEffect(state.successMessage) {
         if (state.successMessage.isNotEmpty()) {
-            visbileSuccess = state.successMessage
+            visibleSuccess = state.successMessage
             delay(3000) // hiện 3 giây
-            visbileSuccess = "" // ẩn sau 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
         }
     }
 
@@ -145,6 +147,7 @@ fun CourseScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
+            successMessage = visibleSuccess,
             onLoadMore = { viewModel.onEvent(CourseEvent.LoadMoreCourses) },
             onCourseClick = { course ->
                 onCourseClick(course)
@@ -172,7 +175,6 @@ fun CourseScreen(
         CourseFormDialog(
             course = selectedCourse,
             errorMessage = visibleError,
-            successMessage = visbileSuccess,
             onDismiss = {
                 selectedCourse = null
                 isDialogOpen = false
@@ -215,6 +217,7 @@ fun CoursesScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onCourseClick: (Course) -> Unit,
     onAddCourse: () -> Unit,
     onEditCourse: (Course) -> Unit,
@@ -352,6 +355,7 @@ fun CoursesScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }
@@ -400,7 +404,8 @@ fun CoursesScreenContentPreview() {
             isEndReached = false,
             selectedCourses = emptyList(),
             searchBarText = "",
-            onSearchBarTextChange = {}
+            onSearchBarTextChange = {},
+            successMessage = ""
         )
     }
 }
