@@ -9,9 +9,6 @@ import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
 import com.example.capyvocab_fe.admin.user.data.remote.AdminUserApi
 import com.example.capyvocab_fe.admin.word.data.remote.AdminWordApi
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
-import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
-import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
-import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
 import com.example.capyvocab_fe.core.network.TokenAuthenticator
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
@@ -25,26 +22,56 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AuthClient
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AuthRetrofit
 
 @InstallIn(SingletonComponent::class)
 @Module
 object AppModule {
+
     @Provides
     @Singleton
-    fun provideAuthApi(): AuthApi {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+    @AuthClient
+    fun provideAuthOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .build()
-            .create(AuthApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+    @AuthRetrofit
+    fun provideAuthRetrofit(@AuthClient authOkHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(authOkHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthApi(@AuthRetrofit authRetrofit: Retrofit): AuthApi {
+        return authRetrofit.create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
+            .authenticator(tokenAuthenticator)
             .build()
     }
 

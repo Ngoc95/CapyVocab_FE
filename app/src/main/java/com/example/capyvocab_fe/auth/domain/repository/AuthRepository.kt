@@ -10,4 +10,6 @@ interface AuthRepository {
     suspend fun getUserInfo(): Either<AuthFailure, User?>
     suspend fun register(email: String, username: String, password: String): Either<AuthFailure, User>
     suspend fun refreshToken(refreshToken: String): Either<AuthFailure, Pair<String, String>>
+    suspend fun sendVerificationEmail(): Either<AuthFailure, Unit>
+    suspend fun verifyEmail(code: Int): Either<AuthFailure, Unit>
 }

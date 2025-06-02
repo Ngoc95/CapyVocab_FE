@@ -2,8 +2,6 @@ package com.example.capyvocab_fe.auth.data.repository
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.left
-import arrow.core.right
 import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
 import com.example.capyvocab_fe.auth.data.mapper.toDomain
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
@@ -74,6 +72,24 @@ class AuthRepositoryImpl @Inject constructor(
                 )
             }
 
+        }
+    }
+
+    override suspend fun sendVerificationEmail(): Either<AuthFailure, Unit> {
+        return Either.catch {
+            authApi.sendVerificationEmail()
+            Unit
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
+    override suspend fun verifyEmail(code: Int): Either<AuthFailure, Unit> {
+        return Either.catch {
+            authApi.verifyEmail(code)
+            Unit
+        }.mapLeft {
+            it.toAuthFailure()
         }
     }
 }

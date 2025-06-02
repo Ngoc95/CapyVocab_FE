@@ -5,8 +5,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
 
-class AuthInterceptor (
+class AuthInterceptor @Inject constructor (
     private val tokenManager: TokenManager
 ): Interceptor {
 
