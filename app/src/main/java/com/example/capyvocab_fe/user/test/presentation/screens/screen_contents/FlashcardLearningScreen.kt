@@ -97,8 +97,7 @@ fun FlashcardLearningScreen(
                     Text(
                         "Học flashcard",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF42B3FF)
+                        fontWeight = FontWeight.Medium
                     ) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -110,6 +109,7 @@ fun FlashcardLearningScreen(
                         text = "Xong",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
+                        color = Color(0xFF42B3FF),
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .clickable { onBack() }

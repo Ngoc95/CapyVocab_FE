@@ -34,6 +34,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +54,7 @@ import com.example.capyvocab_fe.user.test.domain.model.FlashCard
 fun FlashcardItem(
     flashcard: FlashCard,
     isEditing: Boolean,
+    searchQuery: String = "",
     onUpdate: (FlashCard) -> Unit,
     onDelete: () -> Unit,
     onSelectFrontImage: () -> Unit,
@@ -70,6 +75,8 @@ fun FlashcardItem(
     val showFrontError = isEditing && frontContent.isBlank()
     val showBackError = isEditing && backContent.isBlank()
 
+    val highlightColor = Color(0xFFFFA000)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -87,22 +94,29 @@ fun FlashcardItem(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Từ vựng", fontSize = 12.sp, color = Color.Gray)
-                    OutlinedTextField(
-                        value = frontContent,
-                        onValueChange = {
-                            frontContent = it
-                        },
-                        colors = defaultTextFieldColors(),
-                        singleLine = true,
-                        enabled = isEditing,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (showFrontError) {
+
+                    if (isEditing) {
+                        OutlinedTextField(
+                            value = frontContent,
+                            onValueChange = { frontContent = it },
+                            colors = defaultTextFieldColors(),
+                            singleLine = true,
+                            enabled = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (showFrontError) {
+                            Text(
+                                text = "Không được để trống từ vựng",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    } else {
                         Text(
-                            text = "Không được để trống từ vựng",
-                            color = Color.Red,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(top = 4.dp)
+                            text = getHighlightedText(frontContent, searchQuery, highlightColor),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -137,22 +151,29 @@ fun FlashcardItem(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Định nghĩa", fontSize = 12.sp, color = Color.Gray)
-                    OutlinedTextField(
-                        value = backContent,
-                        onValueChange = {
-                            backContent = it
-                        },
-                        colors = defaultTextFieldColors(),
-                        singleLine = false,
-                        enabled = isEditing,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (showBackError) {
+
+                    if (isEditing) {
+                        OutlinedTextField(
+                            value = backContent,
+                            onValueChange = { backContent = it },
+                            colors = defaultTextFieldColors(),
+                            singleLine = false,
+                            enabled = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (showBackError) {
+                            Text(
+                                text = "Không được để trống định nghĩa",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    } else {
                         Text(
-                            text = "Không được để trống định nghĩa",
-                            color = Color.Red,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(top = 4.dp)
+                            text = getHighlightedText(backContent, searchQuery, highlightColor),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -164,6 +185,7 @@ fun FlashcardItem(
                             .size(80.dp)
                             .clip(RoundedCornerShape(6.dp))
                             .clickable(enabled = isEditing) { onSelectBackImage() }
+                            .padding(top = 4.dp)
                     ) {
                         AsyncImage(
                             model = flashcard.backImage ?: R.drawable.add_avt,
@@ -192,6 +214,32 @@ fun FlashcardItem(
     }
 }
 
+@Composable
+fun getHighlightedText(text: String, keyword: String, highlightColor: Color): AnnotatedString {
+    val lowerText = text.lowercase()
+    val lowerKeyword = keyword.trim().lowercase()
+    val builder = AnnotatedString.Builder()
+
+    if (lowerKeyword.isEmpty()) return AnnotatedString(text)
+
+    var currentIndex = 0
+    while (currentIndex < text.length) {
+        val matchIndex = lowerText.indexOf(lowerKeyword, currentIndex)
+        if (matchIndex == -1) {
+            builder.append(text.substring(currentIndex))
+            break
+        }
+        // Append before match
+        builder.append(text.substring(currentIndex, matchIndex))
+        // Highlight match
+        builder.withStyle(SpanStyle(color = highlightColor, fontWeight = FontWeight.Bold)) {
+            builder.append(text.substring(matchIndex, matchIndex + lowerKeyword.length))
+        }
+        currentIndex = matchIndex + lowerKeyword.length
+    }
+
+    return builder.toAnnotatedString()
+}
 
 @Preview
 @Composable
