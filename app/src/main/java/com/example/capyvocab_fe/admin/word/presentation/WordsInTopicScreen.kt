@@ -58,6 +58,8 @@ import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialo
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
@@ -76,6 +78,7 @@ fun WordsInTopicScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -119,6 +122,13 @@ fun WordsInTopicScreen(
             selectedWord = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
 
     FocusComponent {
         WordsInTopicScreenContent(
@@ -127,9 +137,7 @@ fun WordsInTopicScreen(
             isEndReached = state.isEndReached,
             selectedWords = state.words.filter { state.selectedWords.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
-            onPlayAudio = { audioUrl ->
-                // TODO: Play audio
-            },
+            successMessage = visibleSuccess,
             onEditWord = { word ->
                 selectedWord = word
                 isDialogOpen = true
@@ -151,16 +159,16 @@ fun WordsInTopicScreen(
     if (isDialogOpen) {
         WordFormDialog(
             word = selectedWord,
-            errorMessage = "",
+            errorMessage = visibleError,
             onDismiss = {
                 isDialogOpen = false
                 selectedWord = null
             },
-            onSave = { word, uri ->
+            onSave = { word, imageUri, audioUri ->
                 if (word.id == 0) {
-                    viewModel.onEvent(WordEvent.CreateWord(topic.id, word))
+                    viewModel.onEvent(WordEvent.CreateWord(topic.id, word, imageUri, audioUri))
                 } else {
-                    viewModel.onEvent(WordEvent.UpdateWord(word))
+                    viewModel.onEvent(WordEvent.UpdateWord(word, imageUri, audioUri))
                 }
                 isDialogOpen = false
             },
@@ -198,7 +206,7 @@ fun WordsInTopicScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
-    onPlayAudio: (String) -> Unit,
+    successMessage: String,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
     onLoadMore: () -> Unit,
@@ -306,7 +314,6 @@ fun WordsInTopicScreenContent(
                     Box(modifier = Modifier.scale(cardScale.value)) {
                         WordCard(
                             word = word,
-                            onPlayAudio = onPlayAudio,
                             onEditClick = onEditWord,
                             onLongClick = { onWordLongPress(word) },
                             onCheckedChange = { onWordSelectToggle(word) },
@@ -334,6 +341,7 @@ fun WordsInTopicScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }
@@ -369,7 +377,6 @@ fun WordListScreenContentPreview() {
     WordsInTopicScreenContent(
         words = sampleWords,
         isLoading = false,
-        onPlayAudio = {},
         onEditWord = {},
         onAddWord = {},
         onLoadMore = {},
@@ -378,6 +385,7 @@ fun WordListScreenContentPreview() {
         selectedWords = emptyList(),
         isMultiSelectMode = false,
         isEndReached = false,
+        successMessage = ""
     )
 }
 

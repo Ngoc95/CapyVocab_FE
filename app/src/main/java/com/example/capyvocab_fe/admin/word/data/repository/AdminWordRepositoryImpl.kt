@@ -26,9 +26,9 @@ class AdminWordRepositoryImpl @Inject constructor(
         }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getAllWords(page: Int): Either<AppFailure, List<Word>> {
+    override suspend fun getAllWords(page: Int, content: String?): Either<AppFailure, List<Word>> {
         return Either.catch {
-            adminWordApi.getAllWords(page).metaData.words
+            adminWordApi.getAllWords(page, content = content).metaData.words
         }.mapLeft { it.toAppFailure() }
     }
 
@@ -58,15 +58,31 @@ class AdminWordRepositoryImpl @Inject constructor(
             val contentResolver = MyApplication.instance.contentResolver
             val inputStream =
                 contentResolver.openInputStream(uri) ?: throw IOException("Không mở được ảnh")
-            val fileName = "image_${System.currentTimeMillis()}.jpg"
+            val fileName = "word_image_${System.currentTimeMillis()}.jpg"
             val requestBody = inputStream.readBytes().toRequestBody("image/*".toMediaTypeOrNull())
 
-            val multipart = MultipartBody.Part.createFormData("IMAGE", fileName, requestBody)
-            val typePart = "IMAGE".toRequestBody("text/plain".toMediaTypeOrNull())
+            val multipart = MultipartBody.Part.createFormData("WORD", fileName, requestBody)
+            val typePart = "WORD".toRequestBody("text/plain".toMediaTypeOrNull())
 
             val response = adminWordApi.uploadImage(typePart, multipart)
             response.metaData.firstOrNull()?.destination
                 ?: throw IOException("Không nhận được URL ảnh")
+        }.mapLeft {
+            it.toAppFailure()
+        }
+    }
+
+    override suspend fun uploadAudio(uri: Uri): Either<AppFailure, String> {
+        return Either.catch {
+            val contentResolver = MyApplication.instance.contentResolver
+            val inputStream =
+                contentResolver.openInputStream(uri) ?: throw IOException("Không mở được âm thanh")
+            val fileName = "audio_${System.currentTimeMillis()}.mp3"
+            val requestBody = inputStream.readBytes().toRequestBody("audio/*".toMediaTypeOrNull())
+            val multipart = MultipartBody.Part.createFormData("AUDIO", fileName, requestBody)
+            val typePart = "AUDIO".toRequestBody("text/plain".toMediaTypeOrNull())
+            val response = adminWordApi.uploadAudio(typePart, multipart)
+            response.metaData.destination
         }.mapLeft {
             it.toAppFailure()
         }

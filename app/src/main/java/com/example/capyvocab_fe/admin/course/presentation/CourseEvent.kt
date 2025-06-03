@@ -17,4 +17,6 @@ sealed class CourseEvent {
     object OnSelectAllToggle : CourseEvent()
     object OnDeleteSelectedCourses : CourseEvent()
     object CancelMultiSelect : CourseEvent()
+    data class OnSearchQueryChange(val query: String) : CourseEvent()
+    object OnSearch : CourseEvent()
 }

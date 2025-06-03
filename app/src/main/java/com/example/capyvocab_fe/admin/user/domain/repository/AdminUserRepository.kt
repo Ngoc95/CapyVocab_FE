@@ -6,7 +6,7 @@ import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.admin.user.domain.model.User
 
 interface AdminUserRepository {
-    suspend fun getAllUsers(page: Int): Either<AppFailure, List<User>>
+    suspend fun getAllUsers(page: Int = 1, username: String? = null): Either<AppFailure, List<User>>
     suspend fun createUser(user: User, password: String): Either<AppFailure, User>
     suspend fun updateUser(user: User, password: String?): Either<AppFailure, User>
     suspend fun uploadAvatarImage(uri: Uri): Either<AppFailure, String>

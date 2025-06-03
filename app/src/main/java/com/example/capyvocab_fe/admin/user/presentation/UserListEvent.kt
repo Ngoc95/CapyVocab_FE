@@ -20,4 +20,6 @@ sealed class UserListEvent {
     object OnSelectAllToggle : UserListEvent()
     object OnDeleteSelectedUsers : UserListEvent()
     object CancelMultiSelect : UserListEvent()
+    data class OnSearchQueryChange(val query: String): UserListEvent()
+    object OnSearch: UserListEvent()
 }

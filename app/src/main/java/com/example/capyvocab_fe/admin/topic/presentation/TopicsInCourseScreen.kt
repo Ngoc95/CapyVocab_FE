@@ -58,6 +58,8 @@ import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDia
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
@@ -78,6 +80,7 @@ fun TopicsInCourseScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -120,6 +123,13 @@ fun TopicsInCourseScreen(
             selectedTopic = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
     FocusComponent {
         TopicsInCourseScreenContent(
             topics = state.topics,
@@ -127,6 +137,7 @@ fun TopicsInCourseScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
+            successMessage = visibleSuccess,
             onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreTopics(course)) },
             onTopicClick = { topic ->
                 onTopicClick(topic)
@@ -151,16 +162,16 @@ fun TopicsInCourseScreen(
     if (isDialogOpen) {
         TopicFormDialog(
             topic = selectedTopic,
-            errorMessage = "",
+            errorMessage = visibleError,
             onDismiss = {
                 selectedTopic = null
                 isDialogOpen = false
             },
-            onSave = { topic ->
+            onSave = { topic, imageUri ->
                 if (topic.id == 0) {
-                    viewModel.onEvent(TopicEvent.CreateTopic(course.id, topic))
+                    viewModel.onEvent(TopicEvent.CreateTopic(course.id, topic, imageUri))
                 } else {
-                    viewModel.onEvent(TopicEvent.UpdateTopic(topic))
+                    viewModel.onEvent(TopicEvent.UpdateTopic(topic, imageUri))
                 }
                 isDialogOpen = false
             },
@@ -198,6 +209,7 @@ fun TopicsInCourseScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onTopicClick: (Topic) -> Unit,
     onAddTopic: () -> Unit,
     onEditTopic: (Topic) -> Unit,
@@ -335,6 +347,7 @@ fun TopicsInCourseScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }
@@ -368,6 +381,7 @@ fun TopicsInCourseScreenPreview() {
             isMultiSelectMode = false,
             isLoading = false,
             isEndReached = false,
+            successMessage = "",
             selectedTopics = emptyList()
         )
     }

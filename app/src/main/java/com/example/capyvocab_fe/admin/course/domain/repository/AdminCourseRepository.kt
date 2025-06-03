@@ -8,7 +8,7 @@ import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.core.error.AppFailure
 
 interface AdminCourseRepository {
-    suspend fun getAllCourses(page: Int = 1): Either<AppFailure, List<Course>>
+    suspend fun getAllCourses(page: Int = 1, title: String? = null): Either<AppFailure, List<Course>>
 
     suspend fun getCourseTopics(id: Int, page: Int): Either<AppFailure, List<Topic>>
 

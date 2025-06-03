@@ -22,9 +22,9 @@ class AdminUserRepositoryImpl @Inject constructor(
     private val adminUserApi: AdminUserApi
 ) : AdminUserRepository {
 
-    override suspend fun getAllUsers(page: Int): Either<AppFailure, List<User>> {
+    override suspend fun getAllUsers(page: Int, username: String?): Either<AppFailure, List<User>> {
         return Either.catch {
-            val response = adminUserApi.getAllUsers(page)
+            val response = adminUserApi.getAllUsers(page, username = username)
             response.metaData.users.map { it.toDomain() }
         }.mapLeft { it.toAppFailure() }
     }
