@@ -98,9 +98,10 @@ fun FlashcardScreen(
     val flashcardsToDisplay = if (editingMode) {
         editingFlashcards
     } else {
+        val query = searchQuery.trim().lowercase()
         folder?.flashCards.orEmpty().filter {
-            val query = searchQuery.trim().lowercase()
-            it.frontContent.lowercase().contains(query) || it.backContent.lowercase().contains(query)
+            (it.frontContent ?: "").lowercase().contains(query) ||
+                    (it.backContent ?: "").lowercase().contains(query)
         }
     }
 
@@ -349,7 +350,9 @@ fun FlashcardScreen(
         }
 
         // Nút học
-        if (!editingMode && flashcardsToDisplay.isNotEmpty()) {
+        val hasAnyFlashcard = folder?.flashCards?.isNotEmpty() == true
+
+        if (!editingMode && hasAnyFlashcard) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

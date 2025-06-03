@@ -468,7 +468,7 @@ fun DoQuizScreen(
                             .height(48.dp),
                         shape = RoundedCornerShape(24.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4CAF50)
+                            containerColor = if (isCurrentAnswerCorrect) Color(0xFF4CAF50) else Color(0xFFF44336)
                         )
                     ) {
                         Text(
