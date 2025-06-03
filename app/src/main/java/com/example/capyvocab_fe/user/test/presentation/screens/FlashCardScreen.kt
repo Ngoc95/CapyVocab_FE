@@ -86,8 +86,9 @@ fun FlashcardScreen(
     var editingMode by remember { mutableStateOf(isEditing) }
     val isCreator = state.currentFolder?.createdBy?.id == state.currentUser?.id
     val folder = state.currentFolder
-    var searchQuery by remember { mutableStateOf("") }
+    val hasAnyFlashcard = folder?.flashCards?.isNotEmpty() == true
 
+    var searchQuery by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
     val context = LocalContext.current
@@ -165,6 +166,7 @@ fun FlashcardScreen(
                         editingFlashcards.clear()
                         folder?.flashCards?.let { editingFlashcards.addAll(it) }
                         editingMode = false
+                        searchQuery = ""
                     } else {
                         navController.popBackStack()
                     }
@@ -191,6 +193,7 @@ fun FlashcardScreen(
                                     } else {
                                         // Lưu thay đổi
                                         editingMode = false
+                                        searchQuery = ""
                                         val flashcardRequests = editingFlashcards.map {
                                             FlashCardRequest(
                                                 frontContent = it.frontContent,
@@ -221,7 +224,7 @@ fun FlashcardScreen(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
         )
 
-        if (!editingMode) {
+        if (!editingMode && hasAnyFlashcard) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -350,8 +353,6 @@ fun FlashcardScreen(
         }
 
         // Nút học
-        val hasAnyFlashcard = folder?.flashCards?.isNotEmpty() == true
-
         if (!editingMode && hasAnyFlashcard) {
             Box(
                 modifier = Modifier
