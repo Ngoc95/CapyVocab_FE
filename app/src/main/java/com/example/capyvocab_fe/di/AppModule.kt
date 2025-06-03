@@ -91,12 +91,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthApi(retrofit: Retrofit): AuthApi {
-        return retrofit.create(AuthApi::class.java)
-    }
-
-    @Provides
-    @Singleton
     fun provideAdminUserApi(retrofit: Retrofit): AdminUserApi {
         return retrofit.create(AdminUserApi::class.java)
     }
