@@ -56,6 +56,8 @@ import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialo
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
@@ -141,6 +143,7 @@ fun WordScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
+            successMessage = visibleSuccess,
             onEditWord = { word ->
                 selectedWord = word
                 isDialogOpen = true
@@ -165,7 +168,6 @@ fun WordScreen(
         WordFormDialog(
             word = selectedWord,
             errorMessage = visibleError,
-            successMessage = visibleSuccess,
             onDismiss = {
                 isDialogOpen = false
                 selectedWord = null
@@ -212,6 +214,7 @@ fun WordScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
     onLoadMore: () -> Unit,
@@ -346,6 +349,7 @@ fun WordScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }

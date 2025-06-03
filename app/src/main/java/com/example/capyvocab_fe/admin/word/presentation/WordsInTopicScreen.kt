@@ -58,6 +58,8 @@ import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialo
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
@@ -135,6 +137,7 @@ fun WordsInTopicScreen(
             isEndReached = state.isEndReached,
             selectedWords = state.words.filter { state.selectedWords.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
+            successMessage = visibleSuccess,
             onEditWord = { word ->
                 selectedWord = word
                 isDialogOpen = true
@@ -157,7 +160,6 @@ fun WordsInTopicScreen(
         WordFormDialog(
             word = selectedWord,
             errorMessage = visibleError,
-            successMessage = visibleSuccess,
             onDismiss = {
                 isDialogOpen = false
                 selectedWord = null
@@ -204,6 +206,7 @@ fun WordsInTopicScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
     onLoadMore: () -> Unit,
@@ -338,6 +341,7 @@ fun WordsInTopicScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }
@@ -381,6 +385,7 @@ fun WordListScreenContentPreview() {
         selectedWords = emptyList(),
         isMultiSelectMode = false,
         isEndReached = false,
+        successMessage = ""
     )
 }
 

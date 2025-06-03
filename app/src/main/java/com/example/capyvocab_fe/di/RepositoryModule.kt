@@ -12,6 +12,12 @@ import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.user.learn.data.repository.UserLearnRepositoryImpl
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
+import com.example.capyvocab_fe.user.payment.data.repository.PaymentRepositoryImpl
+import com.example.capyvocab_fe.user.payment.domain.repository.PaymentRepository
+import com.example.capyvocab_fe.payout.data.repository.PayoutRepositoryImpl
+import com.example.capyvocab_fe.payout.domain.repository.PayoutRepository
+import com.example.capyvocab_fe.user.test.data.repository.ExerciseRepositoryImpl
+import com.example.capyvocab_fe.user.test.domain.repository.ExerciseRepository
 import com.example.capyvocab_fe.user.review.data.repository.UserReviewRepositoryImpl
 import com.example.capyvocab_fe.user.review.domain.repository.UserReviewRepository
 import dagger.Binds
@@ -49,6 +55,18 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserLearnRepository(impl: UserLearnRepositoryImpl): UserLearnRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPaymentRepository(impl: PaymentRepositoryImpl): PaymentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPayoutRepository(impl: PayoutRepositoryImpl): PayoutRepository
 
     @Binds
     @Singleton

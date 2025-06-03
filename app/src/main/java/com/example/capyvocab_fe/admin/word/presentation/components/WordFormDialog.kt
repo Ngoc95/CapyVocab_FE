@@ -57,14 +57,12 @@ import com.example.capyvocab_fe.admin.word.domain.model.WordPosition
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.PronunciationPlayer
-import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
 fun WordFormDialog(
     word: Word?,
     errorMessage: String,
-    successMessage: String,
     onDismiss: () -> Unit,
     onSave: (Word, Uri?, Uri?) -> Unit,
     onDelete: (() -> Unit)
@@ -157,7 +155,6 @@ fun WordFormDialog(
             }
         }
         OverlaySnackbar(message = errorMessage)
-        OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
     }
 }
 
@@ -443,7 +440,6 @@ fun WordFormDialogPreview() {
         WordFormDialog(
             word = sampleWord,
             errorMessage = "",
-            successMessage = "",
             onDismiss = {},
             onSave = { Word, Uri, a -> },
             onDelete = {},

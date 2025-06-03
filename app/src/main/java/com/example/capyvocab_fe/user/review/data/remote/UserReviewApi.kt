@@ -9,13 +9,13 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
 
-    interface UserReviewApi {
-        @GET("progress/word-review")
-        suspend fun getReviewWords(): ApiResponse<WordReviewResponse>
+interface UserReviewApi {
+    @GET("progress/word-review")
+    suspend fun getReviewWords(): ApiResponse<WordReviewResponse>
 
-        @PUT("progress/word")
-        suspend fun updateProgress(@Body request: ProgressRequest): ApiResponse<WordProgressUpdateResponse>
+    @PUT("progress/word")
+    suspend fun updateProgress(@Body request: ProgressRequest): ApiResponse<WordProgressUpdateResponse>
 
-        @GET("progress/summary")
-        suspend fun getProgressSummary(): ApiResponse<ProgressSummaryResponse>
-    }
+    @GET("progress/summary")
+    suspend fun getProgressSummary(): ApiResponse<ProgressSummaryResponse>
+}

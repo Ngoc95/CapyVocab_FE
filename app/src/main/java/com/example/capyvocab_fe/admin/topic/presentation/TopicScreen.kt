@@ -56,6 +56,8 @@ import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDia
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
@@ -143,6 +145,7 @@ fun TopicScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
+            successMessage = visibleSuccess,
             onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreAllTopics) },
             onTopicClick = { topic ->
                 onTopicClick(topic)
@@ -170,7 +173,6 @@ fun TopicScreen(
         TopicFormDialog(
             topic = selectedTopic,
             errorMessage = visibleError,
-            successMessage = visibleSuccess,
             onDismiss = {
                 selectedTopic = null
                 isDialogOpen = false
@@ -217,6 +219,7 @@ fun TopicScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onTopicClick: (Topic) -> Unit,
     onAddTopic: () -> Unit,
     onEditTopic: (Topic) -> Unit,
@@ -354,6 +357,7 @@ fun TopicScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.learn.presentation
 
+import android.media.MediaPlayer
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,9 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.core.ui.components.BottomFeedbackCard
 import com.example.capyvocab_fe.core.ui.components.CustomProgressBarWithIcon
@@ -41,6 +44,12 @@ fun LearnFlashcardScreen(
     val state by viewModel.state.collectAsState()
 
     var showExitConfirmation by remember { mutableStateOf(false) }
+
+    //Âm thanh khi flip card
+    val context = LocalContext.current
+    val mediaPlayer = remember {
+        MediaPlayer.create(context, R.raw.flip)
+    }
 
     LaunchedEffect(topic.id) {
         viewModel.onEvent(LearnEvent.ClearWords)
@@ -99,7 +108,11 @@ fun LearnFlashcardScreen(
                 FlashcardView(
                     word = state.currentWord,
                     isFront = !state.isFlipped,
-                    onFlip = { viewModel.onEvent(LearnEvent.FlipCard) },
+                    onFlip = {
+                        mediaPlayer.seekTo(0)
+                        mediaPlayer.start()
+                        viewModel.onEvent(LearnEvent.FlipCard)
+                    },
                     onContinue = { viewModel.onEvent(LearnEvent.ContinueToTyping) },
                     onAlreadyKnow = { viewModel.onEvent(LearnEvent.AlreadyKnowWord) }
                 )

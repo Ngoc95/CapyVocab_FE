@@ -69,7 +69,6 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 fun TopicFormDialog(
     topic: Topic?,
     errorMessage: String,
-    successMessage: String,
     onDismiss: () -> Unit,
     onSave: (Topic, Uri?) -> Unit,
     onDelete: () -> Unit
@@ -282,7 +281,6 @@ fun TopicFormDialog(
             }
         }
         OverlaySnackbar(message = errorMessage)
-        OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
     }
 
 }
@@ -302,7 +300,6 @@ private fun TopicFormDialogPreview() {
         TopicFormDialog(
             topic = sample,
             errorMessage = "",
-            successMessage = "",
             onDismiss = {},
             onSave = {w,i ->},
             onDelete = {}
