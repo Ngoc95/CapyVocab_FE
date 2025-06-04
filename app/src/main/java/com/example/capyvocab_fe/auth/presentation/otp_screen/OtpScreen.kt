@@ -4,13 +4,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -45,15 +48,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.core.ui.components.LoadingDialog
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.SnackbarType
+import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
 
 @Composable
 fun OtpScreen(
     viewModel: OtpViewModel = hiltViewModel(),
+    navController : NavController
 ) {
     val state by viewModel.state.collectAsState()
     var remainingSeconds by remember { mutableIntStateOf(60) }
@@ -61,10 +68,18 @@ fun OtpScreen(
     var visibleError by remember { mutableStateOf("") }
     var visibleSuccess by remember { mutableStateOf("") }
 
+    LaunchedEffect(Unit) {
+        viewModel.navigateToLogin.collect {
+            navController.navigate(Route.LoginScreen.route) {
+                popUpTo(Route.OtpScreen.route) { inclusive = true }
+            }
+        }
+    }
+
     LaunchedEffect(state.errorMessage) {
         if (state.errorMessage.isNotEmpty()) {
             visibleError = state.errorMessage
-            delay(2000)
+            delay(3000)
             visibleError = ""
         }
     }
@@ -72,7 +87,7 @@ fun OtpScreen(
     LaunchedEffect(state.successMessage) {
         if (state.successMessage.isNotEmpty()) {
             visibleSuccess = state.successMessage
-            delay(2000)
+            delay(3000)
             visibleSuccess = ""
         }
     }
@@ -89,7 +104,7 @@ fun OtpScreen(
         otp = state.otp,
         onOtpChange = viewModel::onOtpChanged,
         onResendClick = {
-            viewModel::reSendOtp
+            viewModel.reSendOtp()
             remainingSeconds = 60
             canResend = false
         },
@@ -115,6 +130,7 @@ fun OtpScreenContent(
     canResend: Boolean,
     successMessage: String
 ) {
+    LoadingDialog(loading)
     Box(modifier = modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.login_bg),
@@ -148,7 +164,7 @@ fun OtpScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             // OTP Input Fields
-            OtpInputFields(otp = otp, onOtpChange = {})
+            OtpInputFields(otp = otp, onOtpChange = onOtpChange)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -253,7 +269,8 @@ fun OtpInputFields(
                     }
                 },
                 modifier = Modifier
-                    .size(48.dp)
+                    .width(50.dp)
+                    .heightIn(min = 50.dp)
                     .focusRequester(focusRequesters[index]),
                 textStyle = LocalTextStyle.current.copy(
                     fontSize = 20.sp,
@@ -268,7 +285,7 @@ fun OtpInputFields(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White,
                     focusedTextColor = Color(0xFF2C89FF),
-                    unfocusedTextColor = Color.LightGray
+                    unfocusedTextColor = Color(0xFF2C89FF)
                 ),
                 shape = RoundedCornerShape(8.dp)
             )
@@ -286,7 +303,7 @@ fun OtpInputFields(
 private fun OtpScreenPreview() {
     CapyVocab_FETheme {
         OtpScreenContent(
-            otp = "",
+            otp = "123",
             onOtpChange = {},
             onResendClick = {},
             onVerifyClick = {},

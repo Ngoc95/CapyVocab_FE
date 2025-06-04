@@ -1,7 +1,8 @@
 package com.example.capyvocab_fe.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,10 +11,13 @@ import androidx.navigation.navigation
 import com.example.capyvocab_fe.admin.navigator.AdminNavigator
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginScreen
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginViewModel
+import com.example.capyvocab_fe.auth.presentation.otp_screen.OtpScreen
+import com.example.capyvocab_fe.auth.presentation.otp_screen.OtpViewModel
 import com.example.capyvocab_fe.auth.presentation.register_screen.RegisterScreen
 import com.example.capyvocab_fe.auth.presentation.register_screen.RegisterViewModel
 import com.example.capyvocab_fe.user.navigator.UserNavigator
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavGraph(
     startDestination: String
@@ -38,6 +42,14 @@ fun AppNavGraph(
             composable(route = Route.RegisterScreen.route) {
                 val viewModel: RegisterViewModel = hiltViewModel()
                 RegisterScreen(
+                    viewModel = viewModel,
+                    navController = navController
+                )
+            }
+            //otp screen
+            composable(route = Route.OtpScreen.route) {
+                val viewModel: OtpViewModel = hiltViewModel()
+                OtpScreen(
                     viewModel = viewModel,
                     navController = navController
                 )

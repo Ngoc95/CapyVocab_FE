@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.ui.components.LoadingDialog
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
@@ -56,9 +57,9 @@ internal fun RegisterScreen(
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(state.isRegistered) {
-        if (state.isRegistered) {
-            navController.navigate(Route.LoginScreen.route) {
+    LaunchedEffect(Unit) {
+        viewModel.navigateToOtp.collect {
+            navController.navigate(Route.OtpScreen.route) {
                 popUpTo(Route.RegisterScreen.route) { inclusive = true }
             }
         }
@@ -116,6 +117,7 @@ fun RegisterContent(
     onRegisterClick: () -> Unit,
     onLoginClick: () -> Unit
 ) {
+    LoadingDialog(isLoading = state.isLoading)
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.login_bg),

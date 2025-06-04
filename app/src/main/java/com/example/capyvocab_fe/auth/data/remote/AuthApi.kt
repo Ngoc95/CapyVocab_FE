@@ -25,7 +25,7 @@ interface AuthApi {
     suspend fun sendVerificationEmail(): ApiResponse<Unit>
 
     @POST("auth/verify-email")
-    suspend fun verifyEmail(@Body code: Int): ApiResponse<Unit>
+    suspend fun verifyEmail(@Body codeRequest: Map<String, Int>): ApiResponse<Unit>
     @GET("auth/account")
     suspend fun getUserInfo(): ApiResponse<GetAccountResponse>
 }
