@@ -1,4 +1,4 @@
-package com.example.capyvocab_fe.user.test.presentation.screens.screen_contents
+package com.example.capyvocab_fe.user.test.presentation.screens
 
 import android.media.MediaPlayer
 import androidx.compose.animation.core.animateFloatAsState
@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -235,8 +235,9 @@ fun FlashcardLearningScreen(
                         .padding(top = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    GradientCircleButton(
+                    GradientPillButton(
                         icon = Icons.Default.KeyboardArrowLeft,
+                        label = "Trước",
                         onClick = {
                             if (currentIndex > 0) {
                                 currentIndex--
@@ -246,8 +247,9 @@ fun FlashcardLearningScreen(
                         enabled = currentIndex > 0
                     )
 
-                    GradientCircleButton(
+                    GradientPillButton(
                         icon = Icons.Default.KeyboardArrowRight,
+                        label = "Tiếp",
                         onClick = {
                             if (currentIndex < flashcards.lastIndex) {
                                 currentIndex++
@@ -265,8 +267,9 @@ fun FlashcardLearningScreen(
 }
 
 @Composable
-fun GradientCircleButton(
+fun GradientPillButton(
     icon: ImageVector,
+    label: String,
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
@@ -277,16 +280,29 @@ fun GradientCircleButton(
 
     Box(
         modifier = Modifier
-            .size(56.dp)
-            .clip(CircleShape)
+            .height(48.dp)
+            .defaultMinSize(minWidth = 120.dp)
+            .clip(RoundedCornerShape(24.dp))
             .background(gradient)
-            .clickable(enabled = enabled, onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = Color.White
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White
+            )
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
+        }
     }
 }

@@ -1,6 +1,9 @@
 package com.example.capyvocab_fe.core.ui.components
 
 import android.media.MediaPlayer
+import android.media.PlaybackParams
+import android.net.Uri
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -20,6 +23,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.capyvocab_fe.R
 
+enum class PlayingType { NONE, NORMAL, SLOW }
+
 @Composable
 fun PronunciationPlayer(
     audioUrl: String,
@@ -29,7 +34,7 @@ fun PronunciationPlayer(
     val context = LocalContext.current
     var hasPlayed by rememberSaveable(wordId) { mutableStateOf(false) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
-    var isPlaying by remember { mutableStateOf(false) }
+    var playingType by remember { mutableStateOf(PlayingType.NONE) }
 
     fun stopAudio() {
         mediaPlayer?.apply {
@@ -39,29 +44,32 @@ fun PronunciationPlayer(
             }
         }
         mediaPlayer = null
-        isPlaying = false
+        playingType = PlayingType.NONE
     }
 
-    fun playAudio(speed: Float) {
-        stopAudio() // Stop any currently playing audio
+    fun playAudio(type: PlayingType, speed: Float) {
+        stopAudio()
         try {
             mediaPlayer = MediaPlayer().apply {
                 if (audioUrl.startsWith("content://")) {
-                    val uri = android.net.Uri.parse(audioUrl)
+                    val uri = Uri.parse(audioUrl)
                     setDataSource(context, uri, null)
                 } else {
                     setDataSource(audioUrl)
                 }
+
                 setOnPreparedListener {
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                        playbackParams = playbackParams.setSpeed(speed)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        playbackParams = PlaybackParams().setSpeed(speed)
                     }
                     start()
-                    isPlaying = true
+                    playingType = type
                 }
+
                 setOnCompletionListener {
                     stopAudio()
                 }
+
                 prepareAsync()
             }
         } catch (e: Exception) {
@@ -69,17 +77,16 @@ fun PronunciationPlayer(
             stopAudio()
         }
     }
-    // Cleanup when component is disposed
+
     DisposableEffect(Unit) {
         onDispose {
             stopAudio()
         }
     }
 
-    // Tự động phát tốc độ thường khi hiển thị
     LaunchedEffect(wordId, autoPlay) {
         if (autoPlay && !hasPlayed) {
-            playAudio(1.0f)
+            playAudio(PlayingType.NORMAL, 1.0f)
             hasPlayed = true
         }
     }
@@ -87,28 +94,36 @@ fun PronunciationPlayer(
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         IconButton(
             onClick = {
-                if (isPlaying) {
+                if (playingType == PlayingType.NORMAL) {
                     stopAudio()
                 } else {
-                    playAudio(1.0f)
+                    playAudio(PlayingType.NORMAL, 1.0f)
                 }
             },
             modifier = Modifier.size(30.dp)
         ) {
             Image(
-                painter = painterResource(id = if (isPlaying) R.drawable.stop_audio else R.drawable.audio),
+                painter = painterResource(
+                    id = if (playingType == PlayingType.NORMAL) R.drawable.stop_audio else R.drawable.audio
+                ),
                 contentDescription = "Phát âm"
             )
         }
 
-        IconButton(onClick = {
-            if (isPlaying) {
-                stopAudio()
-            }
-            playAudio(0.6f)
-        }, modifier = Modifier.size(30.dp)) {
+        IconButton(
+            onClick = {
+                if (playingType == PlayingType.SLOW) {
+                    stopAudio()
+                } else {
+                    playAudio(PlayingType.SLOW, 0.6f)
+                }
+            },
+            modifier = Modifier.size(30.dp)
+        ) {
             Image(
-                painter = painterResource(id = R.drawable.slow_audio),
+                painter = painterResource(
+                    id = if (playingType == PlayingType.SLOW) R.drawable.stop_audio else R.drawable.slow_audio
+                ),
                 contentDescription = "Phát chậm"
             )
         }

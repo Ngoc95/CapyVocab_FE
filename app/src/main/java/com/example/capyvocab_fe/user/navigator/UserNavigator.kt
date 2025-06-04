@@ -42,7 +42,7 @@ import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestDetailScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestSettingScreen
-import com.example.capyvocab_fe.user.test.presentation.screens.screen_contents.FlashcardLearningScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardLearningScreen
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
