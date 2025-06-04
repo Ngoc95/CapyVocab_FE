@@ -30,4 +30,5 @@ sealed class Route(
     object UserWordsScreen: Route(route = "userWordsScreen")
     object UserTestScreen: Route(route = "userTestScreen")
     object UserProfileScreen: Route(route = "userProfileScreen")
+    object UserCreatePostScreen: Route(route = "userCreatePostScreen")
 }

@@ -52,6 +52,7 @@ import java.text.SimpleDateFormat
 @Composable
 fun CommunityScreen(
     onPostComment:(Post) -> Unit,
+    onCreatePost:() -> Unit,
     viewModel: CommunityViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -104,7 +105,8 @@ fun CommunityScreen(
             onVoteClick = { post -> viewModel.onEvent(CommunityEvent.VotePost(post))},
             onImageClick = {imgURL -> selectedImage = imgURL},
             selectedPost = state.selectedPost,
-            onPostComment = {post -> onPostComment(post)}
+            onPostComment = {post -> onPostComment(post)},
+            onCreatePost = { onCreatePost() }
         )
     }
 }
@@ -118,6 +120,7 @@ fun CommunityScreenContent(
     onVoteClick: (Post) -> Unit,
     onImageClick: (String) -> Unit,
     onPostComment: (Post) -> Unit,
+    onCreatePost:() -> Unit,
     selectedPost: Post?
 )
 {
@@ -141,7 +144,7 @@ fun CommunityScreenContent(
             FloatingActionButton(
                 shape = CircleShape,
                 onClick = {
-
+                    onCreatePost()
                 },
                 containerColor = MyLightBlue,
                 contentColor = Color.White
@@ -243,7 +246,8 @@ fun CommunitycreenPreview() {
             onVoteClick = { },
             selectedPost = null,
             onImageClick = {},
-            onPostComment = {}
+            onPostComment = {},
+            onCreatePost = {}
         )
 
     }

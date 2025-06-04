@@ -54,7 +54,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -68,10 +67,7 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
-import com.example.capyvocab_fe.ui.theme.Styles.LightBlueTextStyle
-import com.example.capyvocab_fe.ui.theme.Styles.TextButtonModifier
 import com.example.capyvocab_fe.user.community.domain.model.Post
-import com.example.capyvocab_fe.user.community.presentation.components.PostCard
 import com.example.capyvocab_fe.user.community.presentation.components.ParentCommentCard
 import com.example.capyvocab_fe.user.community.presentation.components.PostThumbsGrid
 import java.text.SimpleDateFormat
@@ -148,7 +144,10 @@ fun PostScreen(
         onImageClick = {imgURL -> selectedImage = imgURL},
         onVoteClick = { post -> viewModel.onEvent(CommunityEvent.VotePost(post))},
         onCreateComment = { content -> viewModel.onEvent(CommunityEvent.CreateComment(content))},
-        onBackClick = {onBackClick()},
+        onBackClick = {
+            viewModel.onEvent(CommunityEvent.ClearScreenPost)
+            onBackClick()
+        },
         onCreateChildCmt = { comment ->
             viewModel.onEvent(CommunityEvent.OnCreateChildCommentMode(comment)) },
         onLoadChildCmt = {comment ->

@@ -28,6 +28,7 @@ import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
 import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
+import com.example.capyvocab_fe.user.community.presentation.CreatePostScreenContent
 import com.example.capyvocab_fe.user.community.presentation.PostScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
@@ -153,7 +154,11 @@ fun UserNavigator() {
                     onPostComment = { post ->
                         //communityViewModel.onEvent(CommunityEvent.LoadComments(post.id, null))
                         navController.navigate("${Route.UserPostScreen.route}/${post.id}")
+                    },
+                    onCreatePost = {
+                        navController.navigate("${Route.UserCreatePostScreen.route}")
                     }
+
                 )
             }
             //Post screen in community Screen
@@ -164,7 +169,6 @@ fun UserNavigator() {
                 val postId = backStackEntry.arguments?.getInt("postId")
 
                 LaunchedEffect(postId) {
-                    communityViewModel.onEvent(CommunityEvent.ClearScreenPost);
                     communityViewModel.onEvent(CommunityEvent.GetPostById(postId!!.toInt()))
                 }
 
@@ -176,8 +180,18 @@ fun UserNavigator() {
                         onBackClick = { navController.popBackStack() },
                     )
                 }
+            }
 
-
+            //CreatePostScreen
+            composable(
+                route = "${Route.UserCreatePostScreen.route}",
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getInt("postId")
+                CreatePostScreenContent(
+                    viewModel = communityViewModel,
+                    navController = navController,
+                    onBackClick = {navController.popBackStack()}
+                )
             }
 
             //user review screen

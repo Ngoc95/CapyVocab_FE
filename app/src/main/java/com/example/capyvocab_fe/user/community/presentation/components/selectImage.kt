@@ -1,0 +1,212 @@
+package com.example.capyvocab_fe.user.community.presentation.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.example.capyvocab_fe.ui.theme.MyLightBlue
+import com.example.capyvocab_fe.ui.theme.White
+
+@Composable
+fun SelectImage(
+    imgList: List<String>?,
+    onAddImage:() -> Unit,
+    onDeleteImage:(String) -> Unit
+){
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    )
+    {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(0.dp)
+        )
+        {
+            Button(
+                onClick = onAddImage,
+                shape = RoundedCornerShape(15.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .aspectRatio(1f)
+                    .padding(15.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.LightGray,
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Xóa",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(50.dp)
+                )
+            }
+            if (!imgList.isNullOrEmpty())
+            {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .aspectRatio(1f)
+                        .padding(15.dp),
+                )
+                {
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(15.dp)),
+                    )
+                    {
+                        AsyncImage(
+                            model = imgList[0],
+                            contentDescription = null,
+                            modifier = Modifier
+                                .background(Color.LightGray)
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .clickable { onDeleteImage(imgList[0].toString()) }
+                            .align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Xóa",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .size(22.dp) // icon nhỏ gọn
+                                .clip(CircleShape)
+                                .background(Color.LightGray)
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+            }
+            else{
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+        }
+        if(!imgList.isNullOrEmpty() && imgList.size > 1)
+        {
+            val itemsList = imgList.drop(1);
+            itemsList.chunked(2).forEach { row ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    row.forEach { item ->
+                        if(item != null) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .aspectRatio(1f)
+                                    .padding(15.dp),
+                            )
+                            {
+                                Box(
+                                    modifier = Modifier
+                                        .aspectRatio(1f)
+                                        .clip(RoundedCornerShape(15.dp)),
+                                )
+                                {
+                                    AsyncImage(
+                                        model = item,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .background(Color.LightGray)
+                                            .fillMaxSize()
+                                            .clip(RoundedCornerShape(12.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White)
+                                        .clickable { onDeleteImage(item.toString()) }
+                                        .align(Alignment.TopEnd)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = "Xóa",
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .padding(2.dp)
+                                            .size(22.dp) // icon nhỏ gọn
+                                            .clip(CircleShape)
+                                            .background(Color.LightGray)
+                                            .align(Alignment.Center)
+                                    )
+                                }
+
+
+                            }
+                        }
+                    }
+                    if (row.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SelectImagePreview() {
+
+    val imgList = emptyList<String>()
+
+    SelectImage(
+        imgList = imgList,
+        onDeleteImage = {},
+        onAddImage = {}
+    )
+}
+
