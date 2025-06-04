@@ -39,4 +39,5 @@ interface ExerciseRepository {
         commentId: Int
     ): Either<AppFailure, Unit>
     suspend fun uploadImage(uri: Uri): Either<AppFailure, String>
+    suspend fun finishQuiz(folderId: Int, quizId: Int): Either<AppFailure, Unit>
 }

@@ -89,6 +89,7 @@ class ExerciseViewModel @Inject constructor(
             is ExerciseEvent.ResetError -> _state.update { it.copy(error = null) }
             is ExerciseEvent.ResetSuccess -> _state.update { it.copy(successMessage = null) }
             is ExerciseEvent.ClearCurrentFolder -> _state.update { it.copy(currentFolder = null) }
+            is ExerciseEvent.FinishQuiz -> finishQuiz(event.folderId, event.quizId)
         }
     }
     /**
@@ -731,6 +732,27 @@ class ExerciseViewModel @Inject constructor(
             )
         }
     }
+
+    private fun finishQuiz(folderId: Int, quizId: Int) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
+            exerciseRepository.finishQuiz(folderId, quizId).fold(
+                { failure ->
+                    _state.update { it.copy(isLoading = false, error = failure) }
+                },
+                { _ ->
+                    _state.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            successMessage = "Quiz đã hoàn thành"
+                        )
+                    }
+                }
+            )
+        }
+    }
+
     fun ensureQuizExists() {
         _state.update { state ->
             val currentFolder = state.currentFolder
@@ -746,8 +768,7 @@ class ExerciseViewModel @Inject constructor(
                     val updatedFolder = currentFolder.copy(quizzes = listOf(newQuiz))
                     state.copy(
                         currentFolder = updatedFolder,
-                        currentQuiz = newQuiz,
-                        successMessage = "Đã tạo quiz mới vì folder chưa có quiz"
+                        currentQuiz = newQuiz
                     )
                 } else {
                     state
@@ -760,9 +781,5 @@ class ExerciseViewModel @Inject constructor(
 
     suspend fun uploadImage(uri: Uri): Either<AppFailure, String> {
         return exerciseRepository.uploadImage(uri)
-    }
-
-    fun clearSuccessMessage() {
-        _state.update { it.copy(successMessage = null) }
     }
 }

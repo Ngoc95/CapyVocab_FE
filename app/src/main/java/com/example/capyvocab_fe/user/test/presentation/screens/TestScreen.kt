@@ -321,7 +321,7 @@ fun TestScreenContent(
                         onLoadFolders(null, code)
                     },
                     onFolderFound = { folder ->
-                        onNavigateToDoTest() // Chuyển sang tab Làm test
+                        navController.navigate("${Route.TestDetailScreen.route}/${folder.id}")
                     }
                 )
 
@@ -493,7 +493,6 @@ fun UserInfoHeader(
                 .weight(1f)
         ) {
             InfoRow("ID", user?.username.toString())
-            InfoRow("Đã tham gia", "10 bài test")
         }
     }
 }

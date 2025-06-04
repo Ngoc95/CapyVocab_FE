@@ -83,4 +83,10 @@ interface ExerciseApi {
         @Part("type") type: RequestBody,
         @Part images: MultipartBody.Part
     ): ImageUploadResponse
+
+    @PATCH("exercise/{id}/quiz/{quizId}/finish")
+    suspend fun finishQuiz(
+        @Path("id") id: Int,
+        @Path("quizId") quizId: Int
+    ): ApiResponse<Any>
 }

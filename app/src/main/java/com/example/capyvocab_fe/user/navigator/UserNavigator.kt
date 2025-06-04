@@ -275,13 +275,7 @@ fun UserNavigator() {
                             navController.popBackStack()
                         },
                         onVoteClick = { exerciseViewModel.onEvent(ExerciseEvent.VoteFolder(folder.id)) },
-                        onUnVoteClick = {
-                            exerciseViewModel.onEvent(
-                                ExerciseEvent.UnvoteFolder(
-                                    folder.id
-                                )
-                            )
-                        },
+                        onUnVoteClick = { exerciseViewModel.onEvent(ExerciseEvent.UnvoteFolder(folder.id)) },
                         navController = navController
                     )
                 }

@@ -148,12 +148,12 @@ fun TestFolderCard(
                     color = Color.Black,
                 )
                 Spacer(modifier = Modifier.weight(1f))
-//                // participants
-//                Text(
-//                    text = "Lượt tham gia: 200",
-//                    fontSize = 14.sp,
-//                    color = Color.Black,
-//                )
+                // participants
+                Text(
+                    text = "Lượt tham gia: ${folder.totalAttemptCount}",
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -216,6 +216,7 @@ private fun TestFolderCardPreview() {
         createdBy = null,
         voteCount = 10,
         commentCount = 5,
+        totalAttemptCount = 100,
         isAlreadyVote = false,
         quizzes = null,
         flashCards = null,

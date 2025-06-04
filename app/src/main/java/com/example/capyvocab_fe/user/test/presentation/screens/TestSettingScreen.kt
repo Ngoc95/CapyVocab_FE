@@ -139,6 +139,7 @@ private fun FolderSettingScreenPreview() {
                 createdBy = null,
                 voteCount = 0,
                 commentCount = 0,
+                totalAttemptCount = 10,
                 isAlreadyVote = false,
                 quizzes = null,
                 flashCards = null,
