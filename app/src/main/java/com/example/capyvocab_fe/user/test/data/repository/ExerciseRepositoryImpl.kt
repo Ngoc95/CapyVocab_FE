@@ -132,4 +132,14 @@ class ExerciseRepositoryImpl @Inject constructor(
                 ?: throw IOException("Không nhận được URL ảnh")
         }.mapLeft { it.toAppFailure() }
     }
+
+    override suspend fun finishQuiz(
+        folderId: Int,
+        quizId: Int
+    ): Either<AppFailure, Unit> {
+        return Either.catch {
+            api.finishQuiz(folderId, quizId)
+            Unit
+        }.mapLeft { it.toAppFailure() }
+    }
 }

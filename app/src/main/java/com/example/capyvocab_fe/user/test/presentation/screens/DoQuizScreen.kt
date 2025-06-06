@@ -530,6 +530,7 @@ fun DoQuizScreen(
             confirmButton = {
                 Button(
                     onClick = {
+                        onEvent(ExerciseEvent.FinishQuiz(folderId, quizId))
                         navController.popBackStack()
                     }
                 ) {

@@ -182,12 +182,6 @@ fun TestDetailScreen(
                 text = "Nhận xét",
                 onClick = { navController.navigate("${Route.CommentScreen.route}/${folder.id}") }
             )
-
-            ActionButton(
-                icon = R.drawable.ic_report,
-                text = "Báo cáo vi phạm",
-                onClick = { /* TODO: Handle report */ }
-            )
         }
     }
 }
@@ -268,6 +262,7 @@ private fun TestDetailContentPreview() {
         createdBy = null,
         voteCount = 10,
         commentCount = 5,
+        totalAttemptCount = 10,
         isAlreadyVote = false,
         quizzes = null,
         flashCards = null,

@@ -29,6 +29,7 @@ sealed class ExerciseEvent {
     data class UpdateComment(val folderId: Int, val commentId: Int, val content: String) : ExerciseEvent()
     data class DeleteComment(val folderId: Int, val commentId: Int) : ExerciseEvent()
 
+    data class FinishQuiz(val folderId: Int, val quizId: Int): ExerciseEvent()
     data class UpdateQuiz(val quizId: Int, val title: String, val questions: List<Question>) : ExerciseEvent()
     data class AddQuestionToQuiz(val quizId: Int, val question: Question) : ExerciseEvent()
     data class UpdateQuestionInQuiz(val quizId: Int, val questionIndex: Int, val question: Question) : ExerciseEvent()

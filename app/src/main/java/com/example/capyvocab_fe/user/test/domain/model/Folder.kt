@@ -11,6 +11,7 @@ data class Folder(
     val createdBy: User?,
     val voteCount: Int,
     val commentCount: Int,
+    val totalAttemptCount: Int,
     val isAlreadyVote: Boolean,
     val quizzes: List<Quiz>? = emptyList(),
     val flashCards: List<FlashCard>? = emptyList(),
