@@ -58,10 +58,11 @@ class AdminTopicRepositoryImpl @Inject constructor(
 
     override suspend fun getTopicWords(
         id: Int,
-        page: Int
+        page: Int,
+        content: String?
     ): Either<AppFailure, List<Word>> {
         return Either.catch {
-            api.getTopicWords(id, page).metaData.words
+            api.getTopicWords(id, page, content = content).metaData.words
         }.mapLeft { it.toAppFailure() }
     }
 

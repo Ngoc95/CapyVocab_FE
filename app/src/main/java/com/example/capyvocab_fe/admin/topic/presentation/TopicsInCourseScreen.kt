@@ -91,6 +91,17 @@ fun TopicsInCourseScreen(
     LaunchedEffect(course) {
         viewModel.onEvent(TopicEvent.LoadTopics(course))
     }
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(TopicEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(TopicEvent.OnSearch)
+        }
+    }
+
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
         multiSelectTransition.value = state.isMultiSelecting
@@ -155,7 +166,9 @@ fun TopicsInCourseScreen(
             },
             onTopicSelectToggle = { topic ->
                 viewModel.onEvent(TopicEvent.OnTopicSelectToggle(topic.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 
@@ -215,7 +228,9 @@ fun TopicsInCourseScreenContent(
     onEditTopic: (Topic) -> Unit,
     onLoadMore: () -> Unit,
     onTopicLongPress: (Topic) -> Unit,
-    onTopicSelectToggle: (Topic) -> Unit
+    onTopicSelectToggle: (Topic) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -253,11 +268,9 @@ fun TopicsInCourseScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm chủ đề") },
                         shape = RoundedCornerShape(30.dp),
@@ -382,7 +395,9 @@ fun TopicsInCourseScreenPreview() {
             isLoading = false,
             isEndReached = false,
             successMessage = "",
-            selectedTopics = emptyList()
+            selectedTopics = emptyList(),
+            searchBarText = "",
+            onSearchBarTextChange = {}
         )
     }
 }

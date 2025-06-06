@@ -84,9 +84,6 @@ fun TopicScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.onEvent(TopicEvent.LoadAllTopics)
-    }
     var searchBarText by remember { mutableStateOf(state.searchQuery) }
     LaunchedEffect(searchBarText) {
         delay(400)
@@ -96,6 +93,11 @@ fun TopicScreen(
         if (!state.isMultiSelecting) {
             viewModel.onEvent(TopicEvent.OnSearch)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(TopicEvent.LoadAllTopics)
+        searchBarText = ""
     }
 
     //launchEffect to track transition to multi-select mode

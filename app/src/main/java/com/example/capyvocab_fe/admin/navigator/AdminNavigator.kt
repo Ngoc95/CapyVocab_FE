@@ -118,7 +118,7 @@ fun AdminNavigator() {
         currentRoute == Route.TopicsScreen.route -> "Chủ đề"
         currentRoute == Route.WordsScreen.route -> "Từ vựng"
         currentRoute == Route.UsersScreen.route -> "Người dùng"
-        currentRoute == Route.SettingScreen.route -> "Cài đặt"
+        currentRoute == Route.ProfileScreen.route -> "Hồ sơ"
         currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
             courseListState.selectedCourse?.title ?: "Chủ đề"
 
@@ -193,7 +193,7 @@ fun AdminNavigator() {
         ),
         DrawerNavigationItem(
             title = "Hồ sơ",
-            route = Route.SettingScreen.route,
+            route = Route.ProfileScreen.route,
             iconRes = com.example.capyvocab_fe.R.drawable.user_profile,
             selectedIconRes = com.example.capyvocab_fe.R.drawable.ic_selected_profile
         )
@@ -392,7 +392,7 @@ fun AdminNavigator() {
                     }
 
                     // Setting screen
-                    composable(route = Route.SettingScreen.route) {
+                    composable(route = Route.ProfileScreen.route) {
                         // TODO: Setting screen content here
                     }
                 }
@@ -431,7 +431,7 @@ private fun navigateToTab(navController: NavController, route: String) {
         route == Route.TopicsScreen.route ||
         route == Route.WordsScreen.route ||
         route == Route.UsersScreen.route ||
-        route == Route.SettingScreen.route
+        route == Route.ProfileScreen.route
     ) {
         navController.navigate(route) {
             navController.graph.startDestinationRoute?.let { route ->

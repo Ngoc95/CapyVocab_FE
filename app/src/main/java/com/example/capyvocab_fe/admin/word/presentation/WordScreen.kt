@@ -83,9 +83,6 @@ fun WordScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.onEvent(WordEvent.LoadAllWords)
-    }
     var searchBarText by remember { mutableStateOf(state.searchQuery) }
     LaunchedEffect(searchBarText) {
         delay(400)
@@ -95,6 +92,11 @@ fun WordScreen(
         if (!state.isMultiSelecting) {
             viewModel.onEvent(WordEvent.OnSearch)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(WordEvent.LoadAllWords)
+        searchBarText = ""
     }
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {

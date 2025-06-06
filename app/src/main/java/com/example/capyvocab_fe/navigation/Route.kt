@@ -17,7 +17,7 @@ sealed class Route(
     object TopicsScreen: Route(route = "topicsScreen")
     object WordsScreen: Route(route = "wordsScreen")
     object UsersScreen : Route(route = "usersScreen")
-    object SettingScreen : Route(route = "settingScreen")
+    object ProfileScreen : Route(route = "profileScreen")
 
     //user navigator
     object UserNavigation : Route(route = "userNavigation")

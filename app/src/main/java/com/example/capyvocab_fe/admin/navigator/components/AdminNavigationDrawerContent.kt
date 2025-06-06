@@ -193,7 +193,7 @@ fun AdminNavigationDrawerPreview() {
                     ),
                     DrawerNavigationItem(
                         title = "Hồ sơ",
-                        route = Route.SettingScreen.route,
+                        route = Route.ProfileScreen.route,
                         iconRes = R.drawable.user_profile,
                         selectedIconRes = R.drawable.ic_selected_profile
                     )

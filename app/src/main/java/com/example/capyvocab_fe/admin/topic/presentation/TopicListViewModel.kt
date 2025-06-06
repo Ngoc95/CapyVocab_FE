@@ -31,9 +31,9 @@ class TopicListViewModel @Inject constructor(
     fun onEvent(event: TopicEvent) {
         when (event) {
             is TopicEvent.LoadAllTopics -> loadAllTopics()
-            is TopicEvent.LoadMoreAllTopics -> loadAllTopics(loadMore = true)
+            is TopicEvent.LoadMoreAllTopics -> loadAllTopics(loadMore = true, query = state.value.searchQuery)
             is TopicEvent.LoadTopics -> loadTopics(event.course)
-            is TopicEvent.LoadMoreTopics -> loadTopics(event.course, loadMore = true)
+            is TopicEvent.LoadMoreTopics -> loadTopics(event.course, loadMore = true, query = state.value.searchQuery)
             is TopicEvent.DeleteTopic -> deleteTopic(event.topicId)
 
             is TopicEvent.UpdateTopic -> updateTopic(event.topic, event.thumbnailUri)
@@ -49,7 +49,16 @@ class TopicListViewModel @Inject constructor(
             is TopicEvent.OnSelectAllToggle -> selectAll()
             is TopicEvent.OnTopicLongPress -> startMultiSelect(event.topicId)
             is TopicEvent.OnTopicSelectToggle -> toggleTopicSelection(event.topicId)
-            is TopicEvent.OnSearch -> loadAllTopics(query = state.value.searchQuery)
+            is TopicEvent.OnSearch -> {
+                val query = state.value.searchQuery
+                val currentCourse = state.value.currentCourse
+                if (currentCourse != null) {
+                    loadTopics(currentCourse, query = query)
+                } else {
+                    loadAllTopics(query = query)
+                }
+            }
+
             is TopicEvent.OnSearchQueryChange -> { _state.update { it.copy(searchQuery = event.query) }}
         }
     }
@@ -151,11 +160,12 @@ class TopicListViewModel @Inject constructor(
         }
     }
 
-    private fun loadTopics(course: Course, loadMore: Boolean = false) {
+    private fun loadTopics(course: Course, loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "", currentCourse = course) }
-            courseRepository.getCourseTopics(course.id, nextPage)
+
+            courseRepository.getCourseTopics(course.id, nextPage, title = if (query?.isNotEmpty() == true) query else null)
                 .onRight { newTopics ->
                     _state.update {
                         val allTopics = if (loadMore) it.topics + newTopics else newTopics

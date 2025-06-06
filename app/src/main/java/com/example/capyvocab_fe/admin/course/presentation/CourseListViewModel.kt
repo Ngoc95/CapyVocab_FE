@@ -25,7 +25,7 @@ class CourseListViewModel @Inject constructor(
     fun onEvent(event: CourseEvent) {
         when (event) {
             is CourseEvent.LoadCourses -> loadCourses()
-            is CourseEvent.LoadMoreCourses -> loadCourses(loadMore = true)
+            is CourseEvent.LoadMoreCourses -> loadCourses(loadMore = true, query = state.value.searchQuery)
             is CourseEvent.SaveCourse -> saveCourse(course = event.course)
             is CourseEvent.DeleteCourse -> deleteCourse(event.courseId)
             is CourseEvent.OnDeleteSelectedCourses -> deleteSelectedCourses()

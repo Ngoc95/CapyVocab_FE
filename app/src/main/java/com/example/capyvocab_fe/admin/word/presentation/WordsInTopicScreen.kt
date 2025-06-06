@@ -86,8 +86,20 @@ fun WordsInTopicScreen(
         remember { mutableStateOf(false) }
     }
 
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(WordEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(WordEvent.OnSearch)
+        }
+    }
+
     LaunchedEffect(topic.id) {
         viewModel.onEvent(WordEvent.LoadWords(topic))
+        searchBarText = ""
     }
 
     //launchEffect to track transition to multi-select mode
@@ -152,7 +164,9 @@ fun WordsInTopicScreen(
             },
             onWordSelectToggle = { word ->
                 viewModel.onEvent(WordEvent.OnWordSelectToggle(word.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 
@@ -211,7 +225,9 @@ fun WordsInTopicScreenContent(
     onAddWord: () -> Unit,
     onLoadMore: () -> Unit,
     onWordLongPress: (Word) -> Unit,
-    onWordSelectToggle: (Word) -> Unit
+    onWordSelectToggle: (Word) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -249,11 +265,9 @@ fun WordsInTopicScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm từ vựng") },
                         shape = RoundedCornerShape(30.dp),
@@ -385,7 +399,9 @@ fun WordListScreenContentPreview() {
         selectedWords = emptyList(),
         isMultiSelectMode = false,
         isEndReached = false,
-        successMessage = ""
+        successMessage = "",
+        searchBarText = "",
+        onSearchBarTextChange = {}
     )
 }
 

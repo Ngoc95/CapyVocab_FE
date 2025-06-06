@@ -28,6 +28,7 @@ interface AdminCourseApi {
         @Path("id") id: Int,
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("title") title: String? = null
     ): ApiResponse<CourseTopicsResponse>
 
     @POST("/courses")

@@ -30,9 +30,9 @@ class WordListViewModel @Inject constructor(
     fun onEvent(event: WordEvent) {
         when (event) {
             is WordEvent.LoadAllWords -> loadAllWords()
-            is WordEvent.LoadMoreAllWords -> loadAllWords(loadMore = true)
+            is WordEvent.LoadMoreAllWords -> loadAllWords(loadMore = true, query = state.value.searchQuery)
             is WordEvent.LoadWords -> loadWords(event.topic)
-            is WordEvent.LoadMoreWords -> loadWords(event.topic, loadMore = true)
+            is WordEvent.LoadMoreWords -> loadWords(event.topic, loadMore = true, query = state.value.searchQuery)
             is WordEvent.UpdateWord -> updateWord(event.word, event.imageUri, event.audioUri)
             is WordEvent.DeleteWord -> deleteWord(event.wordId)
             is WordEvent.CreateWord -> createWord(event.topicId, event.word, event.imageUri, event.audioUri)
@@ -41,7 +41,14 @@ class WordListViewModel @Inject constructor(
             is WordEvent.OnSelectAllToggle -> selectAll()
             is WordEvent.OnWordLongPress -> startMultiSelect(event.wordId)
             is WordEvent.OnWordSelectToggle -> toggleWordSelection(event.wordId)
-            is WordEvent.OnSearch -> loadAllWords(query = state.value.searchQuery)
+            is WordEvent.OnSearch -> {
+                if (state.value.currentTopic != null) {
+                    loadWords(state.value.currentTopic!!, query = state.value.searchQuery)
+                } else {
+                    loadAllWords(query = state.value.searchQuery)
+                }
+            }
+
             is WordEvent.OnSearchQueryChange -> { _state.update { it.copy(searchQuery = event.query) }}
         }
     }
@@ -74,32 +81,34 @@ class WordListViewModel @Inject constructor(
         }
     }
 
-    private fun loadWords(topic: Topic, loadMore: Boolean = false) {
+    private fun loadWords(topic: Topic, loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
 
-            _state.update { it.copy(isLoading = false, errorMessage = "", currentTopic = topic) }
+            _state.update { it.copy(isLoading = true, errorMessage = "", currentTopic = topic) }
 
-            topicRepository.getTopicWords(topic.id, nextPage)
-                .onRight { newWords ->
-                    _state.update {
-                        val allWords = if (loadMore) state.value.words + newWords else newWords
-                        it.copy(
-                            isLoading = false,
-                            words = allWords,
-                            currentPage = nextPage,
-                            isEndReached = newWords.isEmpty()
-                        )
-                    }
+            topicRepository.getTopicWords(
+                id = topic.id,
+                page = nextPage,
+                content = if (query?.isNotEmpty() == true) query else null
+            ).onRight { newWords ->
+                _state.update {
+                    val allWords = if (loadMore) it.words + newWords else newWords
+                    it.copy(
+                        isLoading = false,
+                        words = allWords,
+                        currentPage = nextPage,
+                        isEndReached = newWords.isEmpty()
+                    )
                 }
-                .onLeft { failure ->
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = failure.message ?: "failed to load words"
-                        )
-                    }
+            }.onLeft { failure ->
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = failure.message ?: "failed to load words"
+                    )
                 }
+            }
         }
     }
 

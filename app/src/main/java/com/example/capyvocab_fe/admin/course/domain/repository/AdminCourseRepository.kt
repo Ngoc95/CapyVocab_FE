@@ -10,7 +10,7 @@ import com.example.capyvocab_fe.core.error.AppFailure
 interface AdminCourseRepository {
     suspend fun getAllCourses(page: Int = 1, title: String? = null): Either<AppFailure, List<Course>>
 
-    suspend fun getCourseTopics(id: Int, page: Int): Either<AppFailure, List<Topic>>
+    suspend fun getCourseTopics(courseId: Int, page: Int, title: String? = null): Either<AppFailure, List<Topic>>
 
     suspend fun createCourse(courseRequest: CreateCourseRequest): Either<AppFailure, Course>
 

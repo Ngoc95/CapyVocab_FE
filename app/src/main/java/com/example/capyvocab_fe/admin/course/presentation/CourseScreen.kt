@@ -87,9 +87,6 @@ fun CourseScreen(
         remember { mutableStateOf(false) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.onEvent(CourseEvent.LoadCourses)
-    }
     var searchBarText by remember { mutableStateOf(state.searchQuery) }
     LaunchedEffect(searchBarText) {
         delay(400)
@@ -100,6 +97,12 @@ fun CourseScreen(
             viewModel.onEvent(CourseEvent.OnSearch)
         }
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(CourseEvent.LoadCourses)
+        searchBarText = ""
+    }
+
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
         multiSelectTransition.value = state.isMultiSelecting
