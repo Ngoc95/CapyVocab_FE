@@ -39,9 +39,9 @@ import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseCard
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import kotlinx.coroutines.delay
 
 @Composable
@@ -110,18 +110,7 @@ fun CoursesScreenContent(
 
         Column(modifier = Modifier.fillMaxSize()) {
             // Top bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-
-                    .background(
-                        color = Color.Transparent
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                    TopBarTitle("Khóa học")
-            }
+            UserTopBar()
 
             // Search bar
             Row(

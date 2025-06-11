@@ -24,6 +24,7 @@ interface AdminTopicApi {
     suspend fun getAllTopic(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("title") title: String? = null
     ): ApiResponse<TopicListResponse>
 
     @POST("/topics")
@@ -40,6 +41,7 @@ interface AdminTopicApi {
         @Path("id") id: Int,
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("content") content: String? = null
     ): ApiResponse<TopicWordsResponse>
 
     @DELETE("/topics/{id}")

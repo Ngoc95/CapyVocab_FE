@@ -16,6 +16,14 @@ import com.example.capyvocab_fe.user.learn.data.repository.UserLearnRepositoryIm
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
 import com.example.capyvocab_fe.user.profile.data.repository.UserProfileRepositoryImpl
 import com.example.capyvocab_fe.user.profile.domain.repository.UserProfileRepository
+import com.example.capyvocab_fe.user.payment.data.repository.PaymentRepositoryImpl
+import com.example.capyvocab_fe.user.payment.domain.repository.PaymentRepository
+import com.example.capyvocab_fe.payout.data.repository.PayoutRepositoryImpl
+import com.example.capyvocab_fe.payout.domain.repository.PayoutRepository
+import com.example.capyvocab_fe.user.test.data.repository.ExerciseRepositoryImpl
+import com.example.capyvocab_fe.user.test.domain.repository.ExerciseRepository
+import com.example.capyvocab_fe.user.review.data.repository.UserReviewRepositoryImpl
+import com.example.capyvocab_fe.user.review.domain.repository.UserReviewRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -59,4 +67,20 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserProfileRepository(impl: UserProfileRepositoryImpl): UserProfileRepository
+  
+    @Binds
+    @Singleton
+    abstract fun bindUserExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPaymentRepository(impl: PaymentRepositoryImpl): PaymentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPayoutRepository(impl: PayoutRepositoryImpl): PayoutRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserReviewRepository(impl: UserReviewRepositoryImpl): UserReviewRepository
 }

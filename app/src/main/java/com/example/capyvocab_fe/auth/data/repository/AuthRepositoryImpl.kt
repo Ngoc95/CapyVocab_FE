@@ -1,10 +1,15 @@
 package com.example.capyvocab_fe.auth.data.repository
 
 import arrow.core.Either
+import arrow.core.flatMap
 import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
 import com.example.capyvocab_fe.auth.data.mapper.toDomain
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
+import com.example.capyvocab_fe.auth.data.remote.model.GetAccountResponse
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
+import com.example.capyvocab_fe.auth.data.remote.model.RegisterRequest
+import com.example.capyvocab_fe.auth.domain.error.ApiError
+import com.example.capyvocab_fe.auth.data.remote.model.UserData
 import com.example.capyvocab_fe.auth.domain.error.AuthFailure
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
@@ -39,7 +44,12 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserInfo(): Either<AuthFailure, User?> {
-        TODO("Not yet implemented")
+        return Either.catch {
+            val response = authApi.getUserInfo()
+            response.metaData.user
+        }.mapLeft {
+            it.toAuthFailure()
+        }
     }
 
     override suspend fun register(
@@ -47,6 +57,61 @@ class AuthRepositoryImpl @Inject constructor(
         username: String,
         password: String,
     ): Either<AuthFailure, User> {
-        TODO("Not yet implemented")
+        return Either.catch {
+            val request = RegisterRequest(
+                email = email,
+                username = username,
+                password = password
+            )
+            val response = authApi.register(request)
+            tokenManager.saveTokens(
+                accessToken = response.metaData.accessToken,
+                refreshToken = response.metaData.refreshToken
+            )
+            authApi.getUserInfo().metaData.user
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
+    override suspend fun refreshToken(refreshToken: String): Either<AuthFailure, Pair<String, String>> {
+        return Either.catch {
+            authApi.refreshToken(mapOf("refreshToken" to refreshToken))
+        }.mapLeft {
+            it.toAuthFailure()
+        }.flatMap { response ->
+            val accessToken = response.metaData["accessToken"]
+            val newRefreshToken = response.metaData["refreshToken"]
+
+            if (accessToken != null && newRefreshToken != null) {
+                Either.Right(Pair(accessToken, newRefreshToken))
+            } else {
+                Either.Left(
+                    AuthFailure(
+                        error = ApiError.UnknownResponse,
+                        message = "Missing access or refresh token"
+                    )
+                )
+            }
+
+        }
+    }
+
+    override suspend fun sendVerificationEmail(): Either<AuthFailure, Unit> {
+        return Either.catch {
+            authApi.sendVerificationEmail()
+            Unit
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
+    override suspend fun verifyEmail(code: Int): Either<AuthFailure, Unit> {
+        return Either.catch {
+            authApi.verifyEmail(mapOf("code" to code))
+            Unit
+        }.mapLeft {
+            it.toAuthFailure()
+        }
     }
 }

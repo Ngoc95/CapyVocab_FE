@@ -53,7 +53,9 @@ import com.example.capyvocab_fe.admin.user.presentation.components.UserCard
 import com.example.capyvocab_fe.admin.user.presentation.components.UserFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
@@ -70,6 +72,7 @@ fun UserScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -78,6 +81,16 @@ fun UserScreen(
     }
     LaunchedEffect(Unit) {
         onEvent(UserListEvent.LoadUsers)
+    }
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            onEvent(UserListEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            onEvent(UserListEvent.OnSearch)
+        }
     }
 
     //launchEffect to track transition to multi-select mode
@@ -115,6 +128,13 @@ fun UserScreen(
             selectedUser = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
 
     // Giao diện chính
     FocusComponent {
@@ -122,6 +142,7 @@ fun UserScreen(
             users = state.users,
             selectedUsers = state.users.filter { state.selectedUsers.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
+            successMessage = visibleSuccess,
             onUserExpandToggle = { /* handle if needed */ },
             onEditUser = { user ->
                 selectedUser = user
@@ -136,6 +157,8 @@ fun UserScreen(
             onLoadMore = { onEvent(UserListEvent.LoadMoreUsers) },
             onUserLongPress = { user -> onEvent(UserListEvent.OnUserLongPress(user.id)) },
             onUserSelectToggle = { user -> onEvent(UserListEvent.OnUserSelectToggle(user.id)) },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 
@@ -191,6 +214,7 @@ fun UserScreenContent(
     modifier: Modifier = Modifier,
     users: List<User>,
     selectedUsers: List<User>,
+    successMessage: String,
     isMultiSelectMode: Boolean,
     onUserExpandToggle: (User) -> Unit,
     onEditUser: (User) -> Unit,
@@ -200,6 +224,8 @@ fun UserScreenContent(
     onLoadMore: () -> Unit,
     onUserLongPress: (User) -> Unit,
     onUserSelectToggle: (User) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -237,11 +263,9 @@ fun UserScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm người dùng") },
                         shape = RoundedCornerShape(30.dp),
@@ -345,7 +369,7 @@ fun UserScreenContent(
                     }
                 }
             }
-
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }

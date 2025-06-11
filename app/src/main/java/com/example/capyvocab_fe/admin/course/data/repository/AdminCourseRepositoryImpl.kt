@@ -14,16 +14,16 @@ import javax.inject.Inject
 class AdminCourseRepositoryImpl @Inject constructor(
     private val api: AdminCourseApi
 ) : AdminCourseRepository {
-    override suspend fun getAllCourses(page: Int): Either<AppFailure, List<Course>> {
+    override suspend fun getAllCourses(page: Int, title: String?): Either<AppFailure, List<Course>> {
         return Either.catch {
-            val response = api.getAllCourses(page)
+            val response = api.getAllCourses(page, title = title)
             response.metaData.courses
         }.mapLeft { it.toAppFailure() }
     }
 
-    override suspend fun getCourseTopics(id: Int, page: Int): Either<AppFailure, List<Topic>> {
+    override suspend fun getCourseTopics(id: Int, page: Int, title: String?): Either<AppFailure, List<Topic>> {
         return Either.catch {
-            val response = api.getCourseTopics(id, page)
+            val response = api.getCourseTopics(id, page, title = title)
             response.metaData.topics
         }.mapLeft { it.toAppFailure() }
     }

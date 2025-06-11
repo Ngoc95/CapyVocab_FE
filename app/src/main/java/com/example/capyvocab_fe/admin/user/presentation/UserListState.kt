@@ -10,7 +10,9 @@ data class UserListState(
     val isMultiSelecting: Boolean = false,
     val isSelectAll: Boolean = false,
     val errorMessage: String = "",
+    val successMessage: String = "",
     val selectedAvatarUri: Uri? = null,
     val currentPage: Int = 1,
-    val isEndReached: Boolean = false
+    val isEndReached: Boolean = false,
+    val searchQuery: String = ""
 )

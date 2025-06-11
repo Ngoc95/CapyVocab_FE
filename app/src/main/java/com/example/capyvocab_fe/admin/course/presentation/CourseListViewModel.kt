@@ -25,7 +25,7 @@ class CourseListViewModel @Inject constructor(
     fun onEvent(event: CourseEvent) {
         when (event) {
             is CourseEvent.LoadCourses -> loadCourses()
-            is CourseEvent.LoadMoreCourses -> loadCourses(loadMore = true)
+            is CourseEvent.LoadMoreCourses -> loadCourses(loadMore = true, query = state.value.searchQuery)
             is CourseEvent.SaveCourse -> saveCourse(course = event.course)
             is CourseEvent.DeleteCourse -> deleteCourse(event.courseId)
             is CourseEvent.OnDeleteSelectedCourses -> deleteSelectedCourses()
@@ -34,6 +34,8 @@ class CourseListViewModel @Inject constructor(
             is CourseEvent.OnSelectAllToggle -> selectAll()
             is CourseEvent.CancelMultiSelect -> cancelMultiSelect()
             is CourseEvent.GetCourseById -> getCourseById(event.courseId)
+            is CourseEvent.OnSearch -> loadCourses(query = state.value.searchQuery)
+            is CourseEvent.OnSearchQueryChange -> {_state.update { it.copy(searchQuery = event.query) }}
         }
     }
 
@@ -60,11 +62,11 @@ class CourseListViewModel @Inject constructor(
         }
     }
 
-    private fun loadCourses(loadMore: Boolean = false) {
+    private fun loadCourses(loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-            courseRepository.getAllCourses(nextPage)
+            courseRepository.getAllCourses(nextPage, title = if (query?.isNotEmpty() == true) query else null)
                 .onRight { newCourses ->
                     _state.update {
                         val allCourses = if (loadMore) it.courses + newCourses else newCourses
@@ -128,6 +130,7 @@ class CourseListViewModel @Inject constructor(
                         currentState.copy(
                             isLoading = false,
                             errorMessage = "",
+                            successMessage = "Lưu khóa học thành công",
                             courses = updatedCourses
                         )
                     }
@@ -136,7 +139,8 @@ class CourseListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "Lỗi khi lưu khóa học"
+                            errorMessage = failure.message ?: "Lỗi khi lưu khóa học",
+                            successMessage = ""
                         )
                     }
                 }
@@ -154,7 +158,9 @@ class CourseListViewModel @Inject constructor(
                         val updatedList = currentState.courses.filterNot { it.id == courseId }
                         currentState.copy(
                             courses = updatedList,
-                            isLoading = false
+                            isLoading = false,
+                            errorMessage = "",
+                            successMessage = "Xoá khóa học thành công"
                         )
                     }
                 }
@@ -162,7 +168,8 @@ class CourseListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "Xoá khóa học thất bại"
+                            errorMessage = failure.message ?: "Xoá khóa học thất bại",
+                            successMessage = ""
                         )
                     }
                 }

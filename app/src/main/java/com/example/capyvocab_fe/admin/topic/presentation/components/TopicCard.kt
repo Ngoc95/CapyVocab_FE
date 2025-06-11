@@ -36,10 +36,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.core.ui.components.Badge
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
@@ -143,13 +149,21 @@ fun TopicCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         AsyncImage(
-                            model = topic.thumbnail,
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(topic.thumbnail)
+                                .crossfade(true)
+                                .diskCachePolicy(CachePolicy.ENABLED)
+                                .memoryCachePolicy(CachePolicy.ENABLED)
+                                .size(300) // Hoặc kích thước phù hợp, ví dụ: 300px
+                                .build(),
+                            placeholder = painterResource(R.drawable.placeholder_img),
                             contentDescription = null,
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(90.dp)
                                 .clip(CircleShape)
-                                .background(Color.White)
                         )
+
 
                         Spacer(modifier = Modifier.width(16.dp))
 
@@ -166,21 +180,21 @@ fun TopicCard(
                                     color = Color(0xFF413B38),
                                     modifier = Modifier.weight(1f, fill = false),
                                 )
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                if (topic.type == "Free")
-                                    Badge(
-                                        text = topic.type,
-                                        textColor = Color(0xFF125C00),
-                                        backgroundColor = Color(0xFF00FF00)
-                                    )
-                                else if (topic.type == "Premium")
-                                    Badge(
-                                        text = topic.type,
-                                        textColor = Color(0xFFDF1E71),
-                                        backgroundColor = Color(0xFFFFE0F0)
-                                    )
+//
+//                                Spacer(modifier = Modifier.width(8.dp))
+//
+//                                if (topic.type == "Free")
+//                                    Badge(
+//                                        text = topic.type,
+//                                        textColor = Color(0xFF125C00),
+//                                        backgroundColor = Color(0xFF00FF00)
+//                                    )
+//                                else if (topic.type == "Premium")
+//                                    Badge(
+//                                        text = topic.type,
+//                                        textColor = Color(0xFFDF1E71),
+//                                        backgroundColor = Color(0xFFFFE0F0)
+//                                    )
                             }
 
                             topic.description?.let {

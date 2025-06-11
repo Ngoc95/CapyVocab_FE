@@ -1,9 +1,11 @@
 package com.example.capyvocab_fe.user.navigator
 
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +39,7 @@ import com.example.capyvocab_fe.user.community.presentation.OwnerPostScreenConte
 import com.example.capyvocab_fe.user.community.presentation.PostScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
+import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
@@ -47,7 +50,22 @@ import com.example.capyvocab_fe.user.profile.presentation.ProfileScreen
 import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreen
 import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreenContent
 import com.example.capyvocab_fe.user.profile.presentation.ProfileViewModel
+import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
+import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
+import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.DoQuizScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.EditQuestionScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.TestDetailScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.TestSettingScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardLearningScreen
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
+@SuppressLint("StateFlowValueCalledInComposition")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserNavigator() {
     val bottomNavigationItems = remember {
@@ -74,7 +92,7 @@ fun UserNavigator() {
             ),
             BottomNavigationItem(
                 icon = R.drawable.user_profile,
-                selectedIcon = R.drawable.user_selected_profile ,
+                selectedIcon = R.drawable.user_selected_profile,
                 text = "Hồ sơ"
             ),
         )
@@ -95,7 +113,12 @@ fun UserNavigator() {
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val profileState by profileViewModel.state.collectAsState()
 
-    selectedItem = when(backStackState?.destination?.route) {
+    val exerciseViewModel: ExerciseViewModel = hiltViewModel()
+    val exerciseState by exerciseViewModel.state.collectAsState()
+    val reviewViewModel: ReviewViewModel = hiltViewModel()
+    val reviewState = reviewViewModel.state
+
+    selectedItem = when (backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
         Route.UserReviewScreen.route -> 1
         Route.UserLearnScreen.route -> 2
@@ -105,14 +128,17 @@ fun UserNavigator() {
     }
 
     //hide navbar when in topic, word
-    val isBottomVisible = remember(backStackState) {
-        backStackState?.destination?.route == Route.UserCommunityScreen.route ||
-                backStackState?.destination?.route == Route.UserReviewScreen.route ||
-                backStackState?.destination?.route == Route.UserLearnScreen.route ||
-                backStackState?.destination?.route == Route.UserTestScreen.route ||
-                backStackState?.destination?.route == Route.UserProfileScreen.route
-    }
+    val isBottomVisible = remember(backStackState, reviewState.hasStarted) {
+        when (backStackState?.destination?.route) {
+            Route.UserReviewScreen.route -> !reviewState.hasStarted // ẩn nếu đang ôn tập
+            Route.UserCommunityScreen.route,
+            Route.UserLearnScreen.route,
+            Route.UserTestScreen.route,
+            Route.UserProfileScreen.route -> true
 
+            else -> false
+        }
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -123,23 +149,27 @@ fun UserNavigator() {
                     onItemClick = { index ->
                         if (index == selectedItem) return@UserBottomNavigation
                         selectedItem = index
-                        when(index) {
+                        when (index) {
                             0 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserCommunityScreen.route
                             )
+
                             1 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserReviewScreen.route
                             )
+
                             2 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserLearnScreen.route
                             )
+
                             3 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserTestScreen.route
                             )
+
                             4 -> navigateToTab(
                                 navController = navController,
                                 route = Route.UserProfileScreen.route
@@ -283,7 +313,10 @@ fun UserNavigator() {
 
             //user review screen
             composable(route = Route.UserReviewScreen.route) {
-                //TODO: navigate to user learn screen
+                ReviewScreen(
+                    viewModel = reviewViewModel,
+                    navController = navController
+                )
             }
             //user course screen
             composable(route = Route.UserLearnScreen.route) {
@@ -335,7 +368,10 @@ fun UserNavigator() {
                         topic = topic,
                         viewModel = learnViewModel,
                         onComplete = {
-                            navController.popBackStack("${Route.UserWordsScreen.route}/${topic.id}", inclusive = true)
+                            navController.popBackStack(
+                                "${Route.UserWordsScreen.route}/${topic.id}",
+                                inclusive = true
+                            )
                         },
                         navController = navController
                     )
@@ -344,7 +380,142 @@ fun UserNavigator() {
 
             //user test screen
             composable(route = Route.UserTestScreen.route) {
-                //TODO: navigate to user test screen
+                TestScreen(
+                    viewModel = exerciseViewModel,
+                    navController = navController
+                )
+            }
+            // test setting screen
+            composable(
+                route = "${Route.TestSettingScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId")
+                LaunchedEffect(folderId) {
+                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId!!))
+                }
+                exerciseState.currentFolder?.let {
+                    TestSettingScreen(
+                        folder = it,
+                        onSaveClick = { updated ->
+                            exerciseViewModel.onEvent(ExerciseEvent.UpdateFolder(it.id, updated))
+                            navController.popBackStack()
+                        },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+            }
+            // test detail screen
+            composable(
+                route = "${Route.TestDetailScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId")
+                LaunchedEffect(folderId) {
+                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId!!))
+                }
+                exerciseState.currentFolder?.let { folder ->
+                    TestDetailScreen(
+                        folder = folder,
+                        onBack = {
+                            exerciseViewModel.onEvent(ExerciseEvent.ClearCurrentFolder)
+                            navController.popBackStack()
+                        },
+                        onVoteClick = { exerciseViewModel.onEvent(ExerciseEvent.VoteFolder(folder.id)) },
+                        onUnVoteClick = { exerciseViewModel.onEvent(ExerciseEvent.UnvoteFolder(folder.id)) },
+                        navController = navController
+                    )
+                }
+            }
+            // màn hình chỉnh sửa chi tiết câu hỏi
+            composable(
+                route = "${Route.EditQuestionScreen.route}/{quizId}/{questionIndex}/{folderId}",
+                arguments = listOf(
+                    navArgument("quizId") { type = NavType.IntType },
+                    navArgument("questionIndex") { type = NavType.IntType },
+                    navArgument("folderId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val quizId = backStackEntry.arguments?.getInt("quizId") ?: 0
+                val questionIndex = backStackEntry.arguments?.getInt("questionIndex") ?: 0
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                EditQuestionScreen(
+                    quizId = quizId,
+                    questionIndex = questionIndex,
+                    folderId = folderId,
+                    navController = navController,
+                    viewModel = exerciseViewModel
+                )
+            }
+            // Thêm các route cho TestDetailContent
+            composable(
+                route = "${Route.QuizScreen.route}/{folderId}",
+                arguments = listOf(
+                    navArgument("folderId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: -1
+                exerciseState.currentQuiz?.let {
+                    QuizScreen(
+                        navController = navController,
+                        quizId = it.id,
+                        folderId = folderId,
+                        state = exerciseState,
+                        onEvent = exerciseViewModel::onEvent
+                    )
+                }
+            }
+            composable(
+                route = "${Route.DoQuizScreen.route}/{quizId}/{folderId}",
+                arguments = listOf(
+                    navArgument("quizId") { type = NavType.IntType },
+                    navArgument("folderId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val quizId = backStackEntry.arguments?.getInt("quizId") ?: 0
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                DoQuizScreen(
+                    navController = navController,
+                    quizId = quizId,
+                    folderId = folderId,
+                    state = exerciseState,
+                    onEvent = exerciseViewModel::onEvent
+                )
+            }
+            composable(
+                route = "${Route.FlashCardScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                FlashcardScreen(
+                    navController = navController,
+                    folderId = folderId,
+                    state = exerciseState,
+                    onEvent = exerciseViewModel::onEvent
+                )
+            }
+            composable(
+                route = "${Route.FlashCardLearningScreen}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                FlashcardLearningScreen(
+                    folderId = folderId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = "${Route.CommentScreen.route}/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                CommentScreen(
+                    navController = navController,
+                    folderId = folderId,
+                    state = exerciseState,
+                    onEvent = exerciseViewModel::onEvent
+                )
+
             }
             //user profile screen
             composable(route = Route.UserProfileScreen.route) {

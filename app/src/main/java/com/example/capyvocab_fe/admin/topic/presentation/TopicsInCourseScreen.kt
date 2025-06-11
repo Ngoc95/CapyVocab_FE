@@ -57,7 +57,9 @@ import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
@@ -78,6 +80,7 @@ fun TopicsInCourseScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -88,6 +91,17 @@ fun TopicsInCourseScreen(
     LaunchedEffect(course) {
         viewModel.onEvent(TopicEvent.LoadTopics(course))
     }
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(TopicEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(TopicEvent.OnSearch)
+        }
+    }
+
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
         multiSelectTransition.value = state.isMultiSelecting
@@ -120,6 +134,13 @@ fun TopicsInCourseScreen(
             selectedTopic = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
     FocusComponent {
         TopicsInCourseScreenContent(
             topics = state.topics,
@@ -127,6 +148,7 @@ fun TopicsInCourseScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
+            successMessage = visibleSuccess,
             onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreTopics(course)) },
             onTopicClick = { topic ->
                 onTopicClick(topic)
@@ -144,23 +166,25 @@ fun TopicsInCourseScreen(
             },
             onTopicSelectToggle = { topic ->
                 viewModel.onEvent(TopicEvent.OnTopicSelectToggle(topic.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 
     if (isDialogOpen) {
         TopicFormDialog(
             topic = selectedTopic,
-            errorMessage = "",
+            errorMessage = visibleError,
             onDismiss = {
                 selectedTopic = null
                 isDialogOpen = false
             },
-            onSave = { topic ->
+            onSave = { topic, imageUri ->
                 if (topic.id == 0) {
-                    viewModel.onEvent(TopicEvent.CreateTopic(course.id, topic))
+                    viewModel.onEvent(TopicEvent.CreateTopic(course.id, topic, imageUri))
                 } else {
-                    viewModel.onEvent(TopicEvent.UpdateTopic(topic))
+                    viewModel.onEvent(TopicEvent.UpdateTopic(topic, imageUri))
                 }
                 isDialogOpen = false
             },
@@ -198,12 +222,15 @@ fun TopicsInCourseScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onTopicClick: (Topic) -> Unit,
     onAddTopic: () -> Unit,
     onEditTopic: (Topic) -> Unit,
     onLoadMore: () -> Unit,
     onTopicLongPress: (Topic) -> Unit,
-    onTopicSelectToggle: (Topic) -> Unit
+    onTopicSelectToggle: (Topic) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -241,11 +268,9 @@ fun TopicsInCourseScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm chủ đề") },
                         shape = RoundedCornerShape(30.dp),
@@ -335,6 +360,7 @@ fun TopicsInCourseScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }
@@ -368,7 +394,10 @@ fun TopicsInCourseScreenPreview() {
             isMultiSelectMode = false,
             isLoading = false,
             isEndReached = false,
-            selectedTopics = emptyList()
+            successMessage = "",
+            selectedTopics = emptyList(),
+            searchBarText = "",
+            onSearchBarTextChange = {}
         )
     }
 }

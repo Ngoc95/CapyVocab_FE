@@ -30,26 +30,35 @@ class WordListViewModel @Inject constructor(
     fun onEvent(event: WordEvent) {
         when (event) {
             is WordEvent.LoadAllWords -> loadAllWords()
-            is WordEvent.LoadMoreAllWords -> loadAllWords(loadMore = true)
+            is WordEvent.LoadMoreAllWords -> loadAllWords(loadMore = true, query = state.value.searchQuery)
             is WordEvent.LoadWords -> loadWords(event.topic)
-            is WordEvent.LoadMoreWords -> loadWords(event.topic, loadMore = true)
-            is WordEvent.UpdateWord -> updateWord(event.word, event.imageUri)
+            is WordEvent.LoadMoreWords -> loadWords(event.topic, loadMore = true, query = state.value.searchQuery)
+            is WordEvent.UpdateWord -> updateWord(event.word, event.imageUri, event.audioUri)
             is WordEvent.DeleteWord -> deleteWord(event.wordId)
-            is WordEvent.CreateWord -> createWord(event.topicId, event.word, event.imageUri)
+            is WordEvent.CreateWord -> createWord(event.topicId, event.word, event.imageUri, event.audioUri)
             is WordEvent.CancelMultiSelect -> cancelMultiSelect()
             is WordEvent.OnDeleteSelectedWords -> deleteSelectedTopics()
             is WordEvent.OnSelectAllToggle -> selectAll()
             is WordEvent.OnWordLongPress -> startMultiSelect(event.wordId)
             is WordEvent.OnWordSelectToggle -> toggleWordSelection(event.wordId)
+            is WordEvent.OnSearch -> {
+                if (state.value.currentTopic != null) {
+                    loadWords(state.value.currentTopic!!, query = state.value.searchQuery)
+                } else {
+                    loadAllWords(query = state.value.searchQuery)
+                }
+            }
+
+            is WordEvent.OnSearchQueryChange -> { _state.update { it.copy(searchQuery = event.query) }}
         }
     }
 
-    private fun loadAllWords(loadMore: Boolean = false) {
+    private fun loadAllWords(loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "", currentTopic = null) }
 
-            wordRepository.getAllWords(nextPage)
+            wordRepository.getAllWords(nextPage, content = if (query?.isNotEmpty() == true) query else null)
                 .onRight { newWords ->
                     _state.update {
                         val allWords = if (loadMore) it.words + newWords else newWords
@@ -72,39 +81,42 @@ class WordListViewModel @Inject constructor(
         }
     }
 
-    private fun loadWords(topic: Topic, loadMore: Boolean = false) {
+    private fun loadWords(topic: Topic, loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
 
-            _state.update { it.copy(isLoading = false, errorMessage = "", currentTopic = topic) }
+            _state.update { it.copy(isLoading = true, errorMessage = "", currentTopic = topic) }
 
-            topicRepository.getTopicWords(topic.id, nextPage)
-                .onRight { newWords ->
-                    _state.update {
-                        val allWords = if (loadMore) state.value.words + newWords else newWords
-                        it.copy(
-                            isLoading = false,
-                            words = allWords,
-                            currentPage = nextPage,
-                            isEndReached = newWords.isEmpty()
-                        )
-                    }
+            topicRepository.getTopicWords(
+                id = topic.id,
+                page = nextPage,
+                content = if (query?.isNotEmpty() == true) query else null
+            ).onRight { newWords ->
+                _state.update {
+                    val allWords = if (loadMore) it.words + newWords else newWords
+                    it.copy(
+                        isLoading = false,
+                        words = allWords,
+                        currentPage = nextPage,
+                        isEndReached = newWords.isEmpty()
+                    )
                 }
-                .onLeft { failure ->
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = failure.message ?: "failed to load words"
-                        )
-                    }
+            }.onLeft { failure ->
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = failure.message ?: "failed to load words"
+                    )
                 }
+            }
         }
     }
 
-    private fun createWord(topicId: Int, word: Word, imageUri: Uri?) {
+    private fun createWord(topicId: Int, word: Word, imageUri: Uri?, audioUri: Uri?) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
             val imageUrl = uploadImageIfNeeded(imageUri, word.image) ?: return@launch
+            val audioUrl = uploadAudioIfNeeded(audioUri, word.audio) ?: return@launch
 
             val createWordRequest = CreateWordRequest(
                 words = listOf(
@@ -113,7 +125,7 @@ class WordListViewModel @Inject constructor(
                         pronunciation = word.pronunciation,
                         position = word.position,
                         meaning = word.meaning,
-                        audio = word.audio,
+                        audio = audioUrl,
                         image = imageUrl,
                         example = word.example,
                         translateExample = word.translateExample,
@@ -128,6 +140,7 @@ class WordListViewModel @Inject constructor(
                         currentState.copy(
                             isLoading = false,
                             errorMessage = "",
+                            successMessage = "Thêm từ thành công",
                             words = updatedWords
                         )
                     }
@@ -136,25 +149,27 @@ class WordListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "failed to create word"
+                            errorMessage = failure.message ?: "failed to create word",
+                            successMessage = ""
                         )
                     }
                 }
         }
     }
 
-    private fun updateWord(word: Word, imageUri: Uri?) {
+    private fun updateWord(word: Word, imageUri: Uri?, audioUri: Uri?) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
 
             val imageUrl = uploadImageIfNeeded(imageUri, word.image) ?: return@launch
+            val audioUrl = uploadAudioIfNeeded(audioUri, word.audio) ?: return@launch
 
             val updateWordReq = UpdateWordRequest(
                 content = word.content,
                 pronunciation = word.pronunciation,
                 position = word.position,
                 meaning = word.meaning,
-                audio = word.audio,
+                audio = audioUrl,
                 image = imageUrl,
                 example = word.example,
                 translateExample = word.translateExample
@@ -169,6 +184,7 @@ class WordListViewModel @Inject constructor(
                         currentState.copy(
                             isLoading = false,
                             errorMessage = "",
+                            successMessage = "Cập nhật từ thành công",
                             words = updatedWords
                         )
                     }
@@ -177,7 +193,8 @@ class WordListViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "failed to update word"
+                            errorMessage = failure.message ?: "failed to update word",
+                            successMessage = ""
                         )
                     }
                 }
@@ -214,7 +231,9 @@ class WordListViewModel @Inject constructor(
                             val updatedWords = currentState.words.filterNot { it.id == wordId }
                             currentState.copy(
                                 isLoading = false,
-                                words = updatedWords
+                                words = updatedWords,
+                                errorMessage = "",
+                                successMessage = "Xoá từ khỏi chủ đề thành công"
                             )
                         }
                     }
@@ -222,7 +241,8 @@ class WordListViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = failure.message ?: "Không thể xoá từ khỏi chủ đề"
+                                errorMessage = failure.message ?: "Không thể xoá từ khỏi chủ đề",
+                                successMessage = ""
                             )
                         }
                     }
@@ -234,7 +254,9 @@ class WordListViewModel @Inject constructor(
                             val updatedWords = currentState.words.filterNot { it.id == wordId }
                             currentState.copy(
                                 isLoading = false,
-                                words = updatedWords
+                                words = updatedWords,
+                                errorMessage = "",
+                                successMessage = "Xoá từ thành công"
                             )
                         }
                     }
@@ -242,7 +264,8 @@ class WordListViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = failure.message ?: "Không thể xoá từ"
+                                errorMessage = failure.message ?: "Không thể xoá từ",
+                                successMessage = ""
                             )
                         }
                     }
@@ -362,6 +385,23 @@ class WordListViewModel @Inject constructor(
                     it.copy(
                         isLoading = false,
                         errorMessage = "Upload ảnh thất bại: ${failure.message}"
+                    )
+                }
+                null
+            },
+            ifRight = { url -> url }
+        )
+    }
+
+    private suspend fun uploadAudioIfNeeded(uri: Uri?, currentAudio: String?): String? {
+        if (uri == null) return currentAudio
+        val uploadResult = wordRepository.uploadAudio(uri)
+        return uploadResult.fold(
+            ifLeft = { failure ->
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Upload âm thanh thất bại: ${failure.message}"
                     )
                 }
                 null

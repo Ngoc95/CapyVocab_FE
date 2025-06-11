@@ -55,7 +55,9 @@ import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
@@ -74,6 +76,7 @@ fun TopicScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -81,8 +84,20 @@ fun TopicScreen(
         remember { mutableStateOf(false) }
     }
 
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(TopicEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(TopicEvent.OnSearch)
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.onEvent(TopicEvent.LoadAllTopics)
+        searchBarText = ""
     }
 
     //launchEffect to track transition to multi-select mode
@@ -117,6 +132,13 @@ fun TopicScreen(
             selectedTopic = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
 
     FocusComponent {
         TopicScreenContent(
@@ -125,6 +147,7 @@ fun TopicScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
+            successMessage = visibleSuccess,
             onLoadMore = { viewModel.onEvent(TopicEvent.LoadMoreAllTopics) },
             onTopicClick = { topic ->
                 onTopicClick(topic)
@@ -142,23 +165,25 @@ fun TopicScreen(
             },
             onTopicSelectToggle = { topic ->
                 viewModel.onEvent(TopicEvent.OnTopicSelectToggle(topic.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 
     if (isDialogOpen) {
         TopicFormDialog(
             topic = selectedTopic,
-            errorMessage = "",
+            errorMessage = visibleError,
             onDismiss = {
                 selectedTopic = null
                 isDialogOpen = false
             },
-            onSave = { topic ->
+            onSave = { topic, uri ->
                 if (topic.id == 0) {
-                    viewModel.onEvent(TopicEvent.CreateTopic(1, topic))
+                    viewModel.onEvent(TopicEvent.CreateTopic(1, topic, uri))
                 } else {
-                    viewModel.onEvent(TopicEvent.UpdateTopic(topic))
+                    viewModel.onEvent(TopicEvent.UpdateTopic(topic, uri))
                 }
                 isDialogOpen = false
             },
@@ -196,12 +221,15 @@ fun TopicScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onTopicClick: (Topic) -> Unit,
     onAddTopic: () -> Unit,
     onEditTopic: (Topic) -> Unit,
     onLoadMore: () -> Unit,
     onTopicLongPress: (Topic) -> Unit,
-    onTopicSelectToggle: (Topic) -> Unit
+    onTopicSelectToggle: (Topic) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -239,11 +267,9 @@ fun TopicScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm chủ đề") },
                         shape = RoundedCornerShape(30.dp),
@@ -333,6 +359,7 @@ fun TopicScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }

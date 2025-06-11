@@ -37,7 +37,7 @@ fun FlashcardView(
 ) {
     if (word == null) return
 
-    val swipeThreshold = 60f
+    val swipeThreshold = 50f
 
     val offsetX = remember { Animatable(0f) }
     val offsetY = remember { Animatable(0f) }
@@ -59,7 +59,7 @@ fun FlashcardView(
                             when {
                                 offsetX.value > swipeThreshold -> {
                                     scope.launch {
-                                        offsetY.animateTo(300f, tween(300))
+                                        offsetY.animateTo(100f, tween(50))
                                         onContinue()
                                         offsetX.snapTo(0f)
                                         offsetY.snapTo(0f)
@@ -68,7 +68,7 @@ fun FlashcardView(
 
                                 offsetX.value < -swipeThreshold -> {
                                     scope.launch {
-                                        offsetY.animateTo(300f, tween(300))
+                                        offsetY.animateTo(100f, tween(50))
                                         onAlreadyKnow()
                                         offsetX.snapTo(0f)
                                         offsetY.snapTo(0f)
@@ -78,8 +78,8 @@ fun FlashcardView(
                                 else -> {
                                     scope.launch {
                                         // nếu chưa đủ ngưỡng thì quay lại vị trí ban đầu
-                                        offsetX.animateTo(0f, tween(200))
-                                        offsetY.animateTo(0f, tween(200))
+                                        offsetX.animateTo(0f, tween(150))
+                                        offsetY.animateTo(0f, tween(150))
                                     }
                                 }
                             }
@@ -87,7 +87,7 @@ fun FlashcardView(
                         onHorizontalDrag = { _, dragAmount ->
                             scope.launch {
                                 offsetX.snapTo(offsetX.value + dragAmount)
-                                offsetY.snapTo(kotlin.math.abs(offsetX.value) * 0.2f) // bay nhẹ xuống
+                                offsetY.snapTo(kotlin.math.abs(offsetX.value) * 0.1f) // bay nhẹ xuống
                             }
                         }
                     )

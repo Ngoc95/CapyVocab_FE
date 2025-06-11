@@ -56,9 +56,10 @@ import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseCard
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
-import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import kotlinx.coroutines.delay
@@ -78,6 +79,7 @@ fun CourseScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -85,9 +87,22 @@ fun CourseScreen(
         remember { mutableStateOf(false) }
     }
 
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(CourseEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(CourseEvent.OnSearch)
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.onEvent(CourseEvent.LoadCourses)
+        searchBarText = ""
     }
+
     //launchEffect to track transition to multi-select mode
     LaunchedEffect(state.isMultiSelecting) {
         multiSelectTransition.value = state.isMultiSelecting
@@ -120,6 +135,13 @@ fun CourseScreen(
             selectedCourse = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
 
     FocusComponent {
         CoursesScreenContent(
@@ -128,6 +150,7 @@ fun CourseScreen(
             isMultiSelectMode = state.isMultiSelecting,
             isLoading = state.isLoading,
             isEndReached = state.isEndReached,
+            successMessage = visibleSuccess,
             onLoadMore = { viewModel.onEvent(CourseEvent.LoadMoreCourses) },
             onCourseClick = { course ->
                 onCourseClick(course)
@@ -145,14 +168,16 @@ fun CourseScreen(
             },
             onCourseSelectToggle = { course ->
                 viewModel.onEvent(CourseEvent.OnCourseSelectToggle(course.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = { searchBarText = it }
         )
     }
 
     if (isDialogOpen) {
         CourseFormDialog(
             course = selectedCourse,
-            errorMessage = "",
+            errorMessage = visibleError,
             onDismiss = {
                 selectedCourse = null
                 isDialogOpen = false
@@ -195,12 +220,15 @@ fun CoursesScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
+    successMessage: String,
     onCourseClick: (Course) -> Unit,
     onAddCourse: () -> Unit,
     onEditCourse: (Course) -> Unit,
     onLoadMore: () -> Unit,
     onCourseLongPress: (Course) -> Unit,
-    onCourseSelectToggle: (Course) -> Unit
+    onCourseSelectToggle: (Course) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -238,11 +266,9 @@ fun CoursesScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm khóa học") },
                         shape = RoundedCornerShape(30.dp),
@@ -332,6 +358,7 @@ fun CoursesScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }
@@ -378,7 +405,10 @@ fun CoursesScreenContentPreview() {
             isMultiSelectMode = false,
             isLoading = false,
             isEndReached = false,
-            selectedCourses = emptyList()
+            selectedCourses = emptyList(),
+            searchBarText = "",
+            onSearchBarTextChange = {},
+            successMessage = ""
         )
     }
 }

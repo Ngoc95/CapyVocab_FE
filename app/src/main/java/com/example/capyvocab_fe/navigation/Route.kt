@@ -7,6 +7,7 @@ sealed class Route(
     object AuthNavigation : Route(route = "authNavigation")
     object LoginScreen : Route(route = "loginScreen")
     object RegisterScreen : Route(route = "registerScreen")
+    object OtpScreen: Route(route = "otpScreen")
 
     //admin navigator
     object AdminNavigation : Route(route = "adminNavigation")
@@ -16,7 +17,7 @@ sealed class Route(
     object TopicsScreen: Route(route = "topicsScreen")
     object WordsScreen: Route(route = "wordsScreen")
     object UsersScreen : Route(route = "usersScreen")
-    object SettingScreen : Route(route = "settingScreen")
+    object ProfileScreen : Route(route = "profileScreen")
 
     //user navigator
     object UserNavigation : Route(route = "userNavigation")
@@ -29,6 +30,14 @@ sealed class Route(
     object UserTopicsScreen: Route(route = "userTopicsScreen")
     object UserWordsScreen: Route(route = "userWordsScreen")
     object UserTestScreen: Route(route = "userTestScreen")
+    object TestSettingScreen: Route(route = "testSettingScreen")
+    object TestDetailScreen: Route(route = "testDetailScreen")
+    object FlashCardScreen: Route(route = "flashCardScreen")
+    object FlashCardLearningScreen: Route(route = "flashCardLearningScreen")
+    object QuizScreen: Route(route = "quizScreen")
+    object CommentScreen: Route(route = "commentScreen")
+    object EditQuestionScreen : Route(route = "editQuestionScreen")
+    object DoQuizScreen: Route(route = "doQuizScreen")
     object UserProfileScreen: Route(route = "userProfileScreen")
     object UserCreatePostScreen: Route(route = "userCreatePostScreen")
     object UserOwnerPostScreen: Route(route = "userOwnerPostScreen")

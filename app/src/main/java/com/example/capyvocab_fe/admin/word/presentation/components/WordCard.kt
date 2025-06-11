@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.admin.word.domain.model.Word
+import com.example.capyvocab_fe.core.ui.components.PronunciationPlayer
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,7 +48,6 @@ fun WordCard(
     word: Word,
     isMultiSelecting: Boolean,
     isSelected: Boolean,
-    onPlayAudio: (String) -> Unit,
     onEditClick: (Word) -> Unit,
     onLongClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
@@ -145,12 +145,14 @@ fun WordCard(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = { onPlayAudio(word.audio) }) {
-                            Icon(
-                                imageVector = Icons.Default.VolumeUp,
-                                contentDescription = "Play Audio"
+                        if (word.audio.isNotEmpty()) {
+                            PronunciationPlayer(
+                                audioUrl = word.audio,
+                                wordId = word.id,
+                                autoPlay = false
                             )
                         }
                         IconButton(onClick = { onEditClick(word) }) {
@@ -196,7 +198,6 @@ fun WordCardPreview() {
 
         WordCard(
             word = sampleWord,
-            onPlayAudio = {},
             onEditClick = {},
             onLongClick = {},
             onCheckedChange = {},

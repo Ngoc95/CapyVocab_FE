@@ -64,8 +64,6 @@ dependencies {
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore.preferences)
 
-
-
     //Splash Api
     implementation(libs.androidx.core.splashscreen)
 

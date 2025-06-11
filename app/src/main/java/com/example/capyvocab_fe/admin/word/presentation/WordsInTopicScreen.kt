@@ -57,7 +57,9 @@ import com.example.capyvocab_fe.admin.word.presentation.components.WordCard
 import com.example.capyvocab_fe.admin.word.presentation.components.WordFormDialog
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import kotlinx.coroutines.delay
 
@@ -76,6 +78,7 @@ fun WordsInTopicScreen(
     var isDeleteConfirmDialogOpen by remember { mutableStateOf(false) }
 
     var visibleError by remember { mutableStateOf("") }
+    var visibleSuccess by remember { mutableStateOf("") }
 
     val multiSelectTransition = if (state.isMultiSelecting) {
         remember { mutableStateOf(true) }
@@ -83,8 +86,20 @@ fun WordsInTopicScreen(
         remember { mutableStateOf(false) }
     }
 
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(WordEvent.OnSearchQueryChange(searchBarText))
+        }
+        if (!state.isMultiSelecting) {
+            viewModel.onEvent(WordEvent.OnSearch)
+        }
+    }
+
     LaunchedEffect(topic.id) {
         viewModel.onEvent(WordEvent.LoadWords(topic))
+        searchBarText = ""
     }
 
     //launchEffect to track transition to multi-select mode
@@ -119,6 +134,13 @@ fun WordsInTopicScreen(
             selectedWord = null
         }
     }
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage.isNotEmpty()) {
+            visibleSuccess = state.successMessage
+            delay(3000) // hiện 3 giây
+            visibleSuccess = "" // ẩn sau 3 giây
+        }
+    }
 
     FocusComponent {
         WordsInTopicScreenContent(
@@ -127,9 +149,7 @@ fun WordsInTopicScreen(
             isEndReached = state.isEndReached,
             selectedWords = state.words.filter { state.selectedWords.contains(it.id) },
             isMultiSelectMode = state.isMultiSelecting,
-            onPlayAudio = { audioUrl ->
-                // TODO: Play audio
-            },
+            successMessage = visibleSuccess,
             onEditWord = { word ->
                 selectedWord = word
                 isDialogOpen = true
@@ -144,23 +164,25 @@ fun WordsInTopicScreen(
             },
             onWordSelectToggle = { word ->
                 viewModel.onEvent(WordEvent.OnWordSelectToggle(word.id))
-            }
+            },
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 
     if (isDialogOpen) {
         WordFormDialog(
             word = selectedWord,
-            errorMessage = "",
+            errorMessage = visibleError,
             onDismiss = {
                 isDialogOpen = false
                 selectedWord = null
             },
-            onSave = { word, uri ->
+            onSave = { word, imageUri, audioUri ->
                 if (word.id == 0) {
-                    viewModel.onEvent(WordEvent.CreateWord(topic.id, word))
+                    viewModel.onEvent(WordEvent.CreateWord(topic.id, word, imageUri, audioUri))
                 } else {
-                    viewModel.onEvent(WordEvent.UpdateWord(word))
+                    viewModel.onEvent(WordEvent.UpdateWord(word, imageUri, audioUri))
                 }
                 isDialogOpen = false
             },
@@ -198,12 +220,14 @@ fun WordsInTopicScreenContent(
     isMultiSelectMode: Boolean,
     isLoading: Boolean,
     isEndReached: Boolean,
-    onPlayAudio: (String) -> Unit,
+    successMessage: String,
     onEditWord: (Word) -> Unit,
     onAddWord: () -> Unit,
     onLoadMore: () -> Unit,
     onWordLongPress: (Word) -> Unit,
-    onWordSelectToggle: (Word) -> Unit
+    onWordSelectToggle: (Word) -> Unit,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -241,11 +265,9 @@ fun WordsInTopicScreenContent(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var searchQuery by remember { mutableStateOf("") }
-
                     OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchBarText,
+                        onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Tìm từ vựng") },
                         shape = RoundedCornerShape(30.dp),
@@ -306,7 +328,6 @@ fun WordsInTopicScreenContent(
                     Box(modifier = Modifier.scale(cardScale.value)) {
                         WordCard(
                             word = word,
-                            onPlayAudio = onPlayAudio,
                             onEditClick = onEditWord,
                             onLongClick = { onWordLongPress(word) },
                             onCheckedChange = { onWordSelectToggle(word) },
@@ -334,6 +355,7 @@ fun WordsInTopicScreenContent(
                     }
                 }
             }
+            OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         }
     }
 }
@@ -369,7 +391,6 @@ fun WordListScreenContentPreview() {
     WordsInTopicScreenContent(
         words = sampleWords,
         isLoading = false,
-        onPlayAudio = {},
         onEditWord = {},
         onAddWord = {},
         onLoadMore = {},
@@ -378,6 +399,9 @@ fun WordListScreenContentPreview() {
         selectedWords = emptyList(),
         isMultiSelectMode = false,
         isEndReached = false,
+        successMessage = "",
+        searchBarText = "",
+        onSearchBarTextChange = {}
     )
 }
 

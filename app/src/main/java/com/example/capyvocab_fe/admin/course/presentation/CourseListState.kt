@@ -6,10 +6,12 @@ data class CourseListState(
     val isLoading: Boolean = false,
     val courses: List<Course> = emptyList(),
     val errorMessage: String = "",
+    val successMessage: String = "",
     val currentPage: Int = 1,
     val isEndReached: Boolean = false,
     val selectedCourses: Set<Int> = emptySet(),
     val isMultiSelecting: Boolean = false,
     val isSelectAll: Boolean = false,
-    val selectedCourse: Course? = null
+    val selectedCourse: Course? = null,
+    val searchQuery: String = ""
 )
