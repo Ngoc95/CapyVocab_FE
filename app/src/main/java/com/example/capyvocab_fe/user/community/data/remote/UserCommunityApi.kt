@@ -1,9 +1,10 @@
 package com.example.capyvocab_fe.user.community.data.remote
 
 import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
+import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.user.community.data.remote.model.CreateCommentRequest
-import com.example.capyvocab_fe.user.community.data.remote.model.CreatePostRequest
+import com.example.capyvocab_fe.user.community.data.remote.model.CreatePostBody
 import com.example.capyvocab_fe.user.community.data.remote.model.PostListResponse
 import com.example.capyvocab_fe.user.community.data.remote.model.UpdateCommentRequest
 import com.example.capyvocab_fe.user.community.data.remote.model.UpdatePostRequest
@@ -27,6 +28,16 @@ interface UserCommunityApi {
     suspend fun getAllPost(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("ownerId") ownerId: Int? = null,
+        @Query("tag") tag: String? = null,
+        @Query("content") content: String? = null,
+    ): ApiResponse<PostListResponse>
+
+    @GET("/posts")
+    suspend fun getPostByOwner(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10,
+        @Query("ownerId") ownerId: Int,
     ): ApiResponse<PostListResponse>
 
     @GET("/posts/{id}")
@@ -35,7 +46,7 @@ interface UserCommunityApi {
     ): ApiResponse<Post>
 
     @POST("/posts")
-    suspend fun createPost(@Body postRequest: CreatePostRequest): ApiResponse<List<Post>>
+    suspend fun createPost(@Body postRequest: CreatePostBody): ApiResponse<Post>
 
     @POST("posts/{id}/like")
     suspend fun votePost(
@@ -55,7 +66,6 @@ interface UserCommunityApi {
         @Part images: MultipartBody.Part
     ): ImageUploadResponse
 
-//
     @POST("posts/{id}/comment")
     suspend fun createComment(
         @Path("id") postId: Int,
@@ -86,4 +96,10 @@ interface UserCommunityApi {
     suspend fun unVotePost(
         @Path("id") postId: Int,
     ): ApiResponse<Unit>
+
+    @GET("users/{id}")
+    suspend fun getUserById(
+        @Path("id") userId: Int,
+    ): ApiResponse<User>
+
 }

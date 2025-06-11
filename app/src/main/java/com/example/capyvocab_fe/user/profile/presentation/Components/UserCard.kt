@@ -3,6 +3,7 @@ import com.example.capyvocab_fe.R
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,17 +51,19 @@ fun UserCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
             .clickable { onClick() }
+            .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
             .shadow(elevation = 1.dp, shape = RoundedCornerShape(20.dp))
-            .padding(12.dp)
+            .background(Color.White)
+
+
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(15.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(
@@ -83,7 +86,7 @@ fun UserCard(
                             append(email)
                         },
                         fontSize = 16.sp,
-                        color = Color.Gray
+                        color = Color.Black
                     )
                     Text(
                         buildAnnotatedString {
@@ -93,13 +96,13 @@ fun UserCard(
                             append(id.toString())
                         },
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = Color.Black
                     )
                 }
             }
 
             Image(
-                painter = painterResource(id = R.drawable.navigate_next), // bạn dùng ảnh arrow_icon.png
+                painter = painterResource(id = R.drawable.navigate_next),
                 contentDescription = "Arrow",
                 modifier = Modifier.size(24.dp)
             )

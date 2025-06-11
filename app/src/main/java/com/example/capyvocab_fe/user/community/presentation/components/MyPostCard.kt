@@ -42,10 +42,11 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun PostCard(
+fun MyPostCard(
     post:Post,
     onPostComment: () -> Unit,
     onVoteClick: () -> Unit,
+    onEditClick:() -> Unit,
     onImageClick:(String) -> Unit,
     onClickUserPostsScreen:(User) -> Unit,
 )
@@ -93,6 +94,15 @@ fun PostCard(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
+
+                TextButton(
+                    onClick = onEditClick,
+                    modifier = TextButtonModifier,
+                ) {
+                    Text("Chỉnh sửa", style = LightBlueTextStyle)
+                }
+
+
 
             }
 
@@ -166,10 +176,10 @@ fun PostCard(
 
 @Preview(showBackground = true)
 @Composable
-fun TopicCardPreview()
+fun MyPostCardPreview()
 {
     CapyVocab_FETheme {
-        PostCard(
+        MyPostCard(
             post = Post(
                 id = 1,
                 content = "Hi mọi người mình có cái bla bla cần blu blu. mong mng ble ble",
@@ -191,7 +201,8 @@ fun TopicCardPreview()
             onPostComment = { },
             onVoteClick = { },
             onImageClick = { },
-            onClickUserPostsScreen = { }
+            onClickUserPostsScreen = { },
+            onEditClick = { }
         )
     }
 }

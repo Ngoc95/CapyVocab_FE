@@ -80,7 +80,7 @@ fun ParentCommentCard(
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            text = comment.createdBy.email,
+                            text = comment.createdBy.username,
                             fontWeight = FontWeight.SemiBold
                         )
                         Spacer(modifier = Modifier.height(4.dp))

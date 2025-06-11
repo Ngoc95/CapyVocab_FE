@@ -1,35 +1,25 @@
 package com.example.capyvocab_fe.user.community.presentation
 
+import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,52 +27,62 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.capyvocab_fe.admin.course.domain.model.Course
+import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.admin.course.presentation.components.sampleCourses
 import com.example.capyvocab_fe.auth.domain.model.User
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.util.components.FocusComponent
-import com.example.capyvocab_fe.ui.theme.Black
+import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
-import com.example.capyvocab_fe.ui.theme.MyLightBlue
 import com.example.capyvocab_fe.user.community.domain.model.Post
-import com.example.capyvocab_fe.user.community.presentation.components.ExpandableFAB
 import com.example.capyvocab_fe.user.community.presentation.components.PostCard
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
-
+import java.util.Locale
 
 @Composable
-fun CommunityScreen(
+fun OwnerPostScreenContent(
+    user: User,
     onPostComment:(Post) -> Unit,
-    onCreatePost:() -> Unit,
-    onMyPost:() -> Unit,
-    onClickUserPostsScreen: (User) -> Unit,
+    onBackClick:() -> Unit,
     viewModel: CommunityViewModel = hiltViewModel(),
-) {
-    val state by viewModel.state.collectAsState()
+    navController: NavController
+)
+{
+    BackHandler(enabled = true) {
+        Log.d("CreatePostScreen", "clearScreenPost called")
+        viewModel.onEvent(CommunityEvent.ClearScreenPost)
+        navController.navigate(Route.UserCoursesScreen.route) {
+            popUpTo(Route.UserCoursesScreen.route) {
+                inclusive = false
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
-    var selectedPost by remember { mutableStateOf<Course?>(null) }
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(CommunityEvent.LoadPostsByOwner(user))
+    }
+    val state by viewModel.state.collectAsState()
 
     var visibleError by remember { mutableStateOf("") }
 
     var selectedImage by remember { mutableStateOf<String?>(null) }
 
-
-    LaunchedEffect(Unit) {
-        viewModel.onEvent(CommunityEvent.LoadPosts)
-    }
 
     // Khi errorMessage thay đổi, show snackbar trong 3 giây
     LaunchedEffect(state.errorMessage) {
@@ -92,6 +92,8 @@ fun CommunityScreen(
             visibleError = "" // ẩn sau 3 giây
         }
     }
+
+
 
     if (selectedImage != null) {
         Dialog( onDismissRequest = { selectedImage = null }) {
@@ -113,121 +115,110 @@ fun CommunityScreen(
     }
 
     FocusComponent {
-        CommunityScreenContent(
-            posts = state.posts,
+        OwnerPostScreen (
+            user = user,
+            userPosts = state.selectUserPosts,
             isLoading = state.isLoading,
             isEndReached = state.isEndReachedPost,
-            onLoadMore = { viewModel.onEvent(CommunityEvent.LoadMorePosts)},
+            onLoadMore = { viewModel.onEvent(CommunityEvent.LoadMorePostsByOwner(state.selectUser!!))},
             onVoteClick = { post -> viewModel.onEvent(CommunityEvent.VotePost(post))},
             onImageClick = {imgURL -> selectedImage = imgURL},
             selectedPost = state.selectedPost,
             onPostComment = {post -> onPostComment(post)},
-            onCreatePost = { onCreatePost() },
-            onClickUserPostsScreen = {user ->
-                onClickUserPostsScreen(user)
+            onBackClick = {
+                viewModel.onEvent(CommunityEvent.ChangeToUserPost)
+                onBackClick()
             },
-            onMyPosts = { onMyPost() }
         )
     }
+
 }
 
 @Composable
-fun CommunityScreenContent(
-    posts: List<Post>,
+fun OwnerPostScreen(
+    user: User,
+    userPosts: List<Post>?,
     isLoading: Boolean,
     isEndReached: Boolean,
+    selectedPost: Post?,
+    onBackClick:() -> Unit,
     onLoadMore: () -> Unit,
     onVoteClick: (Post) -> Unit,
     onImageClick: (String) -> Unit,
     onPostComment: (Post) -> Unit,
-    onCreatePost:() -> Unit,
-    onClickUserPostsScreen:(User) -> Unit,
-    onMyPosts:() -> Unit,
-    selectedPost: Post?
 )
 {
-    val listState = rememberLazyListState()
-
-    // Detect khi cuộn đến gần cuối
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-            .collect { visibleItems ->
-                val lastVisibleItem = visibleItems.lastOrNull()?.index ?: 0
-                val totalItems = listState.layoutInfo.totalItemsCount
-
-                if (lastVisibleItem >= totalItems - 2 && !isLoading && !isEndReached) {
-                    onLoadMore()
-                }
-            }
-    }
-
-    Scaffold(
-        floatingActionButton = {
-            ExpandableFAB(
-                onCreatePost = { onCreatePost() },
-                onMyPosts = { onMyPosts() }
+    Column()
+    {
+        Row(
+            modifier = Modifier.padding(top = 20.dp, start = 8.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.backicon),
+                modifier = Modifier.size(40.dp)
+                    .clickable { onBackClick() },
+                contentDescription = null,
             )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            AsyncImage(
+                model = user.avatar,
+                contentDescription = "Avatar",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column {
+                Text(
+                    text = user.username,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.width(2.dp))
+
+                Text(
+                    text = user.email,
+                    fontWeight = FontWeight.Thin,
+                    fontSize = 12.sp
+                )
+            }
         }
 
-    ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
+        if(!userPosts.isNullOrEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(30.dp)
+            ) {
+                itemsIndexed(userPosts) { index, post ->
 
-                        .background(
-                            color = Color.Transparent
-                        )
-                        .padding(vertical = 8.dp)
-                ) {
-                    TopBarTitle("CabyVocab")
-                }
-
-
-
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(30.dp)
-                ) {
-                    itemsIndexed(posts) { index, post ->
-                        val isSelected = selectedPost == post
-
-                        PostCard(
-                            post = post,
-                            onVoteClick = { onVoteClick(post) },
-                            onPostComment = { onPostComment(post) },
-                            onImageClick = onImageClick,
-                            onClickUserPostsScreen = {user -> onClickUserPostsScreen(user)}
-                        )
-                        if (index >= posts.size - 3 && !isLoading && !isEndReached) {
-                            onLoadMore()
-                        }
+                    PostCard(
+                        post = post,
+                        onVoteClick = { onVoteClick(post) },
+                        onPostComment = { onPostComment(post) },
+                        onImageClick = onImageClick,
+                        onClickUserPostsScreen = { }
+                    )
+                    if (index >= userPosts.size - 3 && !isLoading && !isEndReached) {
+                        onLoadMore()
                     }
                 }
             }
         }
+
     }
 }
 
-@Composable
-fun Colors(
-    backgroundColor: Color,
-    focusedIndicatorColor: Color,
-    unfocusedIndicatorColor: Color,
-    textColor: Color
-) {
-    TODO("Not yet implemented")
-}
-
-
 @Preview(showBackground = true)
 @Composable
-fun CommunitycreenPreview() {
+fun OwnerPreview() {
     CapyVocab_FETheme {
         val SimpleList = listOf(
             Post(
@@ -268,18 +259,23 @@ fun CommunitycreenPreview() {
             )
         )
 
-        CommunityScreenContent(
-            posts = SimpleList,
+        OwnerPostScreen(
+            user = User(
+                id = 1,
+                username = "w",
+                email = "ee",
+                avatar = "ee",
+                roleId = 1
+            ),
+            userPosts = SimpleList,
             isLoading = false,
             isEndReached = false,
-            onLoadMore = {},
+            onPostComment = { },
+            onBackClick = { },
             onVoteClick = { },
-            selectedPost = null,
-            onImageClick = {},
-            onPostComment = {},
-            onCreatePost = {},
-            onClickUserPostsScreen = { },
-            onMyPosts = { }
+            onImageClick = { },
+            onLoadMore = { },
+            selectedPost = null
         )
 
     }

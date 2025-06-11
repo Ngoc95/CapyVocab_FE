@@ -31,4 +31,8 @@ sealed class Route(
     object UserTestScreen: Route(route = "userTestScreen")
     object UserProfileScreen: Route(route = "userProfileScreen")
     object UserCreatePostScreen: Route(route = "userCreatePostScreen")
+    object UserOwnerPostScreen: Route(route = "userOwnerPostScreen")
+    object UserAccountSettingScreen: Route(route = "userAccountSettingScreen")
+    object UserMyPostScreen: Route(route = "userMyPostScreen")
+    object UserEditPostScreen: Route(route = "userEditPostScreen")
 }

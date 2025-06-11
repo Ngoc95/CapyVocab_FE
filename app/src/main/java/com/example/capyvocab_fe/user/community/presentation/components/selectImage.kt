@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.community.presentation.components
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,9 +45,9 @@ import com.example.capyvocab_fe.ui.theme.White
 
 @Composable
 fun SelectImage(
-    imgList: List<String>?,
+    imgList: List<Uri>?,
     onAddImage:() -> Unit,
-    onDeleteImage:(String) -> Unit
+    onDeleteImage:(Uri) -> Unit
 ){
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -107,7 +108,7 @@ fun SelectImage(
                             .size(30.dp)
                             .clip(CircleShape)
                             .background(Color.White)
-                            .clickable { onDeleteImage(imgList[0].toString()) }
+                            .clickable { onDeleteImage(imgList[0]) }
                             .align(Alignment.TopEnd)
                     ) {
                         Icon(
@@ -168,7 +169,7 @@ fun SelectImage(
                                         .size(30.dp)
                                         .clip(CircleShape)
                                         .background(Color.White)
-                                        .clickable { onDeleteImage(item.toString()) }
+                                        .clickable { onDeleteImage(item) }
                                         .align(Alignment.TopEnd)
                                 ) {
                                     Icon(
@@ -201,7 +202,7 @@ fun SelectImage(
 @Composable
 fun SelectImagePreview() {
 
-    val imgList = emptyList<String>()
+    val imgList = emptyList<Uri>()
 
     SelectImage(
         imgList = imgList,

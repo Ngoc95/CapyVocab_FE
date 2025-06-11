@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.profile.presentation
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,16 +17,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,23 +49,48 @@ import com.example.capyvocab_fe.ui.theme.MyGray
 import com.example.capyvocab_fe.ui.theme.Styles.LightBlueTextStyle
 import com.example.capyvocab_fe.ui.theme.Styles.TextButtonModifier
 import com.example.capyvocab_fe.ui.theme.White
+import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
+import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
+import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 import com.example.capyvocab_fe.user.profile.presentation.Components.UserCard
+import kotlinx.coroutines.delay
 
 @Composable
 fun ProfileScreen(
+    onSettingUser:(ProfileUser) -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    var visibleError by remember { mutableStateOf("") }
 
+
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(ProfileEvent.GetCurrentUser)
+    }
+
+
+    // Khi errorMessage thay đổi, show snackbar trong 3 giây
+    LaunchedEffect(state.errorMessage) {
+        if (state.errorMessage.isNotEmpty()) {
+            visibleError = state.errorMessage
+            delay(3000) // hiện 3 giây
+            visibleError = "" // ẩn sau 3 giây
+        }
+    }
+
+    state.currentUser?.let { user ->
+        ProfileScreenContent (
+            user = user,
+            onSettingUser = { onSettingUser(user) },
+        )
+    }
 }
 
 @Composable
 fun ProfileScreenContent(
-    user: User,
-    isLoading: Boolean,
-    selectUser: () -> Unit,
-    onLogout: () -> Unit
+    user: ProfileUser,
+    onSettingUser: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -71,6 +104,7 @@ fun ProfileScreenContent(
                         color = Color.White
                     )
                     .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
+
             ) {
                 TopBarTitle("CabyVocab")
             }
@@ -78,38 +112,27 @@ fun ProfileScreenContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        color = MyGray
-                    )
                     .padding(12.dp)
+
 
             ) {
                 UserCard(
                     avatarUrl = user.avatar,
                     id = user.id,
                     email = user.email,
-                    onClick = selectUser
+                    onClick = { onSettingUser() }
                 )
+
+                Button(
+                    onClick = {
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B))
+                ) {
+                    Text("Lưu thay đổi", color = Color.White)
+                }
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        width = 0.5.dp,
-                        color = Color.LightGray
-                    )
-                    .background(Color.White)
-                    .clickable { onLogout() }
-                    .padding(vertical = 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Đăng xuất",
-                    color = Color.Red,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-            }
+
         }
     }
 }
@@ -119,16 +142,17 @@ fun ProfileScreenContent(
 fun ProfileScreenContentPreview() {
     CapyVocab_FETheme {
         ProfileScreenContent(
-            isLoading = false,
-            user =  User(
+            user = ProfileUser(
                 id = 1,
                 username = "",
                 email = "ddd@gmail.com",
                 avatar = null,
-                roleId = 3
+                status =  "hjj",
+                streak = 3,
+                lastStudyDate = null,
+                totalStudyDay = 30,
             ),
-            selectUser = {},
-            onLogout = {},
+            onSettingUser = { }
         )
 
     }

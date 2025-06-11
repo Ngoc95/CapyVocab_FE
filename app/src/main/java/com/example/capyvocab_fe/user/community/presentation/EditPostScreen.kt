@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.community.presentation
 
+
 import android.R.attr.content
 import android.content.Intent
 import android.net.Uri
@@ -76,7 +77,8 @@ import kotlinx.coroutines.delay
 import java.nio.file.WatchEvent
 
 @Composable
-fun CreatePostScreen(
+fun EditPostScreen(
+    post: Post,
     viewModel: CommunityViewModel = hiltViewModel(),
     onBackClick:() -> Unit,
     navController: NavController
@@ -97,10 +99,13 @@ fun CreatePostScreen(
     var visibleError by remember { mutableStateOf("") }
 
     var selectedImage by remember { mutableStateOf<String?>(null) }
-    var tagsList = remember { mutableStateListOf<String>() }
-    var content by remember { mutableStateOf("") }
-    var imageList = remember { mutableStateListOf<Uri>() }
-
+    val tagsList = remember { mutableStateListOf<String>().apply { addAll(post.tags ?: emptyList()) } }
+    var content by remember { mutableStateOf(post.content ?: "") }
+    val imageList = remember {
+        mutableStateListOf<Uri>().apply {
+            addAll((post.thumbnails ?: emptyList()).map { Uri.parse(it) })
+        }
+    }
 
     // Khi errorMessage thay đổi, show  njm/snackbar trong 3 giây
     LaunchedEffect(state.errorMessage) {
@@ -139,7 +144,7 @@ fun CreatePostScreen(
         }
     }
 
-    CreatePostScreenContent(
+    EditPostScreenContent(
         tagsList = tagsList,
         content = content,
         imgList = imageList,
@@ -156,7 +161,7 @@ fun CreatePostScreen(
                 visibleError = "Bài viết không được để trống"
             else
             {
-                viewModel.onEvent(CommunityEvent.CreatePost(content, tagsList, imageList))
+                viewModel.onEvent(CommunityEvent.UpdatePost(post.id, content, tagsList, imageList))
             }
         }
     )
@@ -164,7 +169,7 @@ fun CreatePostScreen(
 }
 
 @Composable
-fun CreatePostScreenContent(
+fun EditPostScreenContent(
     tagsList: List<String>?,
     content: String?,
     imgList:List<Uri>?,
@@ -278,7 +283,7 @@ fun CreatePostScreenContent(
 
 @Preview(showBackground = true)
 @Composable
-fun CreatePostPreview() {
+fun EditPostPreview() {
     CreatePostScreenContent(
         tagsList = emptyList(),
         onAddTag = {},

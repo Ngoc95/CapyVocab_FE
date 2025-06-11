@@ -1,22 +1,31 @@
 package com.example.capyvocab_fe.user.community.presentation
 
+import android.net.Uri
 import android.util.Log
+import androidx.collection.emptyLongSet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.left
+import com.example.capyvocab_fe.auth.domain.model.User
+import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.user.community.data.remote.model.CreateCommentRequest
+import com.example.capyvocab_fe.user.community.data.remote.model.CreatePostBody
+import com.example.capyvocab_fe.user.community.data.remote.model.UpdatePostRequest
 import com.example.capyvocab_fe.user.community.domain.model.Comment
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.community.domain.repository.UserCommunityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
-    private val userCommunityRepository: UserCommunityRepository
+    private val userCommunityRepository: UserCommunityRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
     private val _state = MutableStateFlow(CommunityState())
     val state: StateFlow<CommunityState> = _state
@@ -32,11 +41,200 @@ class CommunityViewModel @Inject constructor(
             is CommunityEvent.OnCreateParentCommentMode -> createParentCommentMode()
             is CommunityEvent.CreateComment -> createComment(event.content)
             is CommunityEvent.ClearScreenPost -> clearScreenPost()
+            is CommunityEvent.CreatePost -> createPost(event.content, event.tags, event.images)
+            is CommunityEvent.LoadPostsByOwner -> loadPostByOwner(event.user)
+            is CommunityEvent.LoadMorePostsByOwner -> loadPostByOwner(event.user, loadMore = true)
+            is CommunityEvent.ChangeToUserPost -> changeToUserPost()
+            is CommunityEvent.GetUserByID -> getUserById(event.id)
+            is CommunityEvent.UpdatePost -> updatePost(event.id, event.content, event.tags, event.images)
+            is CommunityEvent.LoadMyUser -> loadMyUser()
+        }
+    }
+
+    private fun loadMyUser() {
+        viewModelScope.launch {
+            val id = tokenManager.userId.first();
+            if(id != null)
+                getUserById(id);
+            else
+            {
+                _state.update {
+                    it.copy(
+                        errorMessage = "Có lỗi xảy ra"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updatePost(
+        id: Int,
+        content: String?,
+        tags: List<String>?,
+        thumbs: List<Uri>?
+    ) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            var thumbnailUrls: List<String>? = emptyList()
+            if (!thumbs.isNullOrEmpty()) {
+                val uploadResult = userCommunityRepository.uploadThumbnailImage(thumbs)
+                thumbnailUrls = uploadResult.fold(
+                    ifLeft = { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "Có lỗi xảy ra"
+                            )
+                        }
+                        emptyList()
+                    },
+                    ifRight = { urls -> urls }
+                )
+            } else
+                thumbnailUrls = emptyList()
+
+            val request = UpdatePostRequest(
+                content = content,
+                thumbnails = thumbnailUrls,
+                tags = tags
+            )
+
+            userCommunityRepository.updatePost(id, request)
+                .onRight {post ->
+                    _state.update { currentState ->
+                            val updateUserPosts = currentState.selectUserPosts.map {
+                            if (it.id == post.id) {
+                                it.copy(
+                                    content = post.content,
+                                    tags = post.tags,
+                                    thumbnails = post.thumbnails
+                                )
+                            } else it
+                        }
+                        currentState.copy(
+                            isLoading = false,
+                            selectUserPosts = updateUserPosts
+                        )
+                    }
+
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Có lỗi xảy ra"
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun getUserById(id: Int) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            userCommunityRepository.getUserById(id)
+                .onRight { user ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            selectUser = user
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun changeToUserPost() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    currentPostPage = 1,
+                    isEndReachedPost= false,
+                    selectUserPosts = emptyList(),
+                    selectUser = null,
+                )
+            }
+        }
+    }
+
+    private fun loadPostByOwner(user: User, loadMore: Boolean = false) {
+        viewModelScope.launch {
+            val nextPage = if (loadMore) state.value.currentPostPage + 1 else 1
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            userCommunityRepository.getAllPost(page = nextPage, ownerId = user.id)
+                .onRight { newPosts ->
+                    _state.update {
+                        val allPosts = if (loadMore) it.selectUserPosts + newPosts else newPosts
+                        it.copy(
+                            isLoading = false,
+                            selectUserPosts = allPosts,
+                            currentPostPage = nextPage,
+                            isEndReachedPost = newPosts.isEmpty()
+                        )
+                    }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                        )
+                    }
+                }
+        }
+    }
+
+
+    private fun createPost(content: String?, tags: List<String>?, images: List<Uri>?) {
+        viewModelScope.launch {
+            var thumbnailUrls: List<String>? = emptyList()
+            if(!images.isNullOrEmpty()) {
+                val uploadResult = userCommunityRepository.uploadThumbnailImage(images)
+                 thumbnailUrls = uploadResult.fold(
+                    ifLeft = { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "Có lỗi xảy ra"
+                            )
+                        }
+                        emptyList()
+                    },
+                    ifRight = { urls -> urls }
+                )
+            }
+            else
+                thumbnailUrls = emptyList()
+
+            val request = CreatePostBody(
+                content = content,
+                thumbnails = thumbnailUrls,
+                tags = tags
+            )
+
+            userCommunityRepository.createPost(request)
+                .onRight {
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Có lỗi xảy ra"
+                        )
+                    }
+                }
         }
     }
 
     private fun clearScreenPost() {
-        Log.d("CommunityViewModel", "clearScreenPost called")
         _state.update {
             it.copy(
                 selectedPost = null,
@@ -201,6 +399,7 @@ class CommunityViewModel @Inject constructor(
                 userCommunityRepository.votePost(post.id)
                     .onRight {
                         _state.update { currentState ->
+
                             val updatedPosts = currentState.posts.map {
                                 if (it.id == post.id) {
                                     val newIsAlreadyVote = !it.isAlreadyVote
@@ -225,9 +424,22 @@ class CommunityViewModel @Inject constructor(
                                 } else it
                             }
 
+                            val updateUserPosts = currentState.selectUserPosts.map {
+                                if (it.id == post.id) {
+                                    val newIsAlreadyVote = !it.isAlreadyVote
+                                    val newVoteCount =
+                                        if (newIsAlreadyVote) it.voteCount + 1 else it.voteCount - 1
+                                    it.copy(
+                                        isAlreadyVote = newIsAlreadyVote,
+                                        voteCount = newVoteCount
+                                    )
+                                } else it
+                            }
+
                             currentState.copy(
                                 posts = updatedPosts,
-                                selectedPost = updatedSelectedPost
+                                selectedPost = updatedSelectedPost,
+                                selectUserPosts = updateUserPosts,
                             )
                         }
                     }
@@ -267,9 +479,22 @@ class CommunityViewModel @Inject constructor(
                                 } else it
                             }
 
+                            val updateUserPosts = currentState.selectUserPosts.map {
+                                if (it.id == post.id) {
+                                    val newIsAlreadyVote = !it.isAlreadyVote
+                                    val newVoteCount =
+                                        if (newIsAlreadyVote) it.voteCount + 1 else it.voteCount - 1
+                                    it.copy(
+                                        isAlreadyVote = newIsAlreadyVote,
+                                        voteCount = newVoteCount
+                                    )
+                                } else it
+                            }
+
                             currentState.copy(
                                 posts = updatedPosts,
-                                selectedPost = updatedSelectedPost
+                                selectedPost = updatedSelectedPost,
+                                selectUserPosts = updateUserPosts
                             )
                         }
                     }
@@ -292,7 +517,7 @@ class CommunityViewModel @Inject constructor(
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPostPage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-            userCommunityRepository.getAllPost(nextPage)
+            userCommunityRepository.getAllPost(page = nextPage)
                 .onRight { newPosts ->
                     _state.update {
                         val allPosts = if (loadMore) it.posts + newPosts else newPosts
