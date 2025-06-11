@@ -39,7 +39,6 @@ import com.example.capyvocab_fe.user.community.presentation.OwnerPostScreenConte
 import com.example.capyvocab_fe.user.community.presentation.PostScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
-import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen

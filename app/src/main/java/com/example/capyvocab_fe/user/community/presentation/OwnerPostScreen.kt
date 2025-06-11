@@ -44,7 +44,7 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.course.presentation.components.sampleCourses
 import com.example.capyvocab_fe.auth.domain.model.User
-import com.example.capyvocab_fe.core.util.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.community.domain.model.Post
