@@ -10,8 +10,12 @@ import com.example.capyvocab_fe.admin.word.data.repository.AdminWordRepositoryIm
 import com.example.capyvocab_fe.admin.word.domain.repository.AdminWordRepository
 import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
+import com.example.capyvocab_fe.user.community.data.repository.UserCommunityRepositoryImpl
+import com.example.capyvocab_fe.user.community.domain.repository.UserCommunityRepository
 import com.example.capyvocab_fe.user.learn.data.repository.UserLearnRepositoryImpl
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
+import com.example.capyvocab_fe.user.profile.data.repository.UserProfileRepositoryImpl
+import com.example.capyvocab_fe.user.profile.domain.repository.UserProfileRepository
 import com.example.capyvocab_fe.user.payment.data.repository.PaymentRepositoryImpl
 import com.example.capyvocab_fe.user.payment.domain.repository.PaymentRepository
 import com.example.capyvocab_fe.payout.data.repository.PayoutRepositoryImpl
@@ -58,6 +62,14 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindUserCommunityRepository(impl: UserCommunityRepositoryImpl): UserCommunityRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserProfileRepository(impl: UserProfileRepositoryImpl): UserProfileRepository
+  
+    @Binds
+    @Singleton
     abstract fun bindUserExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
 
     @Binds
@@ -71,5 +83,4 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserReviewRepository(impl: UserReviewRepositoryImpl): UserReviewRepository
-
 }

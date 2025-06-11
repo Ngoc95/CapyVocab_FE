@@ -191,6 +191,7 @@ fun CoursesScreenContent(
                 }
             }
         }
+
     }
 }
 

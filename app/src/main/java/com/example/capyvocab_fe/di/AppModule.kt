@@ -11,6 +11,9 @@ import com.example.capyvocab_fe.admin.word.data.remote.AdminWordApi
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
 import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
+import com.example.capyvocab_fe.user.community.data.remote.UserCommunityApi
+import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
+import com.example.capyvocab_fe.user.profile.data.remote.UserProfileApi
 import com.example.capyvocab_fe.core.network.TokenAuthenticator
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
 import com.example.capyvocab_fe.user.payment.data.remote.PaymentApi
@@ -122,8 +125,20 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideUserCommunityApi(retrofit: Retrofit): UserCommunityApi {
+        return retrofit.create(UserCommunityApi::class.java)
+        
+    @Provides
+    @Singleton
     fun provideUserExerciseApi(retrofit: Retrofit): ExerciseApi {
         return retrofit.create(ExerciseApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+
+    fun provideUserProfileApi(retrofit: Retrofit): UserProfileApi {
+        return retrofit.create(UserProfileApi::class.java)
     }
 
     @Provides

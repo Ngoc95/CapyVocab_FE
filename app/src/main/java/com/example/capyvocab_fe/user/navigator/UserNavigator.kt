@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -26,12 +27,29 @@ import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
+import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
+import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
+import com.example.capyvocab_fe.user.community.presentation.CreatePostScreen
+import com.example.capyvocab_fe.user.community.presentation.CreatePostScreenContent
+import com.example.capyvocab_fe.user.community.presentation.EditPostScreen
+import com.example.capyvocab_fe.user.community.presentation.MyPostScreen
+import com.example.capyvocab_fe.user.community.presentation.OwnerPostScreen
+import com.example.capyvocab_fe.user.community.presentation.OwnerPostScreenContent
+import com.example.capyvocab_fe.user.community.presentation.PostScreen
+import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
+import com.example.capyvocab_fe.user.profile.presentation.ProfileEvent
+import com.example.capyvocab_fe.user.profile.presentation.ProfileScreen
+import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreen
+import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreenContent
+import com.example.capyvocab_fe.user.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
 import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
 import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
@@ -88,6 +106,12 @@ fun UserNavigator() {
 
     val learnViewModel: LearnViewModel = hiltViewModel()
     val learnState by learnViewModel.state.collectAsState()
+
+    val communityViewModel: CommunityViewModel = hiltViewModel()
+    val communityState by communityViewModel.state.collectAsState()
+
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val profileState by profileViewModel.state.collectAsState()
 
     val exerciseViewModel: ExerciseViewModel = hiltViewModel()
     val exerciseState by exerciseViewModel.state.collectAsState()
@@ -165,7 +189,128 @@ fun UserNavigator() {
             //user community screen
             composable(route = Route.UserCommunityScreen.route) {
                 //TODO: navigate to user home screen
+
+                CommunityScreen(
+                    viewModel = communityViewModel,
+                    onPostComment = { post ->
+                        navController.navigate("${Route.UserPostScreen.route}/${post.id}")
+                    },
+                    onCreatePost = {
+                        navController.navigate("${Route.UserCreatePostScreen.route}")
+                    },
+                    onClickUserPostsScreen = {user ->
+                        navController.navigate("${Route.UserOwnerPostScreen.route}/${user.id}")
+                    },
+                    onMyPost = {
+                        navController.navigate("${Route.UserMyPostScreen.route}")
+                    }
+
+                )
             }
+            //Post screen in community Screen
+            composable(
+                route = "${Route.UserPostScreen.route}/{postId}",
+                arguments = listOf(navArgument("postId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getInt("postId")
+
+                LaunchedEffect(postId) {
+                    communityViewModel.onEvent(CommunityEvent.GetPostById(postId!!.toInt()))
+                }
+
+                communityState.selectedPost?.let { post ->
+                    PostScreen(
+                        post = post,
+                        viewModel = communityViewModel,
+                        navController = navController,
+                        onBackClick = { navController.popBackStack() },
+                    )
+                }
+            }
+
+            //CreatePostScreen
+            composable(
+                route = "${Route.UserCreatePostScreen.route}",
+            ) { backStackEntry ->
+                CreatePostScreen(
+                    viewModel = communityViewModel,
+                    navController = navController,
+                    onBackClick = {navController.popBackStack()}
+                )
+            }
+
+            //userPosts
+            composable(
+                route = "${Route.UserOwnerPostScreen.route}/{userId}",
+                arguments = listOf(navArgument("userId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+
+                LaunchedEffect(userId) {
+                    communityViewModel.onEvent(CommunityEvent.GetUserByID(userId!!.toInt()))
+                }
+
+                communityState.selectUser?.let{user ->
+                    OwnerPostScreenContent(
+                        user = user,
+                        viewModel = communityViewModel,
+                        navController = navController,
+                        onBackClick = {navController.popBackStack()},
+                        onPostComment = { post ->
+                            navController.navigate("${Route.UserPostScreen.route}/${post.id}")
+                        }
+                    )
+                }
+            }
+
+            //MyPost Screen
+            composable(
+                route = "${Route.UserMyPostScreen.route}",
+            ) { backStackEntry ->
+
+                LaunchedEffect(true) {
+                    communityViewModel.onEvent(CommunityEvent.LoadMyUser)
+                }
+                communityState.selectUser?.let{user ->
+                    MyPostScreen (
+                        user = user,
+                        viewModel = communityViewModel,
+                        navController = navController,
+                        onBackClick = {navController.popBackStack()},
+                        onPostComment = { post ->
+                            navController.navigate("${Route.UserPostScreen.route}/${post.id}")
+                        },
+                        onEditPost = {post ->
+                            navController.navigate("${Route.UserEditPostScreen.route}/${post.id}")
+                        }
+                    )
+                }
+
+            }
+
+            //editPostScreen
+            composable(
+                route = "${Route.UserEditPostScreen.route}/{postId}",
+                arguments = listOf(navArgument("postId") { type = NavType.IntType })
+            ) { backStackEntry ->
+
+                val postId = backStackEntry.arguments?.getInt("postId")
+
+                LaunchedEffect(postId) {
+                    communityViewModel.onEvent(CommunityEvent.GetPostById(postId!!.toInt()))
+                }
+
+                communityState.selectedPost?.let { post ->
+                    EditPostScreen(
+                        post = post,
+                        viewModel = communityViewModel,
+                        navController = navController,
+                        onBackClick = { navController.popBackStack() },
+                    )
+                }
+
+            }
+
             //user review screen
             composable(route = Route.UserReviewScreen.route) {
                 ReviewScreen(
@@ -183,6 +328,8 @@ fun UserNavigator() {
                     }
                 )
             }
+
+
             // Topics in learn screen
             composable(
                 route = "${Route.UserTopicsScreen.route}/{courseId}",
@@ -372,7 +519,30 @@ fun UserNavigator() {
             }
             //user profile screen
             composable(route = Route.UserProfileScreen.route) {
-                //TODO: navigate to user profile screen
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    onSettingUser = { user ->
+                        navController.navigate("${Route.UserAccountSettingScreen}")
+                    }
+                )
+            }
+
+            composable(
+                route = "${Route.UserAccountSettingScreen}",
+            ) { backStackEntry ->
+
+                LaunchedEffect(Unit){
+                    profileViewModel.onEvent(ProfileEvent.GetCurrentUser)
+                }
+
+                profileState.currentUser?.let{user ->
+                    ProfileSettingScreenContent(
+                        user = user,
+                        viewModel = profileViewModel,
+                        navController = navController,
+                        onBackClick = {navController.popBackStack()}
+                    )
+                }
             }
         }
     }

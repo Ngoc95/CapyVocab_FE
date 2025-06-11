@@ -7,9 +7,11 @@ import com.example.capyvocab_fe.auth.data.remote.model.RefreshResponse
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterRequest
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterResponse
 import com.example.capyvocab_fe.core.network.ApiResponse
+import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface AuthApi {
     @POST("auth/login")
@@ -29,4 +31,3 @@ interface AuthApi {
     @GET("auth/account")
     suspend fun getUserInfo(): ApiResponse<GetAccountResponse>
 }
-

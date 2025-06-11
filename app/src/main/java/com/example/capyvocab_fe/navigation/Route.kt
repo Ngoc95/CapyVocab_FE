@@ -23,6 +23,7 @@ sealed class Route(
     object UserNavigation : Route(route = "userNavigation")
     object UserNavigator : Route(route = "userNavigator")
     object UserCommunityScreen: Route(route = "userCommunityScreen")
+    object UserPostScreen: Route(route = "userPostScreen")
     object UserReviewScreen : Route(route = "userReviewScreen")
     object UserLearnScreen: Route(route = "userLearnScreen")
     object UserCoursesScreen : Route(route = "userCoursesScreen")
@@ -38,4 +39,9 @@ sealed class Route(
     object EditQuestionScreen : Route(route = "editQuestionScreen")
     object DoQuizScreen: Route(route = "doQuizScreen")
     object UserProfileScreen: Route(route = "userProfileScreen")
+    object UserCreatePostScreen: Route(route = "userCreatePostScreen")
+    object UserOwnerPostScreen: Route(route = "userOwnerPostScreen")
+    object UserAccountSettingScreen: Route(route = "userAccountSettingScreen")
+    object UserMyPostScreen: Route(route = "userMyPostScreen")
+    object UserEditPostScreen: Route(route = "userEditPostScreen")
 }
