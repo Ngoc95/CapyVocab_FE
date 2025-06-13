@@ -63,6 +63,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.mpandroidchart.v310)
+    implementation(libs.accompanist.flowlayout)
+
 
     //Splash Api
     implementation(libs.androidx.core.splashscreen)

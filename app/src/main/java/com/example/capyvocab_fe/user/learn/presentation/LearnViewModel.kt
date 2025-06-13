@@ -172,10 +172,6 @@ class LearnViewModel @Inject constructor(
         viewModelScope.launch {
             userLearnRepository.getTopicWords(topicId)
                 .onRight { newWords ->
-                    // preload ảnh
-                    val imageUrls = newWords.mapNotNull { it.image.takeIf { it.isNotBlank() } }
-                    preloadAllImages(imageUrls) // blocking
-
                     if (_state.value.selectedTopic?.id == topicId) {
                         _state.update {
                             it.copy(
@@ -189,6 +185,10 @@ class LearnViewModel @Inject constructor(
                                 correctCount = 0
                             )
                         }
+                        // preload ảnh
+                        val imageUrls = newWords.mapNotNull { it.image.takeIf { it.isNotBlank() } }
+                        preloadAllImages(imageUrls) // blocking
+
                         _imagesLoaded.value = true  // Đánh dấu đã load xong ảnh
                     }
                 }

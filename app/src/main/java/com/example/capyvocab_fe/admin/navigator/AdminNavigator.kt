@@ -41,6 +41,8 @@ import androidx.navigation.navArgument
 import com.example.capyvocab_fe.admin.course.presentation.CourseEvent
 import com.example.capyvocab_fe.admin.course.presentation.CourseListViewModel
 import com.example.capyvocab_fe.admin.course.presentation.CourseScreen
+import com.example.capyvocab_fe.admin.dashboard.presentation.DashboardScreen
+import com.example.capyvocab_fe.admin.dashboard.presentation.DashboardViewModel
 import com.example.capyvocab_fe.admin.navigator.components.AdminNavigationDrawerContent
 import com.example.capyvocab_fe.admin.navigator.components.DrawerNavigationItem
 import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
@@ -310,7 +312,8 @@ fun AdminNavigator() {
                 ) {
                     // Home screen
                     composable(route = Route.HomeScreen.route) {
-                        // TODO: Home screen content here
+                        val dashboardViewModel: DashboardViewModel = hiltViewModel()
+                        DashboardScreen(viewModel = dashboardViewModel)
                     }
 
                     // Courses screen

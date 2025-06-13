@@ -2,6 +2,8 @@ package com.example.capyvocab_fe.di
 
 import com.example.capyvocab_fe.admin.course.data.repository.AdminCourseRepositoryImpl
 import com.example.capyvocab_fe.admin.course.domain.repository.AdminCourseRepository
+import com.example.capyvocab_fe.admin.dashboard.data.repository.DashboardRepositoryImpl
+import com.example.capyvocab_fe.admin.dashboard.domain.repository.DashboardRepository
 import com.example.capyvocab_fe.admin.topic.data.repository.AdminTopicRepositoryImpl
 import com.example.capyvocab_fe.admin.topic.domain.repository.AdminTopicRepository
 import com.example.capyvocab_fe.admin.user.data.repository.AdminUserRepositoryImpl
@@ -38,6 +40,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAdminDashboardRepository(impl: DashboardRepositoryImpl): DashboardRepository
 
     @Binds
     @Singleton
