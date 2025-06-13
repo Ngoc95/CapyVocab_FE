@@ -178,7 +178,7 @@ fun LoginContent(
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = onTogglePasswordVisibility) {
-                        val icon = if (state.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                        val icon = if (state.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                         Icon(imageVector = icon, contentDescription = null)
                     }
                 },
