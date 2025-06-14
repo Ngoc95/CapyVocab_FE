@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.auth.presentation.login_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
@@ -64,6 +63,7 @@ class LoginViewModel @Inject constructor(
                     }
         }
     }
+
     fun clearForm() {
         _state.update { current ->
             current.copy(
@@ -71,6 +71,32 @@ class LoginViewModel @Inject constructor(
                 password = "",
                 isPasswordVisible = false
             )
+        }
+    }
+    fun googleLogin(token: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+
+            authRepository.googleLogin(token)
+                .onRight { user ->
+                    // Kiểm tra roleId và chuyển hướng
+                    if (user.roleId == 1) {
+                        _navigateToAdmin.emit(Unit)  // Gửi tín hiệu điều hướng đến Admin
+                    } else {
+                        _navigateToUser.emit(Unit)   // Gửi tín hiệu điều hướng đến User
+                    }
+
+                    _state.update { it.copy(isLoading = false, isLoggedIn = true) }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message
+                                ?: "Đã xảy ra lỗi khi đăng nhập bằng Google"
+                        )
+                    }
+                }
         }
     }
 }

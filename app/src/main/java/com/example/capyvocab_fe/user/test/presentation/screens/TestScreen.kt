@@ -115,7 +115,11 @@ fun TestScreen(
             )
         }
     }
-
+    LaunchedEffect(state.currentTab) {
+        if (state.currentTab == 2) { // Khi chuyển sang tab CreatedTests
+            viewModel.onEvent(ExerciseEvent.LoadFolders()) // Load lại danh sách folder
+        }
+    }
     LaunchedEffect(Unit) {
         viewModel.onEvent(ExerciseEvent.LoadFolders())
     }

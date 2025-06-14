@@ -36,10 +36,10 @@ class LearnViewModel @Inject constructor(
     fun onEvent(event: LearnEvent) {
         when (event) {
             is LearnEvent.LoadCourses -> loadCourses()
-            is LearnEvent.LoadMoreCourses -> loadCourses(loadMore = true)
+            is LearnEvent.LoadMoreCourses -> loadCourses(loadMore = true, query = state.value.searchQuery)
             is LearnEvent.GetCourseById -> getCourseById(event.courseId)
             is LearnEvent.LoadTopics -> loadTopics(event.course)
-            is LearnEvent.LoadMoreTopics -> loadTopics(event.course, loadMore = true)
+            is LearnEvent.LoadMoreTopics -> loadTopics(event.course, loadMore = true, query = state.value.searchQuery)
             is LearnEvent.GetTopicById -> getTopicById(event.topicId)
             is LearnEvent.ClearTopics -> _state.update { it.copy(topics = emptyList()) }
             is LearnEvent.LoadWords -> loadWords(event.topic)
@@ -53,6 +53,16 @@ class LearnViewModel @Inject constructor(
                 _state.update { it.copy(showCompletionDialog = false) }
             }
             is LearnEvent.ClearError -> _state.update { it.copy(errorMessage = "") }
+            is LearnEvent.OnSearch -> {
+                val query = state.value.searchQuery
+                val currentCourse = state.value.selectedCourse
+                if (currentCourse != null) {
+                    loadTopics(currentCourse, query = query)
+                } else {
+                    loadCourses(query = query)
+                }
+            }
+            is LearnEvent.OnSearchQueryChange -> { _state.update { it.copy(searchQuery = event.query) } }
         }
     }
 
@@ -80,11 +90,11 @@ class LearnViewModel @Inject constructor(
         }
     }
 
-    private fun loadCourses(loadMore: Boolean = false) {
+    private fun loadCourses(loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentCoursePage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-            userLearnRepository.getAllCourses(nextPage)
+            userLearnRepository.getAllCourses(nextPage, title = if (query?.isNotEmpty() == true) query else null)
                 .onRight { newCourses ->
                     _state.update {
                         val allCourses = if (loadMore) it.courses + newCourses else newCourses
@@ -131,11 +141,11 @@ class LearnViewModel @Inject constructor(
         }
     }
 
-    private fun loadTopics(course: Course, loadMore: Boolean = false) {
+    private fun loadTopics(course: Course, loadMore: Boolean = false, query: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentTopicPage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-            userLearnRepository.getCourseTopics(course.id, nextPage)
+            userLearnRepository.getCourseTopics(course.id, nextPage, title = if (query?.isNotEmpty() == true) query else null)
                 .onRight { newTopics ->
                     _state.update {
                         val allTopics = if (loadMore) it.topics + newTopics else newTopics

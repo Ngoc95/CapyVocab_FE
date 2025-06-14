@@ -34,7 +34,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,12 +41,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.core.ui.components.Badge
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -90,20 +89,20 @@ fun CourseCard(
                     onLongClick()
                 }
             )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = MaterialTheme.dimens.small1, vertical = MaterialTheme.dimens.extraSmall), //8dp 4dp
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .scale(checkboxScale.value)
-                .width(48.dp * checkboxScale.value),
+                .width(MaterialTheme.dimens.medium2 * checkboxScale.value), //48dp
             contentAlignment = Alignment.Center
         ) {
             if (isMultiSelecting) {
                 Checkbox(
                     checked = isSelected,
                     onCheckedChange = { onCheckedChange(it) },
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = MaterialTheme.dimens.small1) //8dp
                 )
             }
         }
@@ -111,7 +110,7 @@ fun CourseCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(MaterialTheme.dimens.medium1), //20dp
             colors = CardDefaults.cardColors(containerColor = cardColor.value), // màu header
             elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
         ) {
@@ -121,14 +120,14 @@ fun CourseCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF00D9FF))
-                        .padding(12.dp)
+                        .padding(MaterialTheme.dimens.small2) //12dp
                 ) {
                     Column(
                         modifier = Modifier.align(Alignment.Center)
                     ) {
                         if(isAdmin){
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small1) //8dp
                             ) {
                                 Badge(
                                     text = "Đã công bố",
@@ -136,11 +135,11 @@ fun CourseCard(
                                     backgroundColor = Color(0xFF075743)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                         }
 
                         Text(
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             text = course.title,
                             color = Color(0xFF2B2B2B),
                             textAlign = TextAlign.Center,
@@ -150,7 +149,7 @@ fun CourseCard(
                     if (isAdmin){
                         Box(
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(MaterialTheme.dimens.medium1) //32dp
                                 .align(Alignment.TopEnd)
                                 .clickable(onClick = onEditClick),
                         ) {
@@ -158,7 +157,7 @@ fun CourseCard(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit",
                                 tint = Color.White,
-                                modifier = Modifier.size(25.dp)
+                                modifier = Modifier.size(MaterialTheme.dimens.medium1)
                             )
                         }
                     }
@@ -170,8 +169,8 @@ fun CourseCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFFE0F7FA))
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                        .padding(MaterialTheme.dimens.small3), //16dp
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small1) //6dp
                 ) {
                     InfoRow(
                         icon = R.drawable.target,
@@ -247,16 +246,15 @@ fun InfoRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 4.dp)
+        modifier = Modifier.padding(vertical = MaterialTheme.dimens.extraSmall) //4dp
     ) {
         Image(
             painter = painterResource(id = icon),
             contentDescription = null,
-            modifier = Modifier
-                .size(33.dp)
+            modifier = Modifier.size(MaterialTheme.dimens.medium2) //33dp
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(MaterialTheme.dimens.small1)) //8dp
 
         Text(
             buildAnnotatedString {
@@ -268,10 +266,7 @@ fun InfoRow(
                 }
             },
             modifier = Modifier.weight(1f),
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 22.sp
-            )
+            style = MaterialTheme.typography.labelMedium
         )
     }
 }

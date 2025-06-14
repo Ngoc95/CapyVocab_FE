@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
 fun FormActionButtons(
@@ -28,7 +29,7 @@ fun FormActionButtons(
                 Text("Xoá", color = Color(0xFF240000))
             }
         } else {
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small1))
         }
 
         Row {

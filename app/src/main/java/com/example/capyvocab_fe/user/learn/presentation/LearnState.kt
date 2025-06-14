@@ -29,7 +29,10 @@ data class LearnState(
     val isLearning: Boolean = true,
     val isComplete: Boolean = false,
     val isMarkingComplete: Boolean = false,
-    val showCompletionDialog: Boolean = false
+    val showCompletionDialog: Boolean = false,
+
+    //search
+    val searchQuery: String = ""
 
 ) {
     val currentWord: Word?

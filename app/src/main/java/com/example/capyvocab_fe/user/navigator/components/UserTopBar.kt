@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,8 +26,7 @@ fun UserTopBar() {
         title = {
             Text(
                 text = "CapyVocab",
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
+                style = MaterialTheme.typography.headlineLarge,
                 color = Color(0xFF03A9F4)
             )
         },
@@ -35,8 +36,8 @@ fun UserTopBar() {
                 contentDescription = "Thông báo",
                 tint = Color.LightGray,
                 modifier = Modifier
-                    .size(50.dp)
-                    .padding(end = 16.dp)
+                    .size(MaterialTheme.dimens.medium3 * 1.5f)
+                    .padding(end = MaterialTheme.dimens.small3)
                     .clickable {
                         //navController.navigate(Route.NotificationScreen.route)
                     }

@@ -35,7 +35,6 @@ import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
 import com.example.capyvocab_fe.ui.theme.Styles.LightBlueTextStyle
-import com.example.capyvocab_fe.ui.theme.Styles.MyLikeButton
 import com.example.capyvocab_fe.ui.theme.Styles.TextButtonModifier
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import java.text.SimpleDateFormat

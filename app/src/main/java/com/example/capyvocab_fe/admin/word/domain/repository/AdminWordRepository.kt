@@ -2,10 +2,10 @@ package com.example.capyvocab_fe.admin.word.domain.repository
 
 import android.net.Uri
 import arrow.core.Either
-import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.domain.model.Word
+import com.example.capyvocab_fe.core.error.AppFailure
 
 interface AdminWordRepository {
     suspend fun createWords(createWordRequest: CreateWordRequest): Either<AppFailure, List<Word>>

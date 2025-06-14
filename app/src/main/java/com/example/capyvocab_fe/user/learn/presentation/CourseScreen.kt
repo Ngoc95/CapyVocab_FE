@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,10 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
+import com.example.capyvocab_fe.admin.course.presentation.CourseEvent
 import com.example.capyvocab_fe.admin.course.presentation.components.CourseCard
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import kotlinx.coroutines.delay
 
@@ -55,9 +58,18 @@ fun CourseScreen(
 
     var visibleError by remember { mutableStateOf("") }
 
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(LearnEvent.OnSearchQueryChange(searchBarText))
+            viewModel.onEvent(LearnEvent.OnSearch)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(LearnEvent.LoadCourses)
+        searchBarText = ""
     }
 
     // Khi errorMessage thay đổi, show snackbar trong 3 giây
@@ -78,7 +90,9 @@ fun CourseScreen(
             onCourseClick = { course ->
                 onCourseClick(course)
             },
-            selectedCourse = selectedCourse
+            selectedCourse = selectedCourse,
+            searchBarText = searchBarText,
+            onSearchBarTextChange = { searchBarText = it}
         )
     }
 }
@@ -90,7 +104,9 @@ fun CoursesScreenContent(
     isEndReached: Boolean,
     onCourseClick: (Course) -> Unit,
     onLoadMore: () -> Unit,
-    selectedCourse: Course?
+    selectedCourse: Course?,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -115,26 +131,24 @@ fun CoursesScreenContent(
             // Search bar
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 12.dp)
+                    .padding(horizontal = MaterialTheme.dimens.small3) //12dp
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var searchQuery by remember { mutableStateOf("") }
-
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                    value = searchBarText,
+                    onValueChange = onSearchBarTextChange,
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Tìm khóa học") },
-                    shape = RoundedCornerShape(30.dp),
+                    placeholder = { Text("Tìm khóa học", style = MaterialTheme.typography.titleMedium) },
+                    shape = RoundedCornerShape(MaterialTheme.dimens.medium1),
                     singleLine = true,
                     trailingIcon = {
                         Box(
                             modifier = Modifier
-                                .size(width = 39.dp, height = 36.dp)
+                                .size(MaterialTheme.dimens.medium2)
                                 .background(
                                     color = Color(0xFF00D9FF),
-                                    shape = RoundedCornerShape(24.dp)
+                                    shape = RoundedCornerShape(MaterialTheme.dimens.medium2)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
@@ -142,7 +156,7 @@ fun CoursesScreenContent(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(MaterialTheme.dimens.small3)
                             )
                         }
                     },
@@ -150,13 +164,13 @@ fun CoursesScreenContent(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(30.dp)
+                    .padding(horizontal = MaterialTheme.dimens.small3),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium1)
             ) {
                 itemsIndexed(courses) { index, course ->
                     val isSelected = selectedCourse == course
@@ -232,7 +246,9 @@ fun CoursesScreenContentPreview() {
             onLoadMore = {},
             isLoading = false,
             isEndReached = false,
-            selectedCourse = sampleCourses[1]
+            selectedCourse = sampleCourses[1],
+            searchBarText = "",
+            onSearchBarTextChange = {}
         )
     }
 }

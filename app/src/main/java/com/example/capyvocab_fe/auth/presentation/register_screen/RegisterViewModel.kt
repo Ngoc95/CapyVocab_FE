@@ -70,8 +70,8 @@ class RegisterViewModel @Inject constructor(
             ).onRight {
                 _state.update { it.copy(isLoading = false, isRegistered = true) }
                 _navigateToOtp.emit(Unit)  // Gửi tín hiệu điều hướng to Otp screen
-            }.onLeft {
-                _state.update { it.copy(isLoading = false, errorMessage = "Đăng ký thất bại") }
+            }.onLeft { failure ->
+                _state.update { it.copy(isLoading = false, errorMessage = failure.message ?: "Đăng ký thất bại") }
             }
         }
     }

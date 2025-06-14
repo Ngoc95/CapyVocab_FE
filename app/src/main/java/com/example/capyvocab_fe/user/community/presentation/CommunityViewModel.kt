@@ -1,11 +1,8 @@
 package com.example.capyvocab_fe.user.community.presentation
 
 import android.net.Uri
-import android.util.Log
-import androidx.collection.emptyLongSet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.left
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.user.community.data.remote.model.CreateCommentRequest

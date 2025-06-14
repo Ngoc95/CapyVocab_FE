@@ -16,7 +16,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,22 +30,18 @@ import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
 import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
 import com.example.capyvocab_fe.user.community.presentation.CreatePostScreen
-import com.example.capyvocab_fe.user.community.presentation.CreatePostScreenContent
 import com.example.capyvocab_fe.user.community.presentation.EditPostScreen
 import com.example.capyvocab_fe.user.community.presentation.MyPostScreen
-import com.example.capyvocab_fe.user.community.presentation.OwnerPostScreen
 import com.example.capyvocab_fe.user.community.presentation.OwnerPostScreenContent
 import com.example.capyvocab_fe.user.community.presentation.PostScreen
-import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.CourseScreen
+import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
-import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 import com.example.capyvocab_fe.user.profile.presentation.ProfileEvent
 import com.example.capyvocab_fe.user.profile.presentation.ProfileScreen
-import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreen
 import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreenContent
 import com.example.capyvocab_fe.user.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
@@ -54,12 +49,12 @@ import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
 import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.DoQuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.EditQuestionScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardLearningScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestDetailScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestScreen
 import com.example.capyvocab_fe.user.test.presentation.screens.TestSettingScreen
-import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardLearningScreen
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 

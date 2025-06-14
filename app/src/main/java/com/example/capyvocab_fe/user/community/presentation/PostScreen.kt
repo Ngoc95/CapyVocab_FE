@@ -2,10 +2,8 @@ package com.example.capyvocab_fe.user.community.presentation
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,20 +23,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -55,7 +47,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,21 +55,20 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.domain.model.User
+import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
-import com.example.capyvocab_fe.user.community.domain.model.Post
-import com.example.capyvocab_fe.user.community.presentation.components.ParentCommentCard
-import com.example.capyvocab_fe.user.community.presentation.components.PostThumbsGrid
-import java.text.SimpleDateFormat
-import java.util.Locale
-import com.example.capyvocab_fe.R
-import com.example.capyvocab_fe.navigation.Route
-import com.example.capyvocab_fe.ui.theme.MyGray
 import com.example.capyvocab_fe.ui.theme.White
 import com.example.capyvocab_fe.user.community.domain.model.Comment
+import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.community.domain.model.TargetType
+import com.example.capyvocab_fe.user.community.presentation.components.ParentCommentCard
+import com.example.capyvocab_fe.user.community.presentation.components.PostThumbsGrid
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun PostScreen(

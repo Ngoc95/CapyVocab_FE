@@ -6,15 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 import com.example.capyvocab_fe.user.profile.domain.repository.UserProfileRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-import javax.inject.Inject;
-
-import dagger.hilt.android.lifecycle.HiltViewModel;
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @HiltViewModel

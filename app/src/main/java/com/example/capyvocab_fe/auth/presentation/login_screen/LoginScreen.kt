@@ -1,5 +1,9 @@
 package com.example.capyvocab_fe.auth.presentation.login_screen
 
+import android.app.Activity
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -36,8 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
@@ -50,6 +57,11 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.LoadingDialog
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.ui.theme.dimens
+import com.example.capyvocab_fe.util.Constant.GOOGLE_CLIENT_ID
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 
 
 @Composable
@@ -59,6 +71,28 @@ internal fun LoginScreen(
    // onLoginSuccess: () -> Unit
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val googleSignInLauncher =
+        rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    account?.let { acc ->
+                        acc.getIdToken()?.let { token ->
+                            viewModel.googleLogin(token)
+                        } ?: run {
+                            // Xử lý khi không lấy được token
+                            Log.e("GoogleSignIn", "Failed to get ID token")
+                        }
+                    }
+                } catch (e: ApiException) {
+                    Log.e("GoogleSignIn", "Google sign-in failed", e)
+                }
+            }
+        }
 
     // Điều hướng khi đăng nhập thành công theo role
     LaunchedEffect(Unit) {
@@ -97,7 +131,12 @@ internal fun LoginScreen(
             navController.navigate(Route.RegisterScreen.route)
         },
         onGoogleLoginClick = {
-
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(GOOGLE_CLIENT_ID)
+                .requestEmail()
+                .build()
+            val googleSignInClient = GoogleSignIn.getClient(context, gso)
+            googleSignInLauncher.launch(googleSignInClient.signInIntent)
         }
     )
 }
@@ -149,31 +188,33 @@ fun LoginContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(MaterialTheme.dimens.medium1), //16dp
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
         ) {
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium2)) //30dp
 
             // Username Field
             OutlinedTextField(
                 value = state.username,
                 onValueChange = onUsernameChanged,
-                label = { Text("Tên đăng nhập") },
+                label = { Text("Tên đăng nhập", style = MaterialTheme.typography.titleMedium) },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = defaultTextFieldColors(),
                 singleLine = true,
-                shape = RoundedCornerShape(15.dp)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3), //15dp
+                textStyle = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1)) //8dp
 
             // Password Field
             OutlinedTextField(
                 value = state.password,
                 onValueChange = onPasswordChanged,
-                label = { Text("Mật khẩu") },
+                label = { Text("Mật khẩu", style = MaterialTheme.typography.titleMedium) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -185,10 +226,11 @@ fun LoginContent(
                 modifier = Modifier.fillMaxWidth(),
                 colors = defaultTextFieldColors(),
                 singleLine = true,
-                shape = RoundedCornerShape(15.dp)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                textStyle = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
 
             // Forgot Password
             Row(
@@ -199,39 +241,42 @@ fun LoginContent(
                     Text(
                         "Quên mật khẩu?",
                         color = Color.DarkGray,
-                        style = TextStyle(textDecoration = TextDecoration.Underline)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            textDecoration = TextDecoration.Underline,
+                            fontWeight = FontWeight.Normal
+                        )
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraSmall))
 
             // Login Button
             Button(
                 onClick = onLoginClick,
-                modifier = Modifier.width(250.dp),
+                modifier = Modifier.width(MaterialTheme.dimens.large * 4), //250dp
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF0866FF),
                     contentColor = Color.White
                 )
             ) {
-                Text("Đăng nhập")
+                Text("Đăng nhập", style = MaterialTheme.typography.titleMedium)
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraSmall))
 
             // Register Button
             OutlinedButton(
                 onClick = onRegisterClick,
-                modifier = Modifier.width(250.dp),
+                modifier = Modifier.width(MaterialTheme.dimens.large * 4),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color.Gray
                 )
             ) {
-                Text("Đăng ký")
+                Text("Đăng ký", style = MaterialTheme.typography.titleMedium)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium2))
 
             // Sign in with Google
             Row(
@@ -245,7 +290,10 @@ fun LoginContent(
                 )
                 Text(
                     text = "Đăng nhập bằng",
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small2),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Normal
+                    ),
                     color = Color.Black
                 )
                 Divider(
@@ -256,22 +304,22 @@ fun LoginContent(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             IconButton(
                 onClick = onGoogleLoginClick,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(MaterialTheme.dimens.buttonHeight * 1.2f)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.google_ic),
                     contentDescription = "Google Sign In",
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(MaterialTheme.dimens.buttonHeight * 0.9f)
                 )
             }
 
             // Error message
             if (state.errorMessage.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
                 Text(
                     text = state.errorMessage,
                     color = Color.Red,

@@ -19,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -46,7 +45,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
@@ -55,6 +53,7 @@ import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.delay
 
 @Composable
@@ -143,51 +142,53 @@ fun OtpScreenContent(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .padding(top = 300.dp)
+                .padding(MaterialTheme.dimens.medium1)
+                .padding(top = MaterialTheme.dimens.large * 4f) //300.dp to center vertically
 
         ) {
             Text(
                 text = "Xác nhận Email của bạn",
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 26.sp)
+                style = MaterialTheme.typography.headlineMedium
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2)) //8dp
 
             Text(
                 text = "Nhập mã OTP tại đây",
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.titleMedium,
                 color = Color.Gray
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium2)) //24.dp
 
             // OTP Input Fields
             OtpInputFields(otp = otp, onOtpChange = onOtpChange)
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3)) //16.dp
 
             // Resend OTP
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Chưa nhận được mã?",
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.Gray
                 )
 
                 TextButton(
                     onClick = onResendClick,
-                    enabled = canResend && !loading
+                    enabled = canResend && !loading,
+                    contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.small2)
                 ) {
                     Text(
                         text = if (canResend) "Gửi lại" else "Gửi lại (${remainingSeconds}s)",
-                        color = if (canResend) Color(0xFF2196F3) else Color.Gray
+                        color = if (canResend) Color(0xFF2196F3) else Color.Gray,
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium2)) //24dp
 
             // Verify button
             Button(
@@ -195,8 +196,8 @@ fun OtpScreenContent(
                 enabled = otp.length == 6 && !loading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(50),
+                    .height(MaterialTheme.dimens.buttonHeight),
+                shape = RoundedCornerShape(MaterialTheme.dimens.large),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF0866FF),
                     contentColor = Color.White
@@ -204,15 +205,16 @@ fun OtpScreenContent(
             ) {
                 if (loading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(MaterialTheme.dimens.medium2),
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
                 } else {
                     Text(
                         text = "Xác nhận",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        )
                     )
                 }
             }
@@ -230,7 +232,7 @@ fun OtpInputFields(
     val focusRequesters = remember { List(6) { FocusRequester() } }
     val focusManager = LocalFocusManager.current
 
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)) {//8dp
         repeat(6) { index ->
             val char = otp.getOrNull(index)?.toString() ?: ""
 
@@ -269,11 +271,10 @@ fun OtpInputFields(
                     }
                 },
                 modifier = Modifier
-                    .width(50.dp)
-                    .heightIn(min = 50.dp)
+                    .width(MaterialTheme.dimens.buttonHeight * 1.2f) //50dp
+                    .heightIn(min = MaterialTheme.dimens.buttonHeight) //50dp
                     .focusRequester(focusRequesters[index]),
-                textStyle = LocalTextStyle.current.copy(
-                    fontSize = 20.sp,
+                textStyle = MaterialTheme.typography.headlineMedium.copy(
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold
                 ),
@@ -287,7 +288,7 @@ fun OtpInputFields(
                     focusedTextColor = Color(0xFF2C89FF),
                     unfocusedTextColor = Color(0xFF2C89FF)
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small2)
             )
         }
     }
@@ -298,7 +299,7 @@ fun OtpInputFields(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun OtpScreenPreview() {
     CapyVocab_FETheme {

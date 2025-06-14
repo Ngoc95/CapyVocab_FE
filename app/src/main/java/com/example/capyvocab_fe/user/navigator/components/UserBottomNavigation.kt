@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
 fun UserBottomNavigation(
@@ -40,9 +42,9 @@ fun UserBottomNavigation(
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         Surface(
-            tonalElevation = 4.dp,
-            shadowElevation = 8.dp,
-            shape = RoundedCornerShape(topStart = 24.dp),
+            tonalElevation = MaterialTheme.dimens.extraSmall,
+            shadowElevation = MaterialTheme.dimens.small3,
+            shape = RoundedCornerShape(topStart = MaterialTheme.dimens.medium2),
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
@@ -67,11 +69,11 @@ fun UserBottomNavigation(
                                     Image(
                                         painter = iconPainter,
                                         contentDescription = null,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(MaterialTheme.dimens.medium1)
                                     )
                                     Text(
                                         text = item.text,
-                                        fontSize = 11.sp,
+                                        style = MaterialTheme.typography.titleMedium,
                                         color = if (isSelected) Color(0xFF007BFF) else Color.Gray
                                     )
                                 }
@@ -95,23 +97,23 @@ fun UserBottomNavigation(
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-20).dp) // Điều chỉnh độ nổi lên
+                .offset(y = (-MaterialTheme.dimens.medium1)) // Điều chỉnh độ nổi lên
                 .zIndex(1f)
                 .clip(CircleShape)
                 .background(Color(0xFFCCE5FF))
                 .clickable { onItemClick(2) }
-                .padding(vertical = 8.dp, horizontal = 12.dp), // co gọn vùng bo tròn
+                .padding(vertical = MaterialTheme.dimens.small3, horizontal = MaterialTheme.dimens.small3), // co gọn vùng bo tròn
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
                     painter = iconPainter,
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(MaterialTheme.dimens.medium2)
                 )
                 Text(
                     text = centerItem.text,
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     color = if (isSelected) Color(0xFF007BFF) else Color.Gray
                 )
             }

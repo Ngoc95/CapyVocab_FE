@@ -18,6 +18,7 @@ interface UserLearnApi {
     suspend fun getAllCourses(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("title") title: String? = null,
         @Query("sort") sort: String = "-id,+title"
     ): CourseListResponse
 
@@ -26,6 +27,7 @@ interface UserLearnApi {
         @Path("id") id: Int,
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
+        @Query("title") title: String? = null
     ): ApiResponse<CourseTopicsResponse>
 
     @GET("/courses/{id}")

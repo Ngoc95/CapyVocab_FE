@@ -1,15 +1,11 @@
 package com.example.capyvocab_fe.user.community.presentation.components
 
-import com.example.capyvocab_fe.R
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -22,9 +18,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
-import com.example.capyvocab_fe.ui.theme.MyGray
-import com.example.capyvocab_fe.ui.theme.MyLightBlue
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

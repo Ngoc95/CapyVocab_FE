@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -40,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.core.ui.components.PronunciationPlayer
-import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -72,52 +71,51 @@ fun WordCard(
                     onLongClick()
                 }
             )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = MaterialTheme.dimens.small1, vertical = MaterialTheme.dimens.extraSmall),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .scale(checkboxScale.value)
-                .width(48.dp * checkboxScale.value),
+                .width(MaterialTheme.dimens.medium2 * checkboxScale.value),
             contentAlignment = Alignment.Center
         ) {
             if (isMultiSelecting) {
                 Checkbox(
                     checked = isSelected,
                     onCheckedChange = { onCheckedChange(it) },
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = MaterialTheme.dimens.small1)
                 )
             }
         }
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(MaterialTheme.dimens.medium1),
             colors = CardDefaults.cardColors(containerColor = Color(0xFF99E5F7)),
             elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
         ) {
             Row(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(MaterialTheme.dimens.medium1)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
                 Column(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1.5f)
                 ) {
                     // Content + Pronunciation
                     Text(
                         text = word.content,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraSmall))
                     Text(
                         text = "(${word.position}) ${word.pronunciation}",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontStyle = FontStyle.Italic
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
                     // Meaning
                     Text(
@@ -125,27 +123,27 @@ fun WordCard(
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
                     // Example
                     Text(
                         text = word.example,
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraSmall))
                     Text(
                         text = word.translateExample,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small2))
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (word.audio.isNotEmpty()) {
@@ -163,7 +161,7 @@ fun WordCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
                     // Word Image
                     AsyncImage(
@@ -171,8 +169,8 @@ fun WordCard(
                         contentDescription = "Word Image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(80.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .size(MaterialTheme.dimens.large * 2f)
+                            .clip(RoundedCornerShape(MaterialTheme.dimens.small3))
                     )
                 }
             }
@@ -183,7 +181,7 @@ fun WordCard(
 @Preview(showBackground = true)
 @Composable
 fun WordCardPreview() {
-    CapyVocab_FETheme {
+
         val sampleWord = Word(
             id = 1,
             content = "apple",
@@ -204,5 +202,5 @@ fun WordCardPreview() {
             isMultiSelecting = false,
             isSelected = false
         )
-    }
+
 }

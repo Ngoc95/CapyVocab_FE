@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -22,8 +24,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,12 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,7 +49,7 @@ import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.LoadingDialog
 import com.example.capyvocab_fe.navigation.Route
-import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
 internal fun RegisterScreen(
@@ -81,7 +82,7 @@ internal fun RegisterScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RegisterScreenPreview() {
-    CapyVocab_FETheme {
+
         RegisterContent(
             state = RegisterViewState(
                 username = "",
@@ -101,7 +102,7 @@ fun RegisterScreenPreview() {
             onRegisterClick = {},
             onLoginClick = {}
         )
-    }
+
 }
 
 
@@ -130,43 +131,45 @@ fun RegisterContent(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-
+                .padding(MaterialTheme.dimens.medium1) //16dp
+                .verticalScroll(rememberScrollState())
         ) {
             // Username
             OutlinedTextField(
                 value = state.username,
                 onValueChange = onUsernameChanged,
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                placeholder = { Text("Tên đăng nhập") },
-                modifier = Modifier.width(330.dp),
+                placeholder = { Text("Tên đăng nhập", style = MaterialTheme.typography.titleMedium) },
+                modifier = Modifier.fillMaxWidth(),
                 colors = defaultTextFieldColors(),
                 singleLine = true,
-                shape = RoundedCornerShape(15.dp)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3), //15dp
+                textStyle = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             // Email
             OutlinedTextField(
                 value = state.email,
                 onValueChange = onEmailChanged,
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                placeholder = { Text("Email") },
-                modifier = Modifier.width(330.dp),
+                placeholder = { Text("Email", style = MaterialTheme.typography.titleMedium) },
+                modifier = Modifier.fillMaxWidth(),
                 colors = defaultTextFieldColors(),
                 singleLine = true,
-                shape = RoundedCornerShape(15.dp)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                textStyle = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             // Password
             OutlinedTextField(
                 value = state.password,
                 onValueChange = onPasswordChanged,
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                placeholder = { Text("Mật khẩu") },
+                placeholder = { Text("Mật khẩu", style = MaterialTheme.typography.titleMedium) },
                 trailingIcon = {
                     IconButton(onClick = onTogglePasswordVisibility) {
                         Icon(
@@ -176,20 +179,21 @@ fun RegisterContent(
                     }
                 },
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.width(330.dp),
+                modifier = Modifier.fillMaxWidth(),
                 colors = defaultTextFieldColors(),
                 singleLine = true,
-                shape = RoundedCornerShape(15.dp)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                textStyle = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             // Confirm password
             OutlinedTextField(
                 value = state.confirmPassword,
                 onValueChange = onConfirmPasswordChanged,
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                placeholder = { Text("Nhập lại mật khẩu") },
+                placeholder = { Text("Nhập lại mật khẩu", style = MaterialTheme.typography.titleMedium) },
                 trailingIcon = {
                     IconButton(onClick = onToggleConfirmPasswordVisibility) {
                         Icon(
@@ -199,26 +203,27 @@ fun RegisterContent(
                     }
                 },
                 visualTransformation = if (state.isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.width(330.dp),
+                modifier = Modifier.fillMaxWidth(),
                 colors = defaultTextFieldColors(),
                 singleLine = true,
-                shape = RoundedCornerShape(15.dp)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                textStyle = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             // Create account btn
             Button(
                 onClick = onRegisterClick,
                 modifier = Modifier
-                    .height(44.dp)
-                    .width(250.dp),
+                    .height(MaterialTheme.dimens.buttonHeight)
+                    .width(MaterialTheme.dimens.large * 4),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0866FF))
             ) {
-                Text("Tạo tài khoản", color = Color.White)
+                Text("Tạo tài khoản", color = Color.White, style = MaterialTheme.typography.titleMedium)
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -228,10 +233,22 @@ fun RegisterContent(
                     Text(
                         "Đã có tài khoản? Đăng nhập",
                         color = Color.DarkGray,
-                        style = TextStyle(textDecoration = TextDecoration.Underline),
-                        letterSpacing = 0.7.sp
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            textDecoration = TextDecoration.Underline,
+                            letterSpacing = 0.7.sp,
+                            fontWeight = FontWeight.Normal
+                        )
                     )
                 }
+            }
+            // Error message
+            if (state.errorMessage.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+                Text(
+                    text = state.errorMessage,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.example.capyvocab_fe.auth.presentation.ui.components
 
-import androidx.compose.material3.*
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 

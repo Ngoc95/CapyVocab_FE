@@ -4,7 +4,6 @@ import arrow.core.Either
 import com.example.capyvocab_fe.core.error.AppError
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
-import com.example.capyvocab_fe.user.payment.data.remote.model.CreateOrderResponse
 import com.example.capyvocab_fe.user.payment.domain.model.Order
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 import javax.inject.Inject
