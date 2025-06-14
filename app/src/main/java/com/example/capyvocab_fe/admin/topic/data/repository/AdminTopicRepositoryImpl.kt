@@ -8,9 +8,9 @@ import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicRequest
 import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.admin.topic.domain.repository.AdminTopicRepository
+import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
-import com.example.capyvocab_fe.admin.word.domain.model.Word
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody

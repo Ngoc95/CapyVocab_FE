@@ -23,4 +23,6 @@ sealed class LearnEvent {
     object DismissCompletionDialog : LearnEvent()
 
     object ClearError : LearnEvent()
+    data class OnSearchQueryChange(val query: String) : LearnEvent()
+    object OnSearch : LearnEvent()
 }

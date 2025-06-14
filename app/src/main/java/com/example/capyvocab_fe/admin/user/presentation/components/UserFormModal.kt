@@ -35,6 +35,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -70,7 +71,7 @@ import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextField
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
-import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
 fun UserFormDialog(
@@ -96,18 +97,17 @@ fun UserFormDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(bottom = 16.dp)
         ) {
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(MaterialTheme.dimens.medium1),
                 color = Color(0xFF66E6FF),
                 modifier = Modifier
                     .width(dialogWidth)
-                    .padding(16.dp)
+                    .padding(MaterialTheme.dimens.small1)
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(MaterialTheme.dimens.medium1)
                         .verticalScroll(rememberScrollState())
                 ) {
                     //avatar + id + role
@@ -121,7 +121,7 @@ fun UserFormDialog(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
                     // Text fields
                     FocusComponent {
@@ -138,7 +138,7 @@ fun UserFormDialog(
                     }
 
                     if (user != null) {
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(MaterialTheme.dimens.medium2))
 
                         FocusComponent {
                             user.lastStudyDate?.let {
@@ -153,7 +153,7 @@ fun UserFormDialog(
                         }
                     }
 
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(MaterialTheme.dimens.medium1))
 
                     // Action buttons
                     FormActionButtons(
@@ -163,22 +163,20 @@ fun UserFormDialog(
                         onSave = {
                             val updatedUser = user?.copy(
                                 username = username,
-                                //                            password = password,
                                 email = email,
                                 roleId = roleId,
                             ) ?: User(
                                 id = 0,
                                 username = username,
-                                //                            password = password,
                                 email = email,
                                 avatar = "",
-                                roleId = roleId,
+                                status = "NOT_VERIFIED",
                                 streak = 0,
                                 lastStudyDate = "",
                                 totalStudyDay = 0,
                                 totalLearnedCard = 0,
                                 totalMasteredCard = 0,
-                                status = "NOT_VERIFIED"
+                                roleId = roleId,
                             )
                             onSave(updatedUser, password, confirmPassword, selectedImageUri)
                         }
@@ -242,12 +240,12 @@ fun UserFormHeader(
 
         Column {
             if (userId != null) {
-                Text("ID: $userId", fontWeight = FontWeight.Bold)
+                Text("ID: $userId", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Vai trò:", fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Vai trò:", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small1))
                 Box {
                     // Field để hiển thị
                     BasicTextField(
@@ -289,7 +287,7 @@ fun UserFormHeader(
                                         enabled = true,
                                         isError = false,
                                         interactionSource = remember { MutableInteractionSource() },
-                                        shape = RoundedCornerShape(13.dp),
+                                        shape = RoundedCornerShape(MaterialTheme.dimens.small2),
                                         colors = defaultTextFieldColors()
                                     )
                                 }
@@ -301,7 +299,7 @@ fun UserFormHeader(
                     Spacer(
                         modifier = Modifier
                             .matchParentSize()
-                            .clip(RoundedCornerShape(13.dp))
+                            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
                             .zIndex(1f)
                             .clickable { expanded = true }
                     )
@@ -342,27 +340,29 @@ fun UserFormFields(
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Tên đăng nhập", fontWeight = FontWeight.Bold)
+        Text("Tên đăng nhập", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
         OutlinedTextField(
             value = username,
             onValueChange = onUsernameChange,
             modifier = Modifier.fillMaxWidth(),
             colors = defaultTextFieldColors(),
             singleLine = true,
-            shape = RoundedCornerShape(15.dp)
+            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+            textStyle = MaterialTheme.typography.bodyMedium
         )
 
-        Text("Email", fontWeight = FontWeight.Bold)
+        Text("Email", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
         OutlinedTextField(
             value = email,
             onValueChange = onEmailChange,
             modifier = Modifier.fillMaxWidth(),
             colors = defaultTextFieldColors(),
             singleLine = true,
-            shape = RoundedCornerShape(15.dp)
+            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+            textStyle = MaterialTheme.typography.bodyMedium
         )
 
-        Text("Mật khẩu", fontWeight = FontWeight.Bold)
+        Text("Mật khẩu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
         OutlinedTextField(
             value = password,
             onValueChange = onPasswordChange,
@@ -378,10 +378,11 @@ fun UserFormFields(
             modifier = Modifier.fillMaxWidth(),
             colors = defaultTextFieldColors(),
             singleLine = true,
-            shape = RoundedCornerShape(15.dp)
+            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+            textStyle = MaterialTheme.typography.bodyMedium
         )
 
-        Text("Xác nhận mật khẩu", fontWeight = FontWeight.Bold)
+        Text("Xác nhận mật khẩu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = onConfirmPasswordChange,
@@ -397,7 +398,8 @@ fun UserFormFields(
             modifier = Modifier.fillMaxWidth(),
             colors = defaultTextFieldColors(),
             singleLine = true,
-            shape = RoundedCornerShape(15.dp)
+            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+            textStyle = MaterialTheme.typography.bodyMedium
         )
     }
 }
@@ -426,7 +428,7 @@ fun UserInfoStats(
                 }
             }
         )
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -442,7 +444,7 @@ fun UserInfoStats(
                 }
             }
         )
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -458,7 +460,7 @@ fun UserInfoStats(
                 }
             }
         )
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -474,7 +476,7 @@ fun UserInfoStats(
                 }
             }
         )
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -499,8 +501,8 @@ fun UserInfoStats(
 private fun UserFormModalPreview() {
     val sampleUser = User(
         id = 1,
-        email = "duongkhanhngoc@gmail.com",
         username = "Snoopy",
+        email = "duongkhanhngoc@gmail.com",
         avatar = "https://example.com/avatar.png",
         status = "VERIFIED",
         streak = 20,
@@ -508,9 +510,8 @@ private fun UserFormModalPreview() {
         totalStudyDay = 20,
         totalLearnedCard = 100,
         totalMasteredCard = 70,
-        roleId = 3,
+        roleId = 3
     )
-    CapyVocab_FETheme {
         UserFormDialog(
             user = sampleUser,
             errorMessage = "",
@@ -519,5 +520,4 @@ private fun UserFormModalPreview() {
             },
             onDelete = {}
         )
-    }
 }

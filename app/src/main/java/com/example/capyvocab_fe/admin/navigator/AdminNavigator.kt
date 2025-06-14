@@ -2,6 +2,7 @@ package com.example.capyvocab_fe.admin.navigator
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -29,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -56,6 +56,7 @@ import com.example.capyvocab_fe.admin.word.presentation.WordScreen
 import com.example.capyvocab_fe.admin.word.presentation.WordsInTopicScreen
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,7 +204,7 @@ fun AdminNavigator() {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                modifier = Modifier.width(240.dp)
+                modifier = Modifier.width(MaterialTheme.dimens.large * 4)
             ) {
                 AdminNavigationDrawerContent(
                     items = navigationItems,
@@ -223,49 +224,59 @@ fun AdminNavigator() {
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = { Text(text = screenTitle) },
+                    title = {
+                        Text(
+                            text = screenTitle,
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    },
                     navigationIcon = {
                         if (shouldShowBackButton) {
                             // show back button for nested screens or multi-select mode
-                            IconButton(onClick = {
-                                if (isInMultiSelectMode) {
-                                    // handle multi-select back button
-                                    when {
-                                        currentRoute == Route.UsersScreen.route -> userViewModel.onEvent(
-                                            UserListEvent.CancelMultiSelect
-                                        )
+                            IconButton(
+                                modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                onClick = {
+                                    if (isInMultiSelectMode) {
+                                        // handle multi-select back button
+                                        when {
+                                            currentRoute == Route.UsersScreen.route -> userViewModel.onEvent(
+                                                UserListEvent.CancelMultiSelect
+                                            )
 
-                                        currentRoute == Route.CoursesScreen.route -> courseViewModel.onEvent(
-                                            CourseEvent.CancelMultiSelect
-                                        )
+                                            currentRoute == Route.CoursesScreen.route -> courseViewModel.onEvent(
+                                                CourseEvent.CancelMultiSelect
+                                            )
 
-                                        currentRoute == Route.TopicsScreen.route -> topicViewModel.onEvent(
-                                            TopicEvent.CancelMultiSelect
-                                        )
+                                            currentRoute == Route.TopicsScreen.route -> topicViewModel.onEvent(
+                                                TopicEvent.CancelMultiSelect
+                                            )
 
-                                        currentRoute == Route.WordsScreen.route -> wordViewModel.onEvent(
-                                            WordEvent.CancelMultiSelect
-                                        )
+                                            currentRoute == Route.WordsScreen.route -> wordViewModel.onEvent(
+                                                WordEvent.CancelMultiSelect
+                                            )
 
-                                        currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
-                                            topicViewModel.onEvent(TopicEvent.CancelMultiSelect)
+                                            currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
+                                                topicViewModel.onEvent(TopicEvent.CancelMultiSelect)
 
-                                        currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
-                                            wordViewModel.onEvent(WordEvent.CancelMultiSelect)
+                                            currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
+                                                wordViewModel.onEvent(WordEvent.CancelMultiSelect)
+                                        }
+                                    } else {
+                                        //regular back navigation
+                                        navController.popBackStack()
                                     }
-                                } else {
-                                    //regular back navigation
-                                    navController.popBackStack()
-                                }
-                            }) {
+                                }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "Back"
+                                    contentDescription = "Back",
+                                    modifier = Modifier.size(MaterialTheme.dimens.medium1)
                                 )
                             }
                         } // Only show menu button if not in multi-select mode
                         else if (!isInMultiSelectMode) {
-                            IconButton(onClick = {
+                            IconButton(
+                                modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                onClick = {
                                 scope.launch {
                                     if (drawerState.isClosed) {
                                         drawerState.open()
@@ -276,7 +287,8 @@ fun AdminNavigator() {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Menu,
-                                    contentDescription = "Menu"
+                                    contentDescription = "Menu",
+                                    modifier = Modifier.size(MaterialTheme.dimens.medium1)
                                 )
                             }
                         }
@@ -284,10 +296,14 @@ fun AdminNavigator() {
                     actions = {
                         //show delete button when in multi-select mode
                         if (isInMultiSelectMode && selectedItemsCount > 0) {
-                            IconButton(onClick = { handleDeleteSelected() }) {
+                            IconButton(
+                                modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                onClick = { handleDeleteSelected() }
+                            ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete selected"
+                                    contentDescription = "Delete selected",
+                                    modifier = Modifier.size(MaterialTheme.dimens.medium1)
                                 )
                             }
                         }

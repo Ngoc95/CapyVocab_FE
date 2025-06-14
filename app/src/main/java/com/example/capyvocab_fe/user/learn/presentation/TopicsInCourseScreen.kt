@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,10 +44,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
+import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.TopBarTitle
+import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.delay
 
 @Composable
@@ -66,7 +69,14 @@ fun TopicsInCourseScreen(
     LaunchedEffect(course) {
         viewModel.onEvent(LearnEvent.LoadTopics(course))
     }
-
+    var searchBarText by remember { mutableStateOf(state.searchQuery) }
+    LaunchedEffect(searchBarText) {
+        delay(400)
+        if (searchBarText != state.searchQuery) {
+            viewModel.onEvent(LearnEvent.OnSearchQueryChange(searchBarText))
+            viewModel.onEvent(LearnEvent.OnSearch)
+        }
+    }
     BackHandler {
         navController.popBackStack()
     }
@@ -99,7 +109,9 @@ fun TopicsInCourseScreen(
                 onTopicClick(topic)
             },
             selectedTopic = selectedTopic,
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            searchBarText = searchBarText,
+            onSearchBarTextChange = {searchBarText = it}
         )
     }
 }
@@ -113,7 +125,9 @@ fun TopicsInCourseScreenContent(
     onTopicClick: (Topic) -> Unit,
     onLoadMore: () -> Unit,
     onBackClick: () -> Unit,
-    selectedTopic: Topic?
+    selectedTopic: Topic?,
+    searchBarText: String,
+    onSearchBarTextChange: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -148,27 +162,25 @@ fun TopicsInCourseScreenContent(
             // Search bar
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 12.dp)
+                    .padding(horizontal = MaterialTheme.dimens.small3)
+                    .padding(top = MaterialTheme.dimens.small2)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var searchQuery by remember { mutableStateOf("") }
-
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                    value = searchBarText,
+                    onValueChange = onSearchBarTextChange,
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Tìm chủ đề") },
-                    shape = RoundedCornerShape(30.dp),
+                    placeholder = { Text("Tìm chủ đề", style = MaterialTheme.typography.titleMedium) },
+                    shape = RoundedCornerShape(MaterialTheme.dimens.medium1),
                     singleLine = true,
                     trailingIcon = {
                         Box(
                             modifier = Modifier
-                                .size(width = 39.dp, height = 36.dp)
+                                .size(MaterialTheme.dimens.medium2)
                                 .background(
                                     color = Color(0xFF00D9FF),
-                                    shape = RoundedCornerShape(24.dp)
+                                    shape = RoundedCornerShape(MaterialTheme.dimens.medium2)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
@@ -176,7 +188,7 @@ fun TopicsInCourseScreenContent(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(MaterialTheme.dimens.small3)
                             )
                         }
                     },
@@ -184,13 +196,13 @@ fun TopicsInCourseScreenContent(
                 )
 
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(30.dp)
+                    .padding(horizontal = MaterialTheme.dimens.small3),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium1)
             ) {
                 itemsIndexed(topics, key = { _, topic -> topic.id }) { index, topic ->
                     val isSelected = selectedTopic == topic

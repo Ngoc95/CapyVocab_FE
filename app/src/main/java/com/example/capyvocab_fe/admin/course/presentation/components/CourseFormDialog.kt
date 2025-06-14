@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,7 +41,7 @@ import com.example.capyvocab_fe.admin.course.domain.model.CourseLevel
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
-import com.example.capyvocab_fe.core.ui.components.SnackbarType
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
 fun CourseFormDialog(
@@ -65,52 +66,55 @@ fun CourseFormDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(bottom = 16.dp)
+                .padding(bottom = MaterialTheme.dimens.small3) //16dp
         ) {
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                 color = Color(0xFF66E6FF),
                 modifier = Modifier
                     .width(dialogWidth)
-                    .padding(16.dp)
+                    .padding(MaterialTheme.dimens.small3)
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(MaterialTheme.dimens.small3)
                         .verticalScroll(rememberScrollState())
                 ) {
                     // Header (Course ID)
                     course?.id?.let {
-                        Text("ID: $it", fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("ID: $it", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                     }
 
                     // Form fields
-                    Text("Tên khoá học", fontWeight = FontWeight.Bold)
+                    Text("Tên khoá học", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(15.dp),
+                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                         maxLines = 5,
                         colors = defaultTextFieldColors()
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
-                    Text("Mục tiêu", fontWeight = FontWeight.Bold)
+                    Text("Mục tiêu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                     OutlinedTextField(
                         value = target,
                         onValueChange = { target = it },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(15.dp),
+                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                         maxLines = 5,
                         colors = defaultTextFieldColors()
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
-                    Text("Trình độ", fontWeight = FontWeight.Bold)
+                    Text("Trình độ", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -119,7 +123,7 @@ fun CourseFormDialog(
                             value = mapLevel(level),
                             onValueChange = { /*read-only */ },
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(15.dp),
+                            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                             readOnly = true,
                             trailingIcon = {
                                 Icon(
@@ -134,7 +138,7 @@ fun CourseFormDialog(
                         Spacer(
                             modifier = Modifier
                                 .matchParentSize()
-                                .clip(RoundedCornerShape(13.dp))
+                                .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
                                 .zIndex(1f)
                                 .clickable { expanded = true }
                         )
@@ -145,7 +149,7 @@ fun CourseFormDialog(
                         ) {
                             CourseLevel.entries.forEach { courseLevel ->
                                 DropdownMenuItem(
-                                    text = { Text(text = mapLevel(courseLevel.value)) },
+                                    text = { Text(text = mapLevel(courseLevel.value), style = MaterialTheme.typography.labelMedium) },
                                     onClick = {
                                         level = courseLevel.value
                                         expanded = false
@@ -155,19 +159,20 @@ fun CourseFormDialog(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
-                    Text("Mô tả", fontWeight = FontWeight.Bold)
+                    Text("Mô tả", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(15.dp),
+                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                         maxLines = 5,
                         colors = defaultTextFieldColors()
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
                     // Action buttons
                     FormActionButtons(

@@ -47,10 +47,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.user.domain.model.User
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -101,20 +101,20 @@ fun UserCard(
                     onLongClick()
                 }
             )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = MaterialTheme.dimens.small1, vertical = MaterialTheme.dimens.extraSmall),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .scale(checkboxScale.value)
-                .width(48.dp * checkboxScale.value),
+                .width(MaterialTheme.dimens.medium2 * checkboxScale.value),
             contentAlignment = Alignment.Center
         ) {
             if (isMultiSelecting) {
                 Checkbox(
                     checked = isSelected,
                     onCheckedChange = { onCheckedChange(it) },
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = MaterialTheme.dimens.small1)
                 )
             }
         }
@@ -122,21 +122,21 @@ fun UserCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-            shape = RoundedCornerShape(16.dp),
+                .padding(MaterialTheme.dimens.small1),
+            shape = RoundedCornerShape(MaterialTheme.dimens.medium1),
             colors = CardDefaults.cardColors(containerColor = cardColor.value), // màu header
             elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
         ) {
             Column {
                 // Header
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(MaterialTheme.dimens.medium1)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
 
                         AsyncImage(
                             model = user.avatar,
                             contentDescription = null,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(MaterialTheme.dimens.large)
                                 .clip(CircleShape),
                             contentScale = ContentScale.Crop,
                             placeholder = painterResource(R.drawable.default_avt),
@@ -144,7 +144,7 @@ fun UserCard(
                             fallback = painterResource(R.drawable.default_avt)
                         )
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
                         Column(modifier = Modifier.weight(1f)) {
 
@@ -154,8 +154,7 @@ fun UserCard(
                             ) {
                                 Text(
                                     text = user.username,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                     color = Color(0xFF413B38),
                                     modifier = Modifier.weight(1f, fill = false)
                                 )
@@ -182,7 +181,7 @@ fun UserCard(
                                     )
                                 }
                             }
-                            Text(text = "#${user.id}", fontSize = 14.sp, color = Color.DarkGray)
+                            Text(text = "#${user.id}", style = MaterialTheme.typography.labelMedium, color = Color.DarkGray)
                         }
 
                         Icon(
@@ -244,7 +243,7 @@ fun InfoRow(label: String, value: String) {
             }
             append(value)
         },
-        fontSize = 14.sp,
+        style = MaterialTheme.typography.labelMedium,
         color = Color(0xFF413B38),
         modifier = Modifier.padding(vertical = 2.dp)
     )

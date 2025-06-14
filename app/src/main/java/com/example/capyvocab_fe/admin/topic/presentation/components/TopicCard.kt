@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -47,8 +48,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.core.ui.components.Badge
-import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -84,20 +84,20 @@ fun TopicCard(
                     onLongClick()
                 }
             )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = MaterialTheme.dimens.small1, vertical = MaterialTheme.dimens.extraSmall),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .scale(checkboxScale.value)
-                .width(48.dp * checkboxScale.value),
+                .width(MaterialTheme.dimens.medium2 * checkboxScale.value),
             contentAlignment = Alignment.Center
         ) {
             if (isMultiSelecting) {
                 Checkbox(
                     checked = isSelected,
                     onCheckedChange = { onCheckedChange(it) },
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = MaterialTheme.dimens.small1)
                 )
             }
         }
@@ -111,12 +111,12 @@ fun TopicCard(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .offset(y = 6.dp)
+                    .offset(y = MaterialTheme.dimens.small1)
                     .background(
                         color = Color.Black.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(24.dp)
+                        shape = RoundedCornerShape(MaterialTheme.dimens.medium2)
                     )
-                    .blur(20.dp)
+                    .blur(MaterialTheme.dimens.medium2)
             )
 
             // Card chính
@@ -124,7 +124,7 @@ fun TopicCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp),
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(MaterialTheme.dimens.medium2),
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                 elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
             ) {
@@ -144,7 +144,7 @@ fun TopicCard(
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(14.dp)
+                            .padding(MaterialTheme.dimens.small3)
                             .fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -160,12 +160,12 @@ fun TopicCard(
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(90.dp)
+                                .size(MaterialTheme.dimens.large)
                                 .clip(CircleShape)
                         )
 
 
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
                         Column(
                             modifier = Modifier.weight(1f)
@@ -176,32 +176,17 @@ fun TopicCard(
                             ) {
                                 Text(
                                     text = topic.title,
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                     color = Color(0xFF413B38),
                                     modifier = Modifier.weight(1f, fill = false),
                                 )
-//
-//                                Spacer(modifier = Modifier.width(8.dp))
-//
-//                                if (topic.type == "Free")
-//                                    Badge(
-//                                        text = topic.type,
-//                                        textColor = Color(0xFF125C00),
-//                                        backgroundColor = Color(0xFF00FF00)
-//                                    )
-//                                else if (topic.type == "Premium")
-//                                    Badge(
-//                                        text = topic.type,
-//                                        textColor = Color(0xFFDF1E71),
-//                                        backgroundColor = Color(0xFFFFE0F0)
-//                                    )
                             }
 
                             topic.description?.let {
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                                 Text(
                                     text = it,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = Color(0xFF413B38)
                                 )
                             }
@@ -211,7 +196,7 @@ fun TopicCard(
                             IconButton(
                                 onClick = { onEditClick() },
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(MaterialTheme.dimens.medium3)
                                     .align(Alignment.Top)
                             ) {
                                 Icon(
@@ -231,7 +216,6 @@ fun TopicCard(
 @Preview(showBackground = true)
 @Composable
 fun TopicCardPreview() {
-    CapyVocab_FETheme {
         val sampleTopic = Topic(
             id = 1,
             title = "Friendship",
@@ -239,10 +223,6 @@ fun TopicCardPreview() {
             thumbnail = "",
             type = "Free",
             alreadyLearned = false
-//            deletedAt = null,
-//            createdAt = "",
-//            updatedAt = "",
-//            displayOrder = 1
         )
 
         TopicCard(
@@ -255,5 +235,4 @@ fun TopicCardPreview() {
             isSelected = false,
             isAdmin = true
         )
-    }
 }

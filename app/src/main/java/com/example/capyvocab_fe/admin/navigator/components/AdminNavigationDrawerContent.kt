@@ -28,10 +28,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
 fun AdminNavigationDrawerContent(
@@ -42,22 +42,22 @@ fun AdminNavigationDrawerContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
+            .padding(vertical = MaterialTheme.dimens.small3)
     ) {
         // App logo and title
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 24.dp),
+                .padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.medium2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.app_icon), // Replace with your app logo
                 contentDescription = "App Logo",
-                modifier = Modifier.size(36.dp),
+                modifier = Modifier.size(MaterialTheme.dimens.logoSize),
                 tint = Color.Unspecified
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
             Text(
                 text = "CapyVocab",
                 style = MaterialTheme.typography.headlineMedium,
@@ -67,11 +67,11 @@ fun AdminNavigationDrawerContent(
         }
 
         Divider(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.small1),
             color = MaterialTheme.colorScheme.outlineVariant
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
         // Navigation items
         items.forEach { item ->
@@ -114,11 +114,11 @@ fun DrawerNavigationItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.small1)
+            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
             .background(backgroundColor)
             .clickable { onClick() }
-            .padding(12.dp)
+            .padding(MaterialTheme.dimens.small3)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -126,18 +126,17 @@ fun DrawerNavigationItem(
             Icon(
                 painter = painterResource(id = if (isSelected) item.selectedIconRes else item.iconRes),
                 contentDescription = item.title,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(MaterialTheme.dimens.medium2),
                 tint = textColor
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
             Text(
                 text = item.title,
                 color = textColor,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                fontSize = 16.sp
             )
         }
     }

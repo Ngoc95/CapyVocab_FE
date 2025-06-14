@@ -5,8 +5,8 @@ import arrow.core.Either
 import com.example.capyvocab_fe.admin.topic.data.remote.model.CreateTopicRequest
 import com.example.capyvocab_fe.admin.topic.data.remote.model.UpdateTopicRequest
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.admin.word.domain.model.Word
+import com.example.capyvocab_fe.core.error.AppFailure
 
 interface AdminTopicRepository {
     suspend fun getAllTopic(page: Int = 1, title: String? = null): Either<AppFailure, List<Topic>>

@@ -10,16 +10,16 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 fun UserData.toDomain(): User = User(
     id = id,
-    email = email,
     username = username,
+    email = email,
     avatar = avatar,
     status = status,
-    roleId = role.id,
     streak = streak,
     lastStudyDate = formatLastStudyDate(lastStudyDate),
     totalStudyDay = totalStudyDay,
     totalLearnedCard = 100,
     totalMasteredCard = 70,
+    roleId = role.id
     // sửa lại sau khi be update
 //    totalLearnedCard = totalLearnedCard,
 //    totalMasteredCard = totalMasteredCard,

@@ -18,10 +18,9 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 import com.example.capyvocab_fe.ui.theme.navBarBackground
 
 @Composable
@@ -44,13 +43,12 @@ fun AdminBottomNavigation(
                         Icon(
                             painter = painterResource(if (selected == index) item.selectedIcon else item.icon),
                             contentDescription = null,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(MaterialTheme.dimens.medium3)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                         Text(
                             text = item.text,
-                            fontSize = 10.sp,
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
                 },

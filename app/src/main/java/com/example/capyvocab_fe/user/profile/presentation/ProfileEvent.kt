@@ -1,9 +1,5 @@
 package com.example.capyvocab_fe.user.profile.presentation
 
-import android.provider.ContactsContract
-import com.example.capyvocab_fe.auth.domain.model.User
-import com.example.capyvocab_fe.user.community.domain.model.Post
-import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 
 

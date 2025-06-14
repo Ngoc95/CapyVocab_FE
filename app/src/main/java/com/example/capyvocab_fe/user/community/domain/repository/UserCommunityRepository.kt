@@ -1,7 +1,6 @@
 package com.example.capyvocab_fe.user.community.domain.repository
 
 import android.net.Uri
-import androidx.lifecycle.ViewModelStoreOwner
 import arrow.core.Either
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.error.AppFailure

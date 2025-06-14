@@ -1,7 +1,6 @@
 package com.example.capyvocab_fe.user.profile.data.remote
 
 import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
-import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.user.community.data.remote.model.PostListResponse
 import com.example.capyvocab_fe.user.profile.data.remote.model.UpdateUserRequest

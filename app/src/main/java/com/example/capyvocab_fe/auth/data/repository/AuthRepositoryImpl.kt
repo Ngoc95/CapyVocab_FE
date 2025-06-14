@@ -5,11 +5,10 @@ import arrow.core.flatMap
 import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
 import com.example.capyvocab_fe.auth.data.mapper.toDomain
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
-import com.example.capyvocab_fe.auth.data.remote.model.GetAccountResponse
+import com.example.capyvocab_fe.auth.data.remote.model.GoogleLoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterRequest
 import com.example.capyvocab_fe.auth.domain.error.ApiError
-import com.example.capyvocab_fe.auth.data.remote.model.UserData
 import com.example.capyvocab_fe.auth.domain.error.AuthFailure
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
@@ -110,6 +109,23 @@ class AuthRepositoryImpl @Inject constructor(
         return Either.catch {
             authApi.verifyEmail(mapOf("code" to code))
             Unit
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
+    override suspend fun googleLogin(token: String): Either<AuthFailure, User> {
+        return Either.catch {
+            val response = authApi.googleLogin(GoogleLoginRequest(token))
+
+            // Lưu accessToken, refreshToken, userId vào DataStore
+            tokenManager.saveTokens(
+                accessToken = response.metaData.accessToken,
+                refreshToken = response.metaData.refreshToken
+            )
+            tokenManager.saveUserId(response.metaData.user.id)
+
+            response.metaData.user.toDomain()
         }.mapLeft {
             it.toAuthFailure()
         }

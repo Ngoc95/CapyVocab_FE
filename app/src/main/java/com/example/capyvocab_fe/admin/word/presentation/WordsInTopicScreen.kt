@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,6 +62,7 @@ import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.delay
 
 @Composable
@@ -260,8 +262,8 @@ fun WordsInTopicScreenContent(
             ) {
                 Row(
                     modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 12.dp)
+                        .padding(horizontal = MaterialTheme.dimens.small3)
+                        .padding(top = MaterialTheme.dimens.small2)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -269,16 +271,16 @@ fun WordsInTopicScreenContent(
                         value = searchBarText,
                         onValueChange = onSearchBarTextChange,
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Tìm từ vựng") },
-                        shape = RoundedCornerShape(30.dp),
+                        placeholder = { Text("Tìm từ vựng", style = MaterialTheme.typography.titleMedium) },
+                        shape = RoundedCornerShape(MaterialTheme.dimens.medium1),
                         singleLine = true,
                         trailingIcon = {
                             Box(
                                 modifier = Modifier
-                                    .size(width = 39.dp, height = 36.dp)
+                                    .size(MaterialTheme.dimens.medium2)
                                     .background(
                                         color = Color(0xFF00D9FF),
-                                        shape = RoundedCornerShape(24.dp)
+                                        shape = RoundedCornerShape(MaterialTheme.dimens.medium2)
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -286,32 +288,32 @@ fun WordsInTopicScreenContent(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = null,
                                     tint = Color.White,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(MaterialTheme.dimens.small3)
                                 )
                             }
                         },
                         colors = defaultTextFieldColors(),
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.small1))
 
                     Image(
                         painter = painterResource(R.drawable.ic_add),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(55.dp)
+                            .size(MaterialTheme.dimens.large)
                             .clickable(onClick = onAddWord)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(30.dp)
+                    .padding(MaterialTheme.dimens.small3),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium1)
             ) {
                 itemsIndexed(words) { index, word ->
                     val isSelected = selectedWords.contains(word)

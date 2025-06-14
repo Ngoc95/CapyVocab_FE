@@ -2,7 +2,6 @@ package com.example.capyvocab_fe.user.community.presentation
 
 import android.net.Uri
 import com.example.capyvocab_fe.auth.domain.model.User
-import com.example.capyvocab_fe.user.community.data.remote.model.CreatePostBody
 import com.example.capyvocab_fe.user.community.domain.model.Comment
 import com.example.capyvocab_fe.user.community.domain.model.Post
 

@@ -31,6 +31,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -61,8 +62,7 @@ import com.example.capyvocab_fe.admin.topic.domain.model.Topic
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
-import com.example.capyvocab_fe.core.ui.components.SnackbarType
-import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,25 +103,25 @@ fun TopicFormDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(bottom = 16.dp)
+                .padding(bottom = MaterialTheme.dimens.small3)
         ) {
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                 color = Color(0xFF66E6FF),
                 modifier = Modifier
                     .width(dialogWidth)
-                    .padding(16.dp)
+                    .padding(MaterialTheme.dimens.small3)
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(MaterialTheme.dimens.small3)
                         .verticalScroll(rememberScrollState())
                 ) {
                     // header thumbnail, id, type
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(55.dp)
+                                .size(MaterialTheme.dimens.large)
                                 .clip(CircleShape)
                                 .clickable {
                                     imagePickerLauncher.launch("image/*")
@@ -151,14 +151,14 @@ fun TopicFormDialog(
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(MaterialTheme.dimens.small2))
                         Column {
                             if (topic != null) {
-                                Text("ID: ${topic.id}", fontWeight = FontWeight.Bold)
+                                Text("ID: ${topic.id}", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = "Loại:", fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = "Loại:", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small2))
                                 Box {
                                     BasicTextField(
                                         value = topicTypes.find { it == type } ?: "",
@@ -199,7 +199,7 @@ fun TopicFormDialog(
                                                         enabled = true,
                                                         isError = false,
                                                         interactionSource = remember { MutableInteractionSource() },
-                                                        shape = RoundedCornerShape(13.dp),
+                                                        shape = RoundedCornerShape(MaterialTheme.dimens.small2),
                                                         colors = defaultTextFieldColors()
                                                     )
                                                 }
@@ -210,7 +210,7 @@ fun TopicFormDialog(
                                     Spacer(
                                         modifier = Modifier
                                             .matchParentSize()
-                                            .clip(RoundedCornerShape(13.dp))
+                                            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
                                             .zIndex(1f)
                                             .clickable { expanded = true }
                                     )
@@ -232,29 +232,34 @@ fun TopicFormDialog(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
                     // Form fields
-                    Text("Tên chủ đề", fontWeight = FontWeight.Bold)
+                    Text("Tên chủ đề", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(15.dp),
+                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                         maxLines = 5,
-                        colors = defaultTextFieldColors()
+                        colors = defaultTextFieldColors(),
+                        textStyle = MaterialTheme.typography.bodyMedium
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("Mô tả", fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+                    Text("Mô tả", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(15.dp),
+                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                         colors = defaultTextFieldColors(),
                         maxLines = Int.MAX_VALUE,
-                        minLines = 3
+                        minLines = 3,
+                        textStyle = MaterialTheme.typography.bodyMedium
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
                     //Action button
                     FormActionButtons(
                         isEditMode = topic != null,
@@ -293,10 +298,9 @@ private fun TopicFormDialogPreview() {
         title = "xxxxx",
         description = "xxxxxxxxxxxxxxx",
         thumbnail = "xxxxxxxxxxxxx",
-        type = "Free",
+        type = "Premium",
         alreadyLearned = false
     )
-    CapyVocab_FETheme {
         TopicFormDialog(
             topic = sample,
             errorMessage = "",
@@ -304,5 +308,4 @@ private fun TopicFormDialogPreview() {
             onSave = {w,i ->},
             onDelete = {}
         )
-    }
 }

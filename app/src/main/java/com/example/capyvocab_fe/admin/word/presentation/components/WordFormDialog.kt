@@ -58,6 +58,7 @@ import com.example.capyvocab_fe.core.ui.components.FormActionButtons
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.PronunciationPlayer
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
 fun WordFormDialog(
@@ -84,18 +85,18 @@ fun WordFormDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(bottom = 16.dp)
+                .padding(bottom = MaterialTheme.dimens.medium1)
         ) {
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(MaterialTheme.dimens.medium1),
                 color = Color(0xFF66E6FF),
                 modifier = Modifier
                     .width(dialogWidth)
-                    .padding(16.dp)
+                    .padding(MaterialTheme.dimens.small1)
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(13.dp)
+                        .padding(MaterialTheme.dimens.small3)
                         .verticalScroll(rememberScrollState())
                 ) {
                     WordFormHeader(
@@ -106,7 +107,7 @@ fun WordFormDialog(
                         onAudioSelected = { selectedAudioUri = it }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium1))
 
                     WordFormFields(
                         content = content,
@@ -123,7 +124,7 @@ fun WordFormDialog(
                         onTranslateExampleChange = { translateExample = it }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.medium1))
 
                     FormActionButtons(
                         isEditMode = word != null,

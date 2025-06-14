@@ -2,8 +2,8 @@ package com.example.capyvocab_fe.admin.user.domain.repository
 
 import android.net.Uri
 import arrow.core.Either
-import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.admin.user.domain.model.User
+import com.example.capyvocab_fe.core.error.AppFailure
 
 interface AdminUserRepository {
     suspend fun getAllUsers(page: Int = 1, username: String? = null): Either<AppFailure, List<User>>

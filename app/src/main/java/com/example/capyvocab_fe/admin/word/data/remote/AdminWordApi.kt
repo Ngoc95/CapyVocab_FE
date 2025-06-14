@@ -1,12 +1,12 @@
 package com.example.capyvocab_fe.admin.word.data.remote
 
-import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.AudioUploadResponse
 import com.example.capyvocab_fe.admin.word.data.remote.model.CreateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.UpdateWordRequest
 import com.example.capyvocab_fe.admin.word.data.remote.model.WordListResponse
 import com.example.capyvocab_fe.admin.word.domain.model.Word
+import com.example.capyvocab_fe.core.network.ApiResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
