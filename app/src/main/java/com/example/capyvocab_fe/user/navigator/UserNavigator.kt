@@ -26,6 +26,8 @@ import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.payout.presentation.PayoutScreen
+import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
 import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
 import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
@@ -111,6 +113,8 @@ fun UserNavigator() {
     val exerciseState by exerciseViewModel.state.collectAsState()
     val reviewViewModel: ReviewViewModel = hiltViewModel()
     val reviewState = reviewViewModel.state
+
+    val payOutViewModel: PayoutViewModel = hiltViewModel()
 
     selectedItem = when (backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
@@ -517,6 +521,9 @@ fun UserNavigator() {
                     viewModel = profileViewModel,
                     onSettingUser = { user ->
                         navController.navigate("${Route.UserAccountSettingScreen}")
+                    },
+                    onPayoutClick = {
+                        navController.navigate(Route.UserPayoutScreen.route)
                     }
                 )
             }
@@ -537,6 +544,13 @@ fun UserNavigator() {
                         onBackClick = {navController.popBackStack()}
                     )
                 }
+            }
+
+            composable(route = Route.UserPayoutScreen.route) {
+                PayoutScreen(
+                    navController = navController,
+                    viewModel = payOutViewModel
+                )
             }
         }
     }

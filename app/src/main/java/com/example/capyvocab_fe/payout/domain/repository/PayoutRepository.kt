@@ -14,7 +14,6 @@ interface PayoutRepository {
         username: String? = null,
         amount: Double? = null,
         status: String? = null,
-        sort: Map<String, String> = mapOf("createdAt" to "DESC")
     ): Either<AppFailure, List<Payout>>
     suspend fun updatePayout(payoutId: Int, status: String): Either<AppFailure, Payout>
 }

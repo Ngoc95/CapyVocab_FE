@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.payout.data.model.PayoutRequest
+import com.example.capyvocab_fe.payout.data.model.UpdatePayoutRequest
 import com.example.capyvocab_fe.payout.data.remote.PayoutApi
 import com.example.capyvocab_fe.payout.domain.model.Payout
 import com.example.capyvocab_fe.payout.domain.repository.PayoutRepository
@@ -28,10 +29,9 @@ class PayoutRepositoryImpl @Inject constructor(
         username: String?,
         amount: Double?,
         status: String?,
-        sort: Map<String, String>
     ): Either<AppFailure, List<Payout>> {
         return Either.catch {
-            payoutApi.getPayouts(page, limit, email, username, amount, status, sort).metaData.payouts
+            payoutApi.getPayouts(page, limit, email, username, amount, status).metaData.payouts
         }.mapLeft {
             it.toAppFailure()
         }
@@ -42,7 +42,7 @@ class PayoutRepositoryImpl @Inject constructor(
         status: String
     ): Either<AppFailure, Payout> {
         return Either.catch {
-            payoutApi.updatePayout(payoutId, status).metaData
+            payoutApi.updatePayout(payoutId, UpdatePayoutRequest(status)).metaData
         }.mapLeft {
             it.toAppFailure()
         }

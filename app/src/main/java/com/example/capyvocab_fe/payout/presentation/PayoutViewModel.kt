@@ -2,6 +2,7 @@ package com.example.capyvocab_fe.payout.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.payout.data.model.PayoutRequest
 import com.example.capyvocab_fe.payout.domain.repository.PayoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,18 +14,39 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PayoutViewModel @Inject constructor(
-    private val payoutRepository: PayoutRepository
+    private val payoutRepository: PayoutRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(PayoutState())
     val state: StateFlow<PayoutState> = _state
 
+    init {
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser() {
+        viewModelScope.launch {
+            authRepository.getUserInfo().fold(
+                { failure ->
+                    _state.update { it.copy(errorMessage = failure.message ?: "Đã xảy ra lỗi") }
+                },
+                { user ->
+                    _state.update {
+                        it.copy(
+                            currentUser = user,
+                            successMessage = "",
+                            errorMessage = ""
+                        )
+                    }
+                }
+            )
+        }
+    }
+
     fun onEvent(event: PayoutEvent) {
         when (event) {
-            is PayoutEvent.CreatePayout -> {
-                createPayout()
-            }
-
-            is PayoutEvent.AmountChanged -> _state.update { it.copy(amount = event.amount.toDouble()) }
+            is PayoutEvent.CreatePayout -> createPayout()
+            is PayoutEvent.AmountChanged -> _state.update { it.copy(amount = event.amount) }
             is PayoutEvent.NameBankChanged -> _state.update { it.copy(nameBank = event.nameBank) }
             is PayoutEvent.NumberAccountChanged -> _state.update { it.copy(numberAccount = event.numberAccount) }
             is PayoutEvent.LoadMorePayouts -> loadPayouts(loadMore = true)
@@ -35,7 +57,7 @@ class PayoutViewModel @Inject constructor(
 
     private fun loadPayouts(loadMore: Boolean = false) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
             val nextPage = if (loadMore) _state.value.currentPage + 1 else 1
             payoutRepository.getPayouts(nextPage)
                 .onRight { newPayouts ->
@@ -53,7 +75,8 @@ class PayoutViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = failure.message ?: "Failed to load payouts"
+                            errorMessage = failure.message ?: "Failed to load payouts",
+                            successMessage = ""
                         )
                     }
                 }
@@ -62,25 +85,44 @@ class PayoutViewModel @Inject constructor(
 
     private fun createPayout() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
+            val amountDouble = _state.value.amount.toDoubleOrNull()
+            if (amountDouble == null || amountDouble <= 0.0) {
+                _state.update { it.copy(isLoading = false, errorMessage = "Số tiền không hợp lệ") }
+                return@launch
+            }
             val request = PayoutRequest(
-                amount = _state.value.amount,
+                amount = amountDouble,
                 nameBank = _state.value.nameBank,
                 numberAccount = _state.value.numberAccount
             )
             payoutRepository.createPayout(request)
                 .onRight {
-                    _state.update { it.copy(isLoading = false, success = true) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            successMessage = "Yêu cầu rút tiền thành công",
+                            amount = "",
+                            numberAccount = "",
+                            nameBank = "",
+                        )
+                    }
+                    getCurrentUser()
                 }
-                .onLeft {
-                    _state.update { it.copy(isLoading = false, errorMessage = it.errorMessage) }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Xảy ra lỗi khi yêu cầu rút tiền"
+                        )
+                    }
                 }
         }
     }
 
     private fun updatePayout(payoutId: Int, status: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
             payoutRepository.updatePayout(payoutId, status)
                 .onRight { updatedPayout ->
                     _state.update { currentState ->
@@ -92,6 +134,7 @@ class PayoutViewModel @Inject constructor(
                             payouts = updatedPayouts
                         )
                     }
+                    loadPayouts()
                 }
                 .onLeft { failure ->
                     _state.update {
