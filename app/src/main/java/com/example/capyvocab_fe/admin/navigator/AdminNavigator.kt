@@ -38,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.course.presentation.CourseEvent
 import com.example.capyvocab_fe.admin.course.presentation.CourseListViewModel
 import com.example.capyvocab_fe.admin.course.presentation.CourseScreen
@@ -58,6 +59,8 @@ import com.example.capyvocab_fe.admin.word.presentation.WordScreen
 import com.example.capyvocab_fe.admin.word.presentation.WordsInTopicScreen
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.navigation.Route
+import com.example.capyvocab_fe.payout.presentation.AdminPayoutScreen
+import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
 import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.launch
 
@@ -83,6 +86,8 @@ fun AdminNavigator() {
 
     val wordViewModel: WordListViewModel = hiltViewModel()
     val wordListState by wordViewModel.state.collectAsState()
+
+    val payoutViewModel: PayoutViewModel = hiltViewModel()
 
     // Check if in multi-select mode to adjust UI behavior
     val isInMultiSelectMode = when {
@@ -127,7 +132,7 @@ fun AdminNavigator() {
 
         currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
             topicListState.selectedTopic?.title ?: "Từ vựng"
-
+        currentRoute == Route.AdminPayoutScreen.route -> "Rút tiền"
         else -> "Admin Panel"
     }
     // Add state for delete confirmation
@@ -193,6 +198,12 @@ fun AdminNavigator() {
             route = Route.UsersScreen.route,
             iconRes = com.example.capyvocab_fe.R.drawable.admin_user,
             selectedIconRes = com.example.capyvocab_fe.R.drawable.admin_selected_user
+        ),
+        DrawerNavigationItem(
+            title = "Rút tiền",
+            route = Route.AdminPayoutScreen.route,
+            iconRes = R.drawable.ic_payout,
+            selectedIconRes = R.drawable.ic_selected_payout
         ),
         DrawerNavigationItem(
             title = "Hồ sơ",
@@ -410,6 +421,13 @@ fun AdminNavigator() {
                         )
                     }
 
+                    //payout screen
+                    composable(route = Route.AdminPayoutScreen.route) {
+                        AdminPayoutScreen(
+                            viewModel = payoutViewModel
+                        )
+                    }
+
                     // Setting screen
                     composable(route = Route.ProfileScreen.route) {
                         // TODO: Setting screen content here
@@ -450,6 +468,7 @@ private fun navigateToTab(navController: NavController, route: String) {
         route == Route.TopicsScreen.route ||
         route == Route.WordsScreen.route ||
         route == Route.UsersScreen.route ||
+        route == Route.AdminPayoutScreen.route ||
         route == Route.ProfileScreen.route
     ) {
         navController.navigate(route) {

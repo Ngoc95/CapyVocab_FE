@@ -3,6 +3,7 @@ package com.example.capyvocab_fe.payout.data.remote
 import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.payout.data.model.PayoutListResponse
 import com.example.capyvocab_fe.payout.data.model.PayoutRequest
+import com.example.capyvocab_fe.payout.data.model.UpdatePayoutRequest
 import com.example.capyvocab_fe.payout.domain.model.Payout
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -24,13 +25,12 @@ interface PayoutApi {
         @Query("email") email: String? = null,
         @Query("username") username: String? = null,
         @Query("amount") amount: Double? = null,
-        @Query("status") status: String? = null,
-        @Query("sort") sort: Map<String, String> = mapOf("createdAt" to "DESC")
+        @Query("status") status: String? = null
     ): ApiResponse<PayoutListResponse>
 
     @PUT("payout/{id}")
     suspend fun updatePayout(
         @Path("id") payoutId: Int,
-        @Body status: String
+        @Body body: UpdatePayoutRequest
     ): ApiResponse<Payout>
 }
