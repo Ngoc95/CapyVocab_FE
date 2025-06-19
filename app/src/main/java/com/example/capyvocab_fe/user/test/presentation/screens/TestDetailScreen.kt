@@ -182,6 +182,12 @@ fun TestDetailScreen(
                 text = "Nhận xét",
                 onClick = { navController.navigate("${Route.CommentScreen.route}/${folder.id}") }
             )
+
+            ActionButton(
+                icon = R.drawable.ic_report,
+                text = "Báo cáo vi phạm",
+                onClick = { navController.navigate(Route.UserReportScreen.route) }
+            )
         }
     }
 }
