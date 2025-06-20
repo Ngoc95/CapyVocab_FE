@@ -61,6 +61,9 @@ import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.AdminPayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
+import com.example.capyvocab_fe.report.presentation.AdminReportScreen
+import com.example.capyvocab_fe.report.presentation.ReportEvent
+import com.example.capyvocab_fe.report.presentation.ReportViewModel
 import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.launch
 
@@ -88,6 +91,8 @@ fun AdminNavigator() {
     val wordListState by wordViewModel.state.collectAsState()
 
     val payoutViewModel: PayoutViewModel = hiltViewModel()
+    val reportVM: ReportViewModel = hiltViewModel()
+    val reportState by reportVM.state.collectAsState()
 
     // Check if in multi-select mode to adjust UI behavior
     val isInMultiSelectMode = when {
@@ -133,6 +138,7 @@ fun AdminNavigator() {
         currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
             topicListState.selectedTopic?.title ?: "Từ vựng"
         currentRoute == Route.AdminPayoutScreen.route -> "Rút tiền"
+        currentRoute == Route.AdminReportScreen.route -> "Báo cáo"
         else -> "Admin Panel"
     }
     // Add state for delete confirmation
@@ -204,6 +210,12 @@ fun AdminNavigator() {
             route = Route.AdminPayoutScreen.route,
             iconRes = R.drawable.ic_payout,
             selectedIconRes = R.drawable.ic_selected_payout
+        ),
+        DrawerNavigationItem(
+            title = "Báo cáo",
+            route = Route.AdminReportScreen.route,
+            iconRes = com.example.capyvocab_fe.R.drawable.ic_report_ad,
+            selectedIconRes = com.example.capyvocab_fe.R.drawable.ic_selected_report_ad
         ),
         DrawerNavigationItem(
             title = "Hồ sơ",
@@ -428,6 +440,14 @@ fun AdminNavigator() {
                         )
                     }
 
+                    // Report screen
+                    composable(route = Route.AdminReportScreen.route) {
+                        AdminReportScreen(
+                            state = reportState,
+                            onEvent = reportVM::onEvent
+                        )
+                    }
+
                     // Setting screen
                     composable(route = Route.ProfileScreen.route) {
                         // TODO: Setting screen content here
@@ -469,6 +489,7 @@ private fun navigateToTab(navController: NavController, route: String) {
         route == Route.WordsScreen.route ||
         route == Route.UsersScreen.route ||
         route == Route.AdminPayoutScreen.route ||
+        route == Route.AdminReportScreen.route ||
         route == Route.ProfileScreen.route
     ) {
         navController.navigate(route) {

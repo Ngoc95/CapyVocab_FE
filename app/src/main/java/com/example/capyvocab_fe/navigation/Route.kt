@@ -19,6 +19,7 @@ sealed class Route(
     object UsersScreen : Route(route = "usersScreen")
     object ProfileScreen : Route(route = "profileScreen")
     object AdminPayoutScreen: Route(route = "adminPayoutScreen")
+    object AdminReportScreen: Route(route = "adminReportScreen")
 
     //user navigator
     object UserNavigation : Route(route = "userNavigation")
@@ -46,4 +47,5 @@ sealed class Route(
     object UserMyPostScreen: Route(route = "userMyPostScreen")
     object UserEditPostScreen: Route(route = "userEditPostScreen")
     object UserPayoutScreen: Route(route = "userPayoutScreen")
+    object UserReportScreen: Route(route = "userReportScreen")
 }

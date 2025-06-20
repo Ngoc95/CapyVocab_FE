@@ -14,6 +14,8 @@ import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.payout.data.repository.PayoutRepositoryImpl
 import com.example.capyvocab_fe.payout.domain.repository.PayoutRepository
+import com.example.capyvocab_fe.report.data.repository.ReportRepositoryImpl
+import com.example.capyvocab_fe.report.domain.repository.ReportRepository
 import com.example.capyvocab_fe.user.community.data.repository.UserCommunityRepositoryImpl
 import com.example.capyvocab_fe.user.community.domain.repository.UserCommunityRepository
 import com.example.capyvocab_fe.user.learn.data.repository.UserLearnRepositoryImpl
@@ -85,6 +87,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPayoutRepository(impl: PayoutRepositoryImpl): PayoutRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReportRepository(impl: ReportRepositoryImpl): ReportRepository
 
     @Binds
     @Singleton

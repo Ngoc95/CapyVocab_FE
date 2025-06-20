@@ -28,6 +28,8 @@ import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.PayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
+import com.example.capyvocab_fe.report.presentation.ReportViewModel
+import com.example.capyvocab_fe.report.presentation.UserReportScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
 import com.example.capyvocab_fe.user.community.presentation.CommunityScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
@@ -115,6 +117,8 @@ fun UserNavigator() {
     val reviewState = reviewViewModel.state
 
     val payOutViewModel: PayoutViewModel = hiltViewModel()
+    val reportVM: ReportViewModel = hiltViewModel()
+    val reportState by reportVM.state.collectAsState()
 
     selectedItem = when (backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
@@ -550,6 +554,13 @@ fun UserNavigator() {
                 PayoutScreen(
                     navController = navController,
                     viewModel = payOutViewModel
+                )
+            }
+            composable(route = Route.UserReportScreen.route) {
+                UserReportScreen(
+                    state = reportState,
+                    onEvent = reportVM::onEvent,
+                    navController = navController
                 )
             }
         }
