@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.ui.theme.dimens
@@ -74,30 +75,32 @@ fun PayoutScreen(
         }
     }
 
-    PayoutScreenContent(
-        amountText = state.amount,
-        userBalance = state.currentUser?.balance.toString(),
-        numberAccount = state.numberAccount,
-        nameBank = state.nameBank,
-        isLoading = state.isLoading,
-        successMessage = visibleSuccess,
-        errorMessage = visibleError,
-        onAmountChange = {
-            viewModel.onEvent(PayoutEvent.AmountChanged(it))
-        },
-        onNumberAccountChange = {
-            viewModel.onEvent(PayoutEvent.NumberAccountChanged(it))
-        },
-        onNameBankChange = {
-            viewModel.onEvent(PayoutEvent.NameBankChanged(it))
-        },
-        onSubmit = {
-            viewModel.onEvent(PayoutEvent.CreatePayout)
-        },
-        onBack = {
-            navController.popBackStack()
-        }
-    )
+    FocusComponent {
+        PayoutScreenContent(
+            amountText = state.amount,
+            userBalance = state.currentUser?.balance.toString(),
+            numberAccount = state.numberAccount,
+            nameBank = state.nameBank,
+            isLoading = state.isLoading,
+            successMessage = visibleSuccess,
+            errorMessage = visibleError,
+            onAmountChange = {
+                viewModel.onEvent(PayoutEvent.AmountChanged(it))
+            },
+            onNumberAccountChange = {
+                viewModel.onEvent(PayoutEvent.NumberAccountChanged(it))
+            },
+            onNameBankChange = {
+                viewModel.onEvent(PayoutEvent.NameBankChanged(it))
+            },
+            onSubmit = {
+                viewModel.onEvent(PayoutEvent.CreatePayout)
+            },
+            onBack = {
+                navController.popBackStack()
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
