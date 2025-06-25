@@ -89,4 +89,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.google.auth)
     implementation(libs.material3.window.size)
+    implementation(libs.socketio.client) {
+        exclude(group = "org.json", module = "json")
+    }
 }

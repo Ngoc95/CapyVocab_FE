@@ -124,10 +124,7 @@ fun CoursesScreenContent(
     }
     Box(modifier = Modifier.fillMaxSize()) {
 
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Top bar
-            UserTopBar()
-
+        Column(modifier = Modifier.fillMaxSize().padding(top = 10.dp)) {
             // Search bar
             Row(
                 modifier = Modifier

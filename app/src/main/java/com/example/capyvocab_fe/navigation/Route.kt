@@ -48,4 +48,5 @@ sealed class Route(
     object UserEditPostScreen: Route(route = "userEditPostScreen")
     object UserPayoutScreen: Route(route = "userPayoutScreen")
     object UserReportScreen: Route(route = "userReportScreen")
+    object UserNotificationScreen: Route(route = "userNotificationScreen")
 }

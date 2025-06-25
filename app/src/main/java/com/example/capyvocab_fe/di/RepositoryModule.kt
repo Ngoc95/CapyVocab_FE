@@ -20,6 +20,8 @@ import com.example.capyvocab_fe.user.community.data.repository.UserCommunityRepo
 import com.example.capyvocab_fe.user.community.domain.repository.UserCommunityRepository
 import com.example.capyvocab_fe.user.learn.data.repository.UserLearnRepositoryImpl
 import com.example.capyvocab_fe.user.learn.domain.repository.UserLearnRepository
+import com.example.capyvocab_fe.user.notification.data.repository.NotificationRepositoryImpl
+import com.example.capyvocab_fe.user.notification.domain.repository.NotificationRepository
 import com.example.capyvocab_fe.user.payment.data.repository.PaymentRepositoryImpl
 import com.example.capyvocab_fe.user.payment.domain.repository.PaymentRepository
 import com.example.capyvocab_fe.user.profile.data.repository.UserProfileRepositoryImpl
@@ -95,4 +97,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserReviewRepository(impl: UserReviewRepositoryImpl): UserReviewRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(impl: NotificationRepositoryImpl): NotificationRepository
 }

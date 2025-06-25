@@ -199,7 +199,7 @@ fun LoginContent(
             OutlinedTextField(
                 value = state.username,
                 onValueChange = onUsernameChanged,
-                label = { Text("Tên đăng nhập", style = MaterialTheme.typography.titleMedium) },
+                placeholder = { Text("Tên đăng nhập", style = MaterialTheme.typography.titleMedium) },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = defaultTextFieldColors(),
@@ -214,7 +214,7 @@ fun LoginContent(
             OutlinedTextField(
                 value = state.password,
                 onValueChange = onPasswordChanged,
-                label = { Text("Mật khẩu", style = MaterialTheme.typography.titleMedium) },
+                placeholder = { Text("Mật khẩu", style = MaterialTheme.typography.titleMedium) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {

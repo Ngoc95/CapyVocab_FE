@@ -90,18 +90,6 @@ fun ProfileScreenContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        color = Color.White
-                    )
-                    .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-
-            ) {
-                TopBarTitle("CabyVocab")
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
                     .padding(12.dp)
 
 

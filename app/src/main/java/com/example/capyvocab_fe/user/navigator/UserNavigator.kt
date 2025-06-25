@@ -44,6 +44,10 @@ import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
+import com.example.capyvocab_fe.user.navigator.components.UserTopBar
+import com.example.capyvocab_fe.user.notification.presentation.NotificationScreen
+import com.example.capyvocab_fe.user.notification.presentation.NotificationViewModel
+import com.example.capyvocab_fe.user.notification.presentation.handler.NotificationActionHandler
 import com.example.capyvocab_fe.user.profile.presentation.ProfileEvent
 import com.example.capyvocab_fe.user.profile.presentation.ProfileScreen
 import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreenContent
@@ -97,6 +101,7 @@ fun UserNavigator() {
     }
 
     val navController = rememberNavController()
+    val notificationActionHandler = remember { NotificationActionHandler(navController) }
     val backStackState = navController.currentBackStackEntryAsState().value
     var selectedItem by rememberSaveable {
         mutableStateOf(0)
@@ -119,6 +124,8 @@ fun UserNavigator() {
     val payOutViewModel: PayoutViewModel = hiltViewModel()
     val reportVM: ReportViewModel = hiltViewModel()
     val reportState by reportVM.state.collectAsState()
+    val notificationVM: NotificationViewModel = hiltViewModel()
+    val notificationState by notificationVM.state.collectAsState()
 
     selectedItem = when (backStackState?.destination?.route) {
         Route.UserCommunityScreen.route -> 0
@@ -143,6 +150,9 @@ fun UserNavigator() {
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            if (isBottomVisible) UserTopBar(navController, notificationState.unreadCount)
+        },
         bottomBar = {
             if (isBottomVisible) {
                 UserBottomNavigation(
@@ -183,10 +193,11 @@ fun UserNavigator() {
         }
     ) {
         val bottomPadding = it.calculateBottomPadding()
+        val topPadding = it.calculateTopPadding()
         NavHost(
             navController = navController,
             startDestination = Route.UserCommunityScreen.route,
-            modifier = Modifier.padding(bottom = bottomPadding)
+            modifier = Modifier.padding(bottom = bottomPadding, top = topPadding)
         ) {
             //user community screen
             composable(route = Route.UserCommunityScreen.route) {
@@ -561,6 +572,13 @@ fun UserNavigator() {
                     state = reportState,
                     onEvent = reportVM::onEvent,
                     navController = navController
+                )
+            }
+            composable(route = Route.UserNotificationScreen.route) {
+                NotificationScreen(
+                    viewModel = notificationVM,
+                    navController = navController,
+                    notificationActionHandler = notificationActionHandler
                 )
             }
         }

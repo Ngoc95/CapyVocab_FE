@@ -151,22 +151,6 @@ fun CommunityScreenContent(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp, bottom = 4.dp, start = 12.dp, end = 12.dp)
-
-                        .background(
-                            color = Color.Transparent
-                        )
-                        .padding(vertical = 8.dp)
-                ) {
-                    TopBarTitle("CabyVocab")
-                }
-
-
-
-
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()

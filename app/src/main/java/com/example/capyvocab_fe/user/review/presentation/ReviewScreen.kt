@@ -131,9 +131,6 @@ fun ReviewScreen(
 
         state.isEmpty -> {
             Column {
-                // Top bar
-                UserTopBar()
-
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -329,7 +326,7 @@ fun ReviewOverviewScreen(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Top bar
-        UserTopBar()
+        //UserTopBar()
 
         Spacer(Modifier.height(30.dp))
 

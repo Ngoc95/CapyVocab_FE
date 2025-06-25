@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -53,6 +54,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.domain.model.User
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.White
@@ -159,38 +161,40 @@ fun TestScreen(
         }
     }
 
-    TestScreenContent(
-        folders = state.folders,
-        user = state.currentUser,
-        currentTab = state.currentTab,
-        isLoading = state.isLoading,
-        isEndReached = state.isEndReached,
-        successMessage = state.successMessage,
-        paymentState = paymentState,
-        navController = navController,
-        onNavigateToDoTest = { viewModel.onEvent(ExerciseEvent.NavigateToDoTest) },
-        onNavigateToEnterCode = { viewModel.onEvent(ExerciseEvent.NavigateToEnterCode) },
-        onNavigateToCreatedTests = { viewModel.onEvent(ExerciseEvent.NavigateToCreatedTests) },
-        onNavigateToCreateTest = { viewModel.onEvent(ExerciseEvent.NavigateToCreateTest) },
-        onLoadFolders = { name, code ->
-            viewModel.onEvent(ExerciseEvent.LoadFolders(name, code))
-        },
-        onLoadMoreFolders = { viewModel.onEvent(ExerciseEvent.LoadMoreFolders) },
-        onCreateFolder = { request, onSuccess, onError ->
-            viewModel.onEvent(ExerciseEvent.CreateFolder(request, onSuccess, onError))
-        },
-        onVoteFolder = { id -> viewModel.onEvent(ExerciseEvent.VoteFolder(id)) },
-        onUnvoteFolder = { id -> viewModel.onEvent(ExerciseEvent.UnvoteFolder(id)) },
-        onClearSuccessMessage = { viewModel.onEvent(ExerciseEvent.ResetSuccess) },
-        onFolderClick = { folder ->
-            selectedFolder = folder
-            viewModel.onEvent(ExerciseEvent.GetFolderById(folder.id))
-        },
-        onConfirmPayment = { paymentViewModel.onEvent(PaymentUiEvent.ConfirmPayment) },
-        onCancelPayment = { paymentViewModel.onEvent(PaymentUiEvent.CancelPayment) },
-        onDismissPaymentError = { paymentViewModel.onEvent(PaymentUiEvent.DismissError) },
-        onDismissSuccess = { paymentViewModel.onEvent(PaymentUiEvent.DismissSuccess) }
-    )
+    FocusComponent {
+        TestScreenContent(
+            folders = state.folders,
+            user = state.currentUser,
+            currentTab = state.currentTab,
+            isLoading = state.isLoading,
+            isEndReached = state.isEndReached,
+            successMessage = state.successMessage,
+            paymentState = paymentState,
+            navController = navController,
+            onNavigateToDoTest = { viewModel.onEvent(ExerciseEvent.NavigateToDoTest) },
+            onNavigateToEnterCode = { viewModel.onEvent(ExerciseEvent.NavigateToEnterCode) },
+            onNavigateToCreatedTests = { viewModel.onEvent(ExerciseEvent.NavigateToCreatedTests) },
+            onNavigateToCreateTest = { viewModel.onEvent(ExerciseEvent.NavigateToCreateTest) },
+            onLoadFolders = { name, code ->
+                viewModel.onEvent(ExerciseEvent.LoadFolders(name, code))
+            },
+            onLoadMoreFolders = { viewModel.onEvent(ExerciseEvent.LoadMoreFolders) },
+            onCreateFolder = { request, onSuccess, onError ->
+                viewModel.onEvent(ExerciseEvent.CreateFolder(request, onSuccess, onError))
+            },
+            onVoteFolder = { id -> viewModel.onEvent(ExerciseEvent.VoteFolder(id)) },
+            onUnvoteFolder = { id -> viewModel.onEvent(ExerciseEvent.UnvoteFolder(id)) },
+            onClearSuccessMessage = { viewModel.onEvent(ExerciseEvent.ResetSuccess) },
+            onFolderClick = { folder ->
+                selectedFolder = folder
+                viewModel.onEvent(ExerciseEvent.GetFolderById(folder.id))
+            },
+            onConfirmPayment = { paymentViewModel.onEvent(PaymentUiEvent.ConfirmPayment) },
+            onCancelPayment = { paymentViewModel.onEvent(PaymentUiEvent.CancelPayment) },
+            onDismissPaymentError = { paymentViewModel.onEvent(PaymentUiEvent.DismissError) },
+            onDismissSuccess = { paymentViewModel.onEvent(PaymentUiEvent.DismissSuccess) }
+        )
+    }
 }
 
 @Composable
@@ -225,7 +229,6 @@ fun TestScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(White)
-            .statusBarsPadding()
     ) {
         // Header với thông tin người dùng
         UserInfoHeader(
@@ -468,16 +471,15 @@ fun PaymentConfirmationDialog(
 fun UserInfoHeader(
     user: User?
 ) {
-    UserTopBar()
-
     // Thông tin người dùng
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFB5EEFF))
-            .padding(16.dp),
+            .height(60.dp)
+            .background(Color(0xFFB5EEFF)),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.width(5.dp))
         // Ảnh đại diện
         AsyncImage(
             model = user?.avatar,
@@ -490,14 +492,9 @@ fun UserInfoHeader(
             error = painterResource(R.drawable.default_avt),
             fallback = painterResource(R.drawable.default_avt)
         )
+        Spacer(modifier = Modifier.width(12.dp))
         // Thông tin ID và mô tả
-        Column(
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .weight(1f)
-        ) {
-            InfoRow("ID", user?.username.toString())
-        }
+        InfoRow("ID", user?.username.toString())
     }
 }
 

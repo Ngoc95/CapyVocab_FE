@@ -16,19 +16,32 @@ import com.example.capyvocab_fe.payout.data.remote.PayoutApi
 import com.example.capyvocab_fe.report.data.remote.ReportApi
 import com.example.capyvocab_fe.user.community.data.remote.UserCommunityApi
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
+import com.example.capyvocab_fe.user.notification.data.remote.NotificationApi
 import com.example.capyvocab_fe.user.payment.data.remote.PaymentApi
 import com.example.capyvocab_fe.user.profile.data.remote.UserProfileApi
 import com.example.capyvocab_fe.user.review.data.remote.UserReviewApi
 import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi
 import com.example.capyvocab_fe.util.Constant.BASE_URL
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.socket.client.IO
+import io.socket.client.Socket
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.reflect.Type
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -40,9 +53,45 @@ annotation class AuthClient
 @Retention(AnnotationRetention.BINARY)
 annotation class AuthRetrofit
 
+class DateDeserializer : JsonDeserializer<Date> {
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    
+    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): Date? {
+        return try {
+            json?.asString?.let { dateString ->
+                dateFormat.parse(dateString)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+}
+
 @InstallIn(SingletonComponent::class)
 @Module
 object AppModule {
+    @Provides
+    @Singleton
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .registerTypeAdapter(Date::class.java, DateDeserializer())
+            .create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSocketIO(): Socket? {
+        return try {
+            val options = IO.Options()
+            IO.socket(BASE_URL, options)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     @Provides
     @Singleton
@@ -56,11 +105,11 @@ object AppModule {
     @Provides
     @Singleton
     @AuthRetrofit
-    fun provideAuthRetrofit(@AuthClient authOkHttpClient: OkHttpClient): Retrofit {
+    fun provideAuthRetrofit(@AuthClient authOkHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(authOkHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -84,11 +133,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -169,6 +218,12 @@ object AppModule {
     @Singleton
     fun provideReportApi(retrofit: Retrofit): ReportApi {
         return retrofit.create(ReportApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationApi(retrofit: Retrofit): NotificationApi {
+        return retrofit.create(NotificationApi::class.java)
     }
 
     @Provides

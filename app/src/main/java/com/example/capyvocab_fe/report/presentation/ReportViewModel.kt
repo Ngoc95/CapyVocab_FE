@@ -72,8 +72,8 @@ class ReportViewModel @Inject constructor(
     private fun loadReports(loadMore: Boolean = false) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
-            val nextPage = if (loadMore) _state.value.currentPage + 1 else 1
-            val currentType = _state.value.reportType
+            val nextPage = if (loadMore) state.value.currentPage + 1 else 1
+            val currentType = state.value.reportType
             reportRepository.getReports(page = nextPage, type = currentType)
                 .onRight { newReports ->
                     _state.update { state ->
