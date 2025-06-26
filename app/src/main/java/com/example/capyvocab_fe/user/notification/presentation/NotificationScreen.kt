@@ -46,7 +46,7 @@ fun NotificationScreen(
     }
 
     NotificationScreenContent(
-        notifications = state.notifications,
+        notifications = state.notifications.sortedByDescending{ it.createdAt },
         isLoading = state.isLoading,
         isEndReached = state.isEndReached,
         error = state.error,
