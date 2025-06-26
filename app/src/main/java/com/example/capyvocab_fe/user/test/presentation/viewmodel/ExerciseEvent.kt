@@ -33,6 +33,7 @@ sealed class ExerciseEvent {
     data class UpdateQuiz(val quizId: Int, val title: String, val questions: List<Question>) : ExerciseEvent()
     data class AddQuestionToQuiz(val quizId: Int, val question: Question) : ExerciseEvent()
     data class UpdateQuestionInQuiz(val quizId: Int, val questionIndex: Int, val question: Question) : ExerciseEvent()
+    data class DuplicateQuestion(val quizId: Int, val questionIndex: Int) : ExerciseEvent()
     data class DeleteQuestionFromQuiz(val quizId: Int, val questionIndex: Int) : ExerciseEvent()
     data class SaveFolderWithQuizzes(val folderId: Int) : ExerciseEvent()
 

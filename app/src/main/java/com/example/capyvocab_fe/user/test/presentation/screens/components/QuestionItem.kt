@@ -97,6 +97,12 @@ fun QuestionItem(
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
+                // Question time
+                if(question.time != "Không giới hạn") {
+                    question.time?.let {
+                        Text(text = it, fontSize = 14.sp, color = Color.Gray)
+                    }
+                }
 
                 if (isEditing && onMoreClick != null) {
                     IconButton(onClick = onMoreClick) {
@@ -136,7 +142,8 @@ fun QuestionItem(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF42B3FF),
                             unfocusedBorderColor = Color.Gray
-                        )
+                        ),
+                        enabled = false
                     )
 
                     // Hiển thị đáp án đúng nếu showAnswers = true

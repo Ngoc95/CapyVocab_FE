@@ -2,7 +2,9 @@ package com.example.capyvocab_fe.user.test.presentation.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
@@ -31,6 +37,8 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -45,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -149,6 +158,28 @@ fun EditQuestionScreen(
         )
     }
 
+    // Chọn thời gian
+    var selectedTime by remember {
+        mutableStateOf(currentQuestion?.time ?: "Không giới hạn")
+    }
+    var showTimePicker by remember { mutableStateOf(false) }
+    val timeOptions = listOf(
+        "Không giới hạn",
+        "5 giây",
+        "10 giây",
+        "20 giây",
+        "30 giây",
+        "45 giây",
+        "1 phút",
+        "1.5 phút",
+        "2 phút",
+        "3 phút",
+        "5 phút",
+        "10 phút",
+        "15 phút",
+        "20 phút",
+    )
+
     // Trạng thái validate
     var showError by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf("") }
@@ -176,6 +207,27 @@ fun EditQuestionScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Chọn thời gian
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { showTimePicker = true }
+                        .padding(horizontal = 12.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedTime,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Icon(Icons.Default.AccessTime, contentDescription = "Time Icon")
+                }
+            }
+
             // Dropdown chọn loại câu hỏi
             var expandedType by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(
@@ -435,7 +487,7 @@ fun EditQuestionScreen(
                             correctAnswers = correctAnswersList,
                             explanation = explanationText.text.takeIf { it.isNotEmpty() },
                             image = null,
-                            time = null,
+                            time = selectedTime,
                             type = if (answerMode == 0) "SINGLE_CHOICE" else "MULTIPLE_CHOICE"
                         )
 
@@ -470,7 +522,7 @@ fun EditQuestionScreen(
                             correctAnswers = listOf(fillAnswer.text.trim()),
                             explanation = explanationText.text.takeIf { it.isNotEmpty() },
                             image = null,
-                            time = null,
+                            time = selectedTime,
                             type = "FILL_IN_BLANK"
                         )
 
@@ -499,6 +551,29 @@ fun EditQuestionScreen(
             }
         }
     }
+
+    if (showTimePicker) {
+        ModalBottomSheet(
+            onDismissRequest = { showTimePicker = false }
+        ) {
+            LazyColumn {
+                items(timeOptions) { timeOption ->
+                    Text(
+                        text = timeOption,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedTime = timeOption
+                                showTimePicker = false
+                            }
+                            .padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+        }
+    }
+
 
     // Dialog cảnh báo khi lưu lỗi
     if (showSaveErrorDialog) {

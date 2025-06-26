@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -80,6 +81,10 @@ fun QuizScreen(
 
     val quiz = state.currentQuiz
     var showAnswers by remember { mutableStateOf(false) }
+
+    // Hiện chọn list thời gian
+    var showTimePicker by remember { mutableStateOf(false) }
+
     // Hiển thị dialog xác nhận xóa
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     
@@ -184,26 +189,28 @@ fun QuizScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                val questions = quiz.question
+                val questions = quiz?.question
 
-                items(questions.size) { index ->
-                    val question = questions[index]
-                    Box {
-                        QuestionItem(
-                            questionNumber = index + 1,
-                            question = question,
-                            showAnswers = (showAnswers && isCreator) || (editingMode && isCreator),
-                            selectedAnswers = if ((showAnswers && isCreator) || (editingMode && isCreator))
-                                question.correctAnswers
-                            else
-                                state.selectedAnswers[index] ?: emptyList(),
-                            onAnswerSelected = {},
-                            isEditing = editingMode,
-                            onMoreClick = {
-                                selectedQuestionIndex = index
-                                showBottomSheet = true
-                            }
-                        )
+                if (questions != null) {
+                    items(questions.size) { index ->
+                        val question = questions[index]
+                        Box {
+                            QuestionItem(
+                                questionNumber = index + 1,
+                                question = question,
+                                showAnswers = (showAnswers && isCreator) || (editingMode && isCreator),
+                                selectedAnswers = if ((showAnswers && isCreator) || (editingMode && isCreator))
+                                    question.correctAnswers
+                                else
+                                    state.selectedAnswers[index] ?: emptyList(),
+                                onAnswerSelected = {},
+                                isEditing = editingMode,
+                                onMoreClick = {
+                                    selectedQuestionIndex = index
+                                    showBottomSheet = true
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -293,7 +300,55 @@ fun QuizScreen(
             }
         }
     }
-    
+
+    //Hiện bottomsheet list thời gian
+    val timeOptions = listOf(
+        "Không giới hạn",
+        "5 giây",
+        "10 giây",
+        "20 giây",
+        "30 giây",
+        "45 giây",
+        "1 phút",
+        "1.5 phút",
+        "2 phút",
+        "3 phút",
+        "5 phút",
+        "10 phút",
+        "15 phút",
+        "20 phút",
+    )
+
+    if (showTimePicker) {
+        ModalBottomSheet(onDismissRequest = { showTimePicker = false }) {
+            LazyColumn {
+                items(timeOptions) { timeOption ->
+                    Text(
+                        text = timeOption,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showTimePicker = false
+                                if (selectedQuestionIndex >= 0 && quiz != null) {
+                                    val updatedQuestion = quiz.question[selectedQuestionIndex].copy(time = timeOption)
+
+                                    onEvent(
+                                        ExerciseEvent.UpdateQuestionInQuiz(
+                                            quizId = quizId,
+                                            questionIndex = selectedQuestionIndex,
+                                            question = updatedQuestion
+                                        )
+                                    )
+                                    onEvent(ExerciseEvent.SaveFolderWithQuizzes(folderId))
+                                }
+                            }
+                            .padding(12.dp)
+                    )
+                }
+            }
+        }
+    }
+
     // Dialog xác nhận xóa câu hỏi
     if (showDeleteConfirmation && isCreator) {
         AlertDialog(
@@ -353,7 +408,11 @@ fun QuizScreen(
                         .fillMaxWidth()
                         .clickable {
                             showBottomSheet = false
-                            // Xử lý sao chép câu hỏi
+                            onEvent(ExerciseEvent.DuplicateQuestion(
+                                quizId = quizId,
+                                questionIndex = selectedQuestionIndex
+                            ))
+                            onEvent(ExerciseEvent.SaveFolderWithQuizzes(folderId))
                         }
                         .padding(vertical = 12.dp)
                 )
@@ -363,10 +422,11 @@ fun QuizScreen(
                         .fillMaxWidth()
                         .clickable {
                             showBottomSheet = false
-                            // Xử lý thay đổi thời gian
+                            showTimePicker = true
                         }
                         .padding(vertical = 12.dp)
                 )
+
                 Text(
                     text = "Xóa câu hỏi",
                     color = Color.Red,
