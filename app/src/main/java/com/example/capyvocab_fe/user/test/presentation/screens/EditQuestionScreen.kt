@@ -171,7 +171,7 @@ fun EditQuestionScreen(
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)

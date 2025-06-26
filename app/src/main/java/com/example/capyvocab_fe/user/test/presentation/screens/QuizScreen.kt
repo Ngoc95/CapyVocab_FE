@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,11 +71,10 @@ fun QuizScreen(
     quizId: Int,
     folderId: Int,
     state: ExerciseState,
-    onEvent: (ExerciseEvent) -> Unit,
-    isEditing: Boolean = false
+    onEvent: (ExerciseEvent) -> Unit
 ) {
     // Trạng thái chuyển đổi giữa chế độ thường và chỉnh sửa
-    var editingMode by remember { mutableStateOf(isEditing) }
+    var editingMode by rememberSaveable { mutableStateOf(false) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedQuestionIndex by remember { mutableIntStateOf(-1) }
 
@@ -421,8 +421,7 @@ private fun QuizScreenPreview() {
             quizId = 1,
             folderId = 1,
             state = sampleState,
-            onEvent = {},
-            isEditing = true
+            onEvent = {}
         )
     }
 }

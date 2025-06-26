@@ -2,7 +2,6 @@ package com.example.capyvocab_fe.user.notification.data.repository
 
 import arrow.core.Either
 import com.example.capyvocab_fe.core.error.AppFailure
-import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.user.notification.data.mapper.NotificationMapper
 import com.example.capyvocab_fe.user.notification.data.source.NotificationRemoteDataSource
 import com.example.capyvocab_fe.user.notification.data.source.NotificationSocketDataSource

@@ -16,14 +16,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.capyvocab_fe.payout.domain.model.Payout
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.capyvocab_fe.payout.domain.model.Payout
 import com.example.capyvocab_fe.payout.presentation.components.AdminPayoutCard
 import com.example.capyvocab_fe.ui.theme.dimens
 

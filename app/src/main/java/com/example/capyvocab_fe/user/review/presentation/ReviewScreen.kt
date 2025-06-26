@@ -48,7 +48,6 @@ import com.example.capyvocab_fe.admin.word.domain.model.Word
 import com.example.capyvocab_fe.core.ui.components.BottomFeedbackCard
 import com.example.capyvocab_fe.core.ui.components.CustomProgressBarWithIcon
 import com.example.capyvocab_fe.navigation.Route
-import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import com.example.capyvocab_fe.user.review.presentation.components.ChooseMeaningQuestion
 import com.example.capyvocab_fe.user.review.presentation.components.FillInQuestion
 import com.example.capyvocab_fe.user.review.presentation.components.ListenAndChooseQuestion

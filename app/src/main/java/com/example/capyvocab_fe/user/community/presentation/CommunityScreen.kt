@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,6 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
-import com.example.capyvocab_fe.core.ui.components.TopBarTitle
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.community.presentation.components.ExpandableFAB
