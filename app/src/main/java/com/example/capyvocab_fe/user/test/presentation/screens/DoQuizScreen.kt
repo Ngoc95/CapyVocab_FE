@@ -114,7 +114,12 @@ fun DoQuizScreen(
     
     // Số câu trả lời đúng
     var correctAnswersCount by remember { mutableIntStateOf(0) }
-    
+
+    // Thời gian đếm ngược 1 câu
+    val timeLeft = remember(currentQuestionIndex) {
+        mutableStateOf(parseTime(currentQuestion?.time ?: "Không giới hạn"))
+    }
+
     // Focus manager để ẩn bàn phím khi cần
     val focusManager = LocalFocusManager.current
     
@@ -165,6 +170,17 @@ fun DoQuizScreen(
             showCompletionDialog = true
         }
     }
+
+    LaunchedEffect(timeLeft.value, showResult) {
+        // Khi còn thời gian, chưa hiển thị kết quả
+        if (timeLeft.value > 0 && !showResult && currentQuestion?.time != "Không giới hạn") {
+            kotlinx.coroutines.delay(1000)
+            timeLeft.value = timeLeft.value - 1
+        } else if (timeLeft.value == 0 && !showResult && currentQuestion?.time != "Không giới hạn") {
+            // Hết giờ => Kiểm tra tự động
+            checkAnswer()
+        }
+    }
     
     Column(
         modifier = Modifier
@@ -202,7 +218,7 @@ fun DoQuizScreen(
             color = Color(0xFF42B3FF),
             trackColor = Color(0xFFE0E0E0)
         )
-        
+
         // Thông tin tiến trình
         Row(
             modifier = Modifier
@@ -264,6 +280,19 @@ fun DoQuizScreen(
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Hiển thị thời gian còn lại
+                    if (currentQuestion.time != "Không giới hạn" && !showResult && timeLeft.value > 0) {
+                        Text(
+                            text = "⏳ ${timeLeft.value}s",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (timeLeft.value <= 5) Color.Red else Color.Gray,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -538,5 +567,16 @@ fun DoQuizScreen(
                 }
             }
         )
+    }
+}
+
+fun parseTime(timeString: String): Int {
+    return when {
+        timeString.contains("giây") -> timeString.filter { it.isDigit() }.toInt()
+        timeString.contains("phút") -> {
+            val minutes = timeString.filter { it.isDigit() }.toInt()
+            minutes * 60
+        }
+        else -> -1 // "Không giới hạn" -> -1
     }
 }

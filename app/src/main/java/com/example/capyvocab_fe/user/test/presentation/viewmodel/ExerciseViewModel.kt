@@ -77,6 +77,7 @@ class ExerciseViewModel @Inject constructor(
             is ExerciseEvent.UpdateQuiz -> updateQuiz(event.quizId, event.title, event.questions)
             is ExerciseEvent.AddQuestionToQuiz -> addQuestionToQuiz(event.quizId, event.question)
             is ExerciseEvent.UpdateQuestionInQuiz -> updateQuestionInQuiz(event.quizId, event.questionIndex, event.question)
+            is ExerciseEvent.DuplicateQuestion -> duplicateQuestion(event.quizId, event.questionIndex)
             is ExerciseEvent.DeleteQuestionFromQuiz -> deleteQuestionFromQuiz(event.quizId, event.questionIndex)
             is ExerciseEvent.SaveFolderWithQuizzes -> saveFolderWithQuizzes(event.folderId)
             // Navigation events
@@ -613,6 +614,63 @@ class ExerciseViewModel @Inject constructor(
                 state.copy(
                     currentFolder = updatedFolder,
                     successMessage = "Đã cập nhật câu hỏi"
+                )
+            }
+        }
+    }
+
+    /**
+     * Sao chép một câu hỏi trong quiz
+     */
+    private fun duplicateQuestion(quizId: Int, questionIndex: Int) {
+        _state.update { state ->
+            val currentFolder = state.currentFolder ?: return@update state
+            val currentQuiz = state.currentQuiz
+
+            if (currentQuiz != null && currentQuiz.id == quizId) {
+                val questions = currentQuiz.question.toMutableList()
+                if (questionIndex in questions.indices) {
+                    val clonedQuestion = questions[questionIndex].copy()
+                    questions.add(clonedQuestion)
+
+                    val updatedQuiz = currentQuiz.copy(question = questions)
+
+                    val updatedQuizzes = currentFolder.quizzes?.map { quiz ->
+                        if (quiz.id == quizId) updatedQuiz else quiz
+                    } ?: listOf(updatedQuiz)
+
+                    val updatedFolder = currentFolder.copy(quizzes = updatedQuizzes)
+
+                    state.copy(
+                        currentFolder = updatedFolder,
+                        currentQuiz = updatedQuiz,
+                        successMessage = "Đã sao chép câu hỏi"
+                    )
+                } else {
+                    state
+                }
+            } else {
+                // Trường hợp không phải quiz hiện tại
+                val updatedQuizzes = currentFolder.quizzes?.map { quiz ->
+                    if (quiz.id == quizId) {
+                        val questions = quiz.question.toMutableList()
+                        if (questionIndex in questions.indices) {
+                            val clonedQuestion = questions[questionIndex].copy()
+                            questions.add(clonedQuestion)
+                            quiz.copy(question = questions)
+                        } else {
+                            quiz
+                        }
+                    } else {
+                        quiz
+                    }
+                } ?: emptyList()
+
+                val updatedFolder = currentFolder.copy(quizzes = updatedQuizzes)
+
+                state.copy(
+                    currentFolder = updatedFolder,
+                    successMessage = "Đã sao chép câu hỏi"
                 )
             }
         }
