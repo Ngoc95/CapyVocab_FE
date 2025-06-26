@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.auth.data.remote
 
+import com.example.capyvocab_fe.auth.data.remote.model.ChangePasswordRequest
 import com.example.capyvocab_fe.auth.data.remote.model.GetAccountResponse
 import com.example.capyvocab_fe.auth.data.remote.model.GoogleLoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
@@ -11,6 +12,8 @@ import com.example.capyvocab_fe.core.network.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Query
 
 interface AuthApi {
     @POST("auth/login")
@@ -31,4 +34,14 @@ interface AuthApi {
     suspend fun getUserInfo(): ApiResponse<GetAccountResponse>
     @POST("oauth/google")
     suspend fun googleLogin(@Body request: GoogleLoginRequest): LoginResponse
+
+    @POST("emails/change-password")
+    suspend fun sendChangePasswordEmail(@Body codeRequest: Map<String, String>): ApiResponse<Unit>
+
+    @PUT("auth/change-password")
+    suspend fun changePassword(
+        @Query("code") code: String,
+        @Body body: ChangePasswordRequest
+    ): ApiResponse<Unit>
+
 }

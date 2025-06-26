@@ -13,4 +13,6 @@ interface AuthRepository {
     suspend fun sendVerificationEmail(): Either<AuthFailure, Unit>
     suspend fun verifyEmail(code: Int): Either<AuthFailure, Unit>
     suspend fun googleLogin(token: String): Either<AuthFailure, User>
+    suspend fun sendChangePasswordEmail(email: String): Either<AuthFailure, Unit>
+    suspend fun changePassword(email: String, code: String, newPassword: String): Either<AuthFailure, Unit>
 }

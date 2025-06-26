@@ -5,6 +5,7 @@ import arrow.core.flatMap
 import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
 import com.example.capyvocab_fe.auth.data.mapper.toDomain
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
+import com.example.capyvocab_fe.auth.data.remote.model.ChangePasswordRequest
 import com.example.capyvocab_fe.auth.data.remote.model.GoogleLoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterRequest
@@ -130,4 +131,26 @@ class AuthRepositoryImpl @Inject constructor(
             it.toAuthFailure()
         }
     }
+
+    override suspend fun sendChangePasswordEmail(email: String): Either<AuthFailure, Unit> {
+        return Either.catch {
+            authApi.sendChangePasswordEmail(mapOf("email" to email))
+            Unit
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
+    override suspend fun changePassword(email: String, code: String, newPassword: String): Either<AuthFailure, Unit> {
+        return Either.catch {
+            authApi.changePassword(
+                code,
+                ChangePasswordRequest(email, newPassword)
+            )
+            Unit
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
 }
