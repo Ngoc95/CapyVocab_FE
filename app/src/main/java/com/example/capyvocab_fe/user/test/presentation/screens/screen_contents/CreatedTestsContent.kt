@@ -59,12 +59,7 @@ fun CreatedTestsContent(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color(0xFF42B3FF)
-            )
-        } else if (createdFolders.isEmpty()) {
+        if (createdFolders.isEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()

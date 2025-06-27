@@ -62,7 +62,6 @@ import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.AdminPayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
 import com.example.capyvocab_fe.report.presentation.AdminReportScreen
-import com.example.capyvocab_fe.report.presentation.ReportEvent
 import com.example.capyvocab_fe.report.presentation.ReportViewModel
 import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.launch

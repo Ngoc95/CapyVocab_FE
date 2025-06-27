@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
@@ -89,7 +88,7 @@ fun UserReportScreenContent(
     onReportContentChanged: (String) -> Unit,
     onCreateReport: () -> Unit
 ) {
-    Column(modifier = Modifier.padding(MaterialTheme.dimens.small3)) {
+    Column(modifier = Modifier.padding(16.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {

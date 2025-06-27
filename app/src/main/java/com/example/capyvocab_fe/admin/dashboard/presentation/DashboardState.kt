@@ -2,10 +2,10 @@ package com.example.capyvocab_fe.admin.dashboard.presentation
 
 import com.example.capyvocab_fe.admin.dashboard.domain.model.CourseStats
 import com.example.capyvocab_fe.admin.dashboard.domain.model.FolderStats
-import com.example.capyvocab_fe.admin.dashboard.domain.model.TopTopicDetail
 import com.example.capyvocab_fe.admin.dashboard.domain.model.RevenueStats
 import com.example.capyvocab_fe.admin.dashboard.domain.model.TopCourseDetail
 import com.example.capyvocab_fe.admin.dashboard.domain.model.TopFolderDetail
+import com.example.capyvocab_fe.admin.dashboard.domain.model.TopTopicDetail
 import com.example.capyvocab_fe.admin.dashboard.domain.model.TopicStats
 import com.example.capyvocab_fe.admin.dashboard.domain.model.UserStats
 

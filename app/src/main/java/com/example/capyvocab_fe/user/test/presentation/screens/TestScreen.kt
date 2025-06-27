@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
@@ -58,7 +57,6 @@ import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.White
-import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import com.example.capyvocab_fe.user.payment.presentation.PaymentUiEvent
 import com.example.capyvocab_fe.user.payment.presentation.PaymentUiState
 import com.example.capyvocab_fe.user.payment.presentation.PaymentViewModel

@@ -8,6 +8,8 @@ sealed class Route(
     object LoginScreen : Route(route = "loginScreen")
     object RegisterScreen : Route(route = "registerScreen")
     object OtpScreen: Route(route = "otpScreen")
+    object ForgotPasswordEmailScreen : Route(route = "forgotPasswordEmailScreen")
+    object ForgotPasswordCodeScreen: Route(route = "forgotPasswordCodeScreen")
 
     //admin navigator
     object AdminNavigation : Route(route = "adminNavigation")

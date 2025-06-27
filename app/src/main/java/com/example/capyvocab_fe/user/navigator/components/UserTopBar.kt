@@ -42,7 +42,7 @@ fun UserTopBar(
             Box(
                 modifier = Modifier
                     .padding(end = MaterialTheme.dimens.small3)
-                    .size(MaterialTheme.dimens.medium3 * 1.5f)
+                    .size(MaterialTheme.dimens.medium1 * 1.5f)
                     .clickable {
                         navController.navigate(Route.UserNotificationScreen.route)
                     }
@@ -58,7 +58,7 @@ fun UserTopBar(
                     count = notificationCount,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 2.dp, y = (-2).dp)
+                        .offset(x = 10.dp, y = (-2).dp)
                 )
             }
         },

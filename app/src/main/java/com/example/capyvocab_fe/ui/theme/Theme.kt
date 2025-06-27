@@ -2,7 +2,6 @@ package com.example.capyvocab_fe.ui.theme
 
 import android.app.Activity
 import android.os.Build
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -10,13 +9,16 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import com.example.capyvocab_fe.MainActivity
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 
 private val DarkColorScheme = darkColorScheme(
     background = Color(0xFF383838),
@@ -50,7 +52,6 @@ fun CapyVocab_FETheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    activity: Activity = LocalContext.current as MainActivity,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -62,7 +63,14 @@ fun CapyVocab_FETheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    val window = calculateWindowSizeClass(activity = activity)
+    val isInPreview = LocalInspectionMode.current
+    val activity = LocalContext.current
+    val window = if (!isInPreview && activity is Activity) {
+        calculateWindowSizeClass(activity = activity)
+    } else {
+        // Provide a default WindowSizeClass for preview
+        WindowSizeClass.calculateFromSize(DpSize(400.dp, 800.dp))
+    }
     val config = LocalConfiguration.current
 
     var typography = CompactTypography

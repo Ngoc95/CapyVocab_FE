@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -199,7 +200,10 @@ fun UserNavigator() {
         NavHost(
             navController = navController,
             startDestination = Route.UserCommunityScreen.route,
-            modifier = Modifier.padding(bottom = bottomPadding, top = topPadding)
+            modifier = Modifier.padding(
+                bottom = if (isBottomVisible) bottomPadding else 0.dp,
+                top = if (isBottomVisible) topPadding else 0.dp
+            )
         ) {
             //user community screen
             composable(route = Route.UserCommunityScreen.route) {
@@ -527,6 +531,9 @@ fun UserNavigator() {
                 arguments = listOf(navArgument("folderId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                LaunchedEffect(folderId) {
+                    exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId!!))
+                }
                 CommentScreen(
                     navController = navController,
                     folderId = folderId,

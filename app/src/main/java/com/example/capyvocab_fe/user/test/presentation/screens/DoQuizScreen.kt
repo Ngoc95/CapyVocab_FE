@@ -84,7 +84,7 @@ fun DoQuizScreen(
     val questions = remember {
         (quiz?.question ?: emptyList()).shuffled()
     }
-    
+
     // Nếu không có câu hỏi, hiển thị thông báo và quay lại
     if (questions.isEmpty()) {
         LaunchedEffect(Unit) {
@@ -96,28 +96,33 @@ fun DoQuizScreen(
     // Vị trí câu hỏi hiện tại
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
     val currentQuestion = questions.getOrNull(currentQuestionIndex)
-    
+
     // Danh sách câu trả lời đã chọn
     var selectedAnswers by remember { mutableStateOf(mutableMapOf<Int, List<String>>()) }
-    
+
     // Trạng thái hiển thị kết quả
     var showResult by remember { mutableStateOf(false) }
-    
+
     // Trạng thái đúng/sai của câu trả lời hiện tại
     var isCurrentAnswerCorrect by remember { mutableStateOf(false) }
-    
+
     // Hiển thị dialog xác nhận thoát
     var showExitConfirmation by remember { mutableStateOf(false) }
-    
+
     // Hiển thị dialog hoàn thành bài kiểm tra
     var showCompletionDialog by remember { mutableStateOf(false) }
-    
+
     // Số câu trả lời đúng
     var correctAnswersCount by remember { mutableIntStateOf(0) }
-    
+
+    // Thời gian đếm ngược 1 câu
+    val timeLeft = remember(currentQuestionIndex) {
+        mutableStateOf(parseTime(currentQuestion?.time ?: "Không giới hạn"))
+    }
+
     // Focus manager để ẩn bàn phím khi cần
     val focusManager = LocalFocusManager.current
-    
+
     // Xử lý khi người dùng nhấn nút Back
     LaunchedEffect(Unit) {
         // Có thể thêm logic để lưu trạng thái làm bài nếu cần
@@ -126,35 +131,37 @@ fun DoQuizScreen(
     // Hàm kiểm tra đáp án
     fun checkAnswer() {
         if (currentQuestion == null) return
-        
+
         val userAnswers = selectedAnswers[currentQuestionIndex] ?: emptyList()
-        
+
         isCurrentAnswerCorrect = when (currentQuestion.type) {
             "FILL_IN_BLANK" -> {
                 // Với câu hỏi điền vào chỗ trống, kiểm tra xem đáp án người dùng có trong danh sách đáp án đúng không
                 val userAnswer = userAnswers.firstOrNull()?.trim() ?: ""
                 currentQuestion.correctAnswers.any { it.equals(userAnswer, ignoreCase = true) }
             }
+
             "MULTIPLE_CHOICE" -> {
                 // Với câu hỏi nhiều đáp án, kiểm tra xem người dùng đã chọn đúng tất cả các đáp án đúng chưa
-                userAnswers.size == currentQuestion.correctAnswers.size && 
-                userAnswers.containsAll(currentQuestion.correctAnswers)
+                userAnswers.size == currentQuestion.correctAnswers.size &&
+                        userAnswers.containsAll(currentQuestion.correctAnswers)
             }
+
             else -> {
                 // Với câu hỏi một đáp án, kiểm tra xem đáp án người dùng có đúng không
                 userAnswers.size == 1 && currentQuestion.correctAnswers.contains(userAnswers.first())
             }
         }
-        
+
         // Cập nhật số câu trả lời đúng
         if (isCurrentAnswerCorrect) {
             correctAnswersCount++
         }
-        
+
         // Hiển thị kết quả
         showResult = true
     }
-    
+
     // Hàm chuyển sang câu hỏi tiếp theo
     fun moveToNextQuestion() {
         if (currentQuestionIndex < questions.size - 1) {
@@ -163,6 +170,17 @@ fun DoQuizScreen(
         } else {
             // Đã hoàn thành tất cả câu hỏi
             showCompletionDialog = true
+        }
+    }
+
+    LaunchedEffect(timeLeft.value, showResult) {
+        // Khi còn thời gian, chưa hiển thị kết quả
+        if (timeLeft.value > 0 && !showResult && currentQuestion?.time != "Không giới hạn") {
+            kotlinx.coroutines.delay(1000)
+            timeLeft.value = timeLeft.value - 1
+        } else if (timeLeft.value == 0 && !showResult && currentQuestion?.time != "Không giới hạn") {
+            // Hết giờ => Kiểm tra tự động
+            checkAnswer()
         }
     }
     
@@ -192,7 +210,7 @@ fun DoQuizScreen(
                 containerColor = Color.White
             )
         )
-        
+
         // Thanh tiến trình
         LinearProgressIndicator(
             progress = (currentQuestionIndex + 1).toFloat() / questions.size,
@@ -202,7 +220,7 @@ fun DoQuizScreen(
             color = Color(0xFF42B3FF),
             trackColor = Color(0xFFE0E0E0)
         )
-        
+
         // Thông tin tiến trình
         Row(
             modifier = Modifier
@@ -215,14 +233,14 @@ fun DoQuizScreen(
                 fontSize = 14.sp,
                 color = Color.Gray
             )
-            
+
             Text(
                 text = "Đúng: $correctAnswersCount",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
         }
-        
+
         // Nội dung câu hỏi
         if (currentQuestion != null) {
             Column(
@@ -250,9 +268,9 @@ fun DoQuizScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.width(12.dp))
-                    
+
                     // Loại câu hỏi
                     Text(
                         text = when (currentQuestion.type) {
@@ -264,10 +282,23 @@ fun DoQuizScreen(
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Hiển thị thời gian còn lại
+                    if (currentQuestion.time != "Không giới hạn" && !showResult && timeLeft.value > 0) {
+                        Text(
+                            text = "⏳ ${timeLeft.value}s",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (timeLeft.value <= 5) Color.Red else Color.Gray,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Nội dung câu hỏi
                 Text(
                     text = currentQuestion.question,
@@ -278,20 +309,22 @@ fun DoQuizScreen(
                         .background(Color.White, RoundedCornerShape(8.dp))
                         .padding(16.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Các lựa chọn hoặc ô nhập liệu
                 when (currentQuestion.type) {
                     "FILL_IN_BLANK" -> {
                         // Câu hỏi điền vào chỗ trống
-                        var answer by remember(currentQuestionIndex) { 
-                            mutableStateOf(selectedAnswers[currentQuestionIndex]?.firstOrNull() ?: "") 
+                        var answer by remember(currentQuestionIndex) {
+                            mutableStateOf(
+                                selectedAnswers[currentQuestionIndex]?.firstOrNull() ?: ""
+                            )
                         }
-                        
+
                         OutlinedTextField(
                             value = answer,
-                            onValueChange = { 
+                            onValueChange = {
                                 answer = it
                                 selectedAnswers[currentQuestionIndex] = listOf(it)
                             },
@@ -310,22 +343,24 @@ fun DoQuizScreen(
                             enabled = !showResult
                         )
                     }
+
                     "MULTIPLE_CHOICE" -> {
                         // Câu hỏi nhiều đáp án
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             currentQuestion.options.forEach { option ->
-                                val currentAnswers = selectedAnswers[currentQuestionIndex] ?: emptyList()
+                                val currentAnswers =
+                                    selectedAnswers[currentQuestionIndex] ?: emptyList()
                                 val isSelected = currentAnswers.contains(option)
                                 val isCorrect = currentQuestion.correctAnswers.contains(option)
                                 val showCorrect = showResult && isCorrect
-                                
+
                                 OptionItem(
                                     option = option,
                                     isSelected = isSelected,
                                     isCorrect = showCorrect,
-                                    onClick = { 
+                                    onClick = {
                                         if (!showResult) {
                                             val newAnswers = currentAnswers.toMutableList()
                                             if (isSelected) {
@@ -343,22 +378,24 @@ fun DoQuizScreen(
                             }
                         }
                     }
+
                     else -> {
                         // Câu hỏi một đáp án
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             currentQuestion.options.forEach { option ->
-                                val currentAnswers = selectedAnswers[currentQuestionIndex] ?: emptyList()
+                                val currentAnswers =
+                                    selectedAnswers[currentQuestionIndex] ?: emptyList()
                                 val isSelected = currentAnswers.contains(option)
                                 val isCorrect = currentQuestion.correctAnswers.contains(option)
                                 val showCorrect = showResult && isCorrect
-                                
+
                                 OptionItem(
                                     option = option,
                                     isSelected = isSelected,
                                     isCorrect = showCorrect,
-                                    onClick = { 
+                                    onClick = {
                                         if (!showResult) {
                                             selectedAnswers = selectedAnswers.toMutableMap().apply {
                                                 put(currentQuestionIndex, listOf(option))
@@ -373,7 +410,7 @@ fun DoQuizScreen(
                 }
             }
         }
-        
+
         // Nút kiểm tra hoặc tiếp tục
         if (!showResult) {
             Button(
@@ -415,7 +452,9 @@ fun DoQuizScreen(
                     .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = if (isCurrentAnswerCorrect) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
+                    containerColor = if (isCurrentAnswerCorrect) Color(0xFFE8F5E9) else Color(
+                        0xFFFFEBEE
+                    )
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
@@ -468,7 +507,9 @@ fun DoQuizScreen(
                             .height(48.dp),
                         shape = RoundedCornerShape(24.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isCurrentAnswerCorrect) Color(0xFF4CAF50) else Color(0xFFF44336)
+                            containerColor = if (isCurrentAnswerCorrect) Color(0xFF4CAF50) else Color(
+                                0xFFF44336
+                            )
                         )
                     ) {
                         Text(
@@ -481,7 +522,7 @@ fun DoQuizScreen(
             }
         }
     }
-    
+
     // Dialog xác nhận thoát
     if (showExitConfirmation) {
         AlertDialog(
@@ -489,30 +530,29 @@ fun DoQuizScreen(
             title = { Text("Xác nhận thoát") },
             text = { Text("Bạn có chắc chắn muốn thoát? Tiến trình làm bài sẽ không được lưu.") },
             confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
                         showExitConfirmation = false
                         navController.popBackStack()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                    }
                 ) {
-                    Text("Thoát")
+                    Text("Thoát", color = Color.Black)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showExitConfirmation = false }) {
-                    Text("Hủy")
+                    Text("Hủy", color = Color.Black)
                 }
             }
         )
     }
-    
+
     // Dialog hoàn thành bài kiểm tra
     if (showCompletionDialog) {
         AlertDialog(
             onDismissRequest = { /* Không cho phép đóng bằng cách nhấn bên ngoài */ },
             title = { Text("Hoàn thành bài kiểm tra") },
-            text = { 
+            text = {
                 Column {
                     Text("Bạn đã hoàn thành bài kiểm tra!")
                     Spacer(modifier = Modifier.height(8.dp))
@@ -523,12 +563,14 @@ fun DoQuizScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Tỷ lệ: ${(correctAnswersCount * 100 / questions.size)}%",
-                        color = if (correctAnswersCount * 100 / questions.size >= 80) Color(0xFF4CAF50) else Color(0xFFF44336)
+                        color = if (correctAnswersCount * 100 / questions.size >= 80) Color(
+                            0xFF4CAF50
+                        ) else Color(0xFFF44336)
                     )
                 }
             },
             confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
                         onEvent(ExerciseEvent.FinishQuiz(folderId, quizId))
                         navController.popBackStack()
@@ -538,5 +580,16 @@ fun DoQuizScreen(
                 }
             }
         )
+    }
+}
+
+fun parseTime(timeString: String): Int {
+    return when {
+        timeString.contains("giây") -> timeString.filter { it.isDigit() }.toInt()
+        timeString.contains("phút") -> {
+            val minutes = timeString.filter { it.isDigit() }.toInt()
+            minutes * 60
+        }
+        else -> -1 // "Không giới hạn" -> -1
     }
 }

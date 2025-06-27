@@ -10,6 +10,6 @@ class GetNotificationsUseCase @Inject constructor(
     private val repository: NotificationRepository
 ) {
     suspend operator fun invoke(page: Int): Either<AppFailure, List<UserNotification>> {
-        return repository.getUserNotifications()
+        return repository.getUserNotifications(page = page)
     }
 }

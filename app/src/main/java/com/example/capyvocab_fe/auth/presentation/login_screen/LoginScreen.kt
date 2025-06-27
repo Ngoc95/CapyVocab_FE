@@ -68,7 +68,6 @@ import com.google.android.gms.common.api.ApiException
 internal fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navController: NavController
-   // onLoginSuccess: () -> Unit
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -114,12 +113,6 @@ internal fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.clearForm()
     }
-//    // Navigate when login is successful
-//    LaunchedEffect(state.isLoggedIn) {
-//        if (state.isLoggedIn) {
-//            onLoginSuccess()
-//        }
-//    }
 
     LoginContent(
         state = state,
@@ -129,6 +122,9 @@ internal fun LoginScreen(
         onLoginClick = { viewModel.login() },
         onRegisterClick = {
             navController.navigate(Route.RegisterScreen.route)
+        },
+        onForgotPasswordClick = {
+            navController.navigate(Route.ForgotPasswordEmailScreen.route)
         },
         onGoogleLoginClick = {
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -159,6 +155,7 @@ fun LoginScreenPreview() {
         onTogglePasswordVisibility = {},
         onLoginClick = { /* Handle login click */ },
         onRegisterClick = { },
+        onForgotPasswordClick = {},
         onGoogleLoginClick = { /* Handle Google login click */ }
     )
 }
@@ -170,6 +167,7 @@ fun LoginContent(
     onTogglePasswordVisibility: () -> Unit,
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
     onGoogleLoginClick: () -> Unit
 ){
     LoadingDialog(isLoading = state.isLoading)
@@ -237,7 +235,7 @@ fun LoginContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = { /* Handle forgot password */ }) {
+                TextButton(onClick = { onForgotPasswordClick() }) {
                     Text(
                         "Quên mật khẩu?",
                         color = Color.DarkGray,

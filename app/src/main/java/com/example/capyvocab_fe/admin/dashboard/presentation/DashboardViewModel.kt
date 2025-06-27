@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import com.example.capyvocab_fe.admin.course.data.remote.AdminCourseApi
-import com.example.capyvocab_fe.admin.dashboard.domain.model.TopTopicDetail
 import com.example.capyvocab_fe.admin.dashboard.domain.model.TopCourseDetail
 import com.example.capyvocab_fe.admin.dashboard.domain.model.TopFolderDetail
+import com.example.capyvocab_fe.admin.dashboard.domain.model.TopTopicDetail
 import com.example.capyvocab_fe.admin.dashboard.domain.repository.DashboardRepository
 import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
 import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi

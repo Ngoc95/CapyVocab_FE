@@ -4,11 +4,17 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.capyvocab_fe.admin.navigator.AdminNavigator
+import com.example.capyvocab_fe.auth.presentation.forgot_password_screen.ForgotPasswordCodeScreen
+import com.example.capyvocab_fe.auth.presentation.forgot_password_screen.ForgotPasswordCodeViewModel
+import com.example.capyvocab_fe.auth.presentation.forgot_password_screen.ForgotPasswordEmailScreen
+import com.example.capyvocab_fe.auth.presentation.forgot_password_screen.ForgotPasswordEmailViewModel
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginScreen
 import com.example.capyvocab_fe.auth.presentation.login_screen.LoginViewModel
 import com.example.capyvocab_fe.auth.presentation.otp_screen.OtpScreen
@@ -53,6 +59,24 @@ fun AppNavGraph(
                     viewModel = viewModel,
                     navController = navController
                 )
+            }
+
+            // Forgot password email
+            composable(route = Route.ForgotPasswordEmailScreen.route) {
+                val viewModel: ForgotPasswordEmailViewModel = hiltViewModel()
+                ForgotPasswordEmailScreen(viewModel = viewModel, navController = navController)
+            }
+
+            // Forgot password code + New password
+            composable(
+                route = Route.ForgotPasswordCodeScreen.route + "?email={email}",
+                arguments = listOf(navArgument("email") {
+                    type = NavType.StringType
+                })
+            ) {
+                val email = it.arguments?.getString("email") ?: ""
+                val viewModel: ForgotPasswordCodeViewModel = hiltViewModel()
+                ForgotPasswordCodeScreen(email = email, viewModel = viewModel, navController = navController)
             }
         }
         //admin

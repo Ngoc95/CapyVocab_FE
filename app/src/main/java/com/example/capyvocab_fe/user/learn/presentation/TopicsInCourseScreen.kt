@@ -44,7 +44,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.admin.course.domain.model.Course
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
-import com.example.capyvocab_fe.admin.topic.presentation.TopicEvent
 import com.example.capyvocab_fe.admin.topic.presentation.components.TopicCard
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
@@ -239,33 +238,3 @@ fun TopicsInCourseScreenContent(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun TopicsInCourseScreenPreview() {
-//    CapyVocab_FETheme {
-//        val sampleTopic = Topic(
-//            id = 1,
-//            title = "Friendship",
-//            description = "Tình bạn",
-//            thumbnail = "",
-//            type = "Free"
-//        )
-//        val sampleTopics = listOf(
-//            sampleTopic,
-//            sampleTopic.copy(id = 2, title = "Chủ đề số 2 ahihi", type = "Premium"),
-//            sampleTopic.copy(id = 3, title = "Chủ đề số 3")
-//        )
-//
-//        TopicsInCourseScreenContent(
-//            courseTitle = "Hello",
-//            topics = sampleTopics,
-//            onTopicClick = {},
-//            onLoadMore = {},
-//            isLoading = false,
-//            isEndReached = false,
-//            selectedTopic = sampleTopics[1],
-//            onBackClick = {}
-//        )
-//    }
-//}

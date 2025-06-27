@@ -46,7 +46,7 @@ fun NotificationScreen(
     }
 
     NotificationScreenContent(
-        notifications = state.notifications,
+        notifications = state.notifications.sortedByDescending{ it.createdAt },
         isLoading = state.isLoading,
         isEndReached = state.isEndReached,
         error = state.error,
@@ -83,52 +83,52 @@ fun NotificationScreenContent(
                 if (lastVisibleItem >= totalItems - 2 && !isLoading && !isEndReached) {
                     onLoadMore()
                 }
+
             }
     }
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Top app bar
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(10.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.backicon),
-                modifier = Modifier.size(50.dp)
-                    .clickable{ onBack() },
-                contentDescription = null
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Thông báo",
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Top app bar
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.backicon),
+                    modifier = Modifier.size(50.dp)
+                        .clickable { onBack() },
+                    contentDescription = null
                 )
-            } else if (error != null) {
-                Column(
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Thông báo",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
+            if (error != null) {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.Center)
+                        .fillMaxSize()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Text(text = error)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { onLoad() }) {
-                        Text("Thử lại")
+                    Column {
+                        Text(text = error)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { onLoad() }) {
+                            Text("Thử lại")
+                        }
                     }
                 }
             } else if (notifications.isEmpty()) {
-                Text(
-                    text = "Không có thông báo nào",
+                Box(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(16.dp)
-                )
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Không có thông báo nào")
+                }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     itemsIndexed(notifications) { index, notification ->
@@ -136,6 +136,9 @@ fun NotificationScreenContent(
                             notification = notification,
                             onNotificationClick = { onNotificationClick(notification) },
                         )
+                        if (index == notifications.size - 1 && !isLoading && !isEndReached) {
+                            onLoadMore()
+                        }
                     }
                     if (isLoading) {
                         item {
