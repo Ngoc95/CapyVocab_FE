@@ -4,10 +4,13 @@ import android.net.Uri
 import arrow.core.Either
 import arrow.core.Either.Companion.catch
 import com.example.capyvocab_fe.MyApplication
+import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.profile.data.remote.UserProfileApi
+import com.example.capyvocab_fe.user.profile.data.remote.model.DeleteUserResponse
+import com.example.capyvocab_fe.user.profile.data.remote.model.LogoutResponse
 import com.example.capyvocab_fe.user.profile.data.remote.model.UpdateUserRequest
 import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 import com.example.capyvocab_fe.user.profile.domain.repository.UserProfileRepository
@@ -60,6 +63,20 @@ class UserProfileRepositoryImpl @Inject constructor(
             val response = api.uploadImage(typePart, multipart)
             response.metaData.firstOrNull()?.destination
                 ?: throw IOException("Không nhận được URL ảnh")
+        }.mapLeft { it.toAppFailure() }
+    }
+
+
+    override suspend fun logout(user: ProfileUser): Either<AppFailure, LogoutResponse> {
+        return Either.catch{
+            api.logout().metaData
+        }.mapLeft { it.toAppFailure() }
+    }
+
+    override suspend fun deleteUser(user: ProfileUser): Either<AppFailure, DeleteUserResponse> {
+        return Either.catch{
+            val id = user.id;
+            api.deleteUserById(id).metaData
         }.mapLeft { it.toAppFailure() }
     }
 }

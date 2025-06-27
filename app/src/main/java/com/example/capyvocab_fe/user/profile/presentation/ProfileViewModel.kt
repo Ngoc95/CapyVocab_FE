@@ -32,18 +32,51 @@ class ProfileViewModel @Inject constructor(
             is ProfileEvent.Logout -> logout()
             is ProfileEvent.UpdateUser -> updateUser(event.user)
             is ProfileEvent.DeleteUser -> deleteUser()
-            is ProfileEvent.EmailChange -> { }
             is ProfileEvent.PasswordChange -> { }
         }
     }
 
-    private fun updateUserImg(user: ProfileEvent.UpdateUser) {
-
-    }
 
 
     private fun deleteUser() {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            val user = _state.value.currentUser
+            if (user != null) {
+                userProfileRepository.logout(user)
+                    .onRight {
+                        _state.update {
+                            it.copy(
+                                userLogouted = true,
+                            )
+                        }
+                    }.onLeft { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                            )
+                    }
+                if(_state.value.userDeleted)
+                {
+                    userProfileRepository.deleteUser(user)
+                        .onRight {
+                            _state.update {
+                                it.copy(
+                                    userDeleted = true,
+                                )
+                            }
+                        }.onLeft { failure ->
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun updateUser(user: ProfileUser)  {
@@ -136,9 +169,28 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun logout() {
-        TODO("Not yet implemented")
-    }
+        viewModelScope.launch {
+            val user = _state.value.currentUser
+            if (user != null) {
+                userProfileRepository.logout(user)
+                    .onRight {
+                        _state.update {
+                            it.copy(
+                                userLogouted = true,
+                            )
+                        }
+                    }.onLeft { failure ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                            )
 
+                        }
+                    }
+            }
+        }
+    }
     private fun loadCurrentUser() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
@@ -157,7 +209,7 @@ class ProfileViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = failure.message ?: "Failed to load user"
+                                errorMessage = failure.message ?: "Không tìm thấy User"
                             )
                         }
                     }

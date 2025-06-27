@@ -57,7 +57,7 @@ import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProfileSettingScreenContent(
+fun ProfileSettingScreen(
     user: ProfileUser,
     onBackClick:() -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
@@ -95,17 +95,29 @@ fun ProfileSettingScreenContent(
         }
     }
 
-    ProfileSettingScreen(
+    ProfileSettingScreenContent(
         user = user,
         onBackClick = { onBackClick() },
         onSaveSettingChanges = {user ->
             viewModel.onEvent(ProfileEvent.UpdateUser(user))
         },
         onDeleteAccount = {
-
+            viewModel.onEvent(ProfileEvent.DeleteUser);
+            if(viewModel.state.value.userDeleted)
+            {
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true } // Xóa backstack
+                }
+            }
         },
         onLogout = {
-
+            viewModel.onEvent(ProfileEvent.Logout);
+            if(viewModel.state.value.userLogouted)
+            {
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true } // Xóa backstack
+                }
+            }
         },
         avatar = avatar,
         selectAvatar = {
@@ -117,7 +129,7 @@ fun ProfileSettingScreenContent(
 
 
 @Composable
-fun ProfileSettingScreen(
+fun ProfileSettingScreenContent(
     user: ProfileUser,
     onLogout:() -> Unit,
     onSaveSettingChanges:(ProfileUser) -> Unit,
@@ -305,7 +317,7 @@ fun ProfileSettingScreen(
 fun SettingPreview() {
     CapyVocab_FETheme {
 
-        ProfileSettingScreen (
+        ProfileSettingScreenContent (
             user = ProfileUser(
                 id = 1,
                 username = "fd",

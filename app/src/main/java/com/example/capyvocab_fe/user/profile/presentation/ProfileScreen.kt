@@ -45,8 +45,9 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun ProfileScreen(
-    onSettingUser:(ProfileUser) -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
+    onSettingUser:(ProfileUser) -> Unit,
+    onChangePassword: () -> Unit,
     onPayoutClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -71,7 +72,9 @@ fun ProfileScreen(
         ProfileScreenContent (
             user = user,
             onSettingUser = { onSettingUser(user) },
-            onPayoutClick = onPayoutClick
+            onPayoutClick = onPayoutClick,
+            onChangePassword = onChangePassword
+
         )
     }
 }
@@ -80,7 +83,8 @@ fun ProfileScreen(
 fun ProfileScreenContent(
     user: ProfileUser,
     onSettingUser: () -> Unit,
-    onPayoutClick: () -> Unit
+    onPayoutClick: () -> Unit,
+    onChangePassword: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -110,6 +114,30 @@ fun ProfileScreenContent(
 //                    Text("Lưu thay đổi", color = Color.White)
 //                }
             }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)) // Bóng đổ
+                    .background(color = Color(0xFFF1F9FF), shape = RoundedCornerShape(12.dp)) // Nền xanh nhạt
+                    .clickable { onChangePassword() }
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.change_pass), // Đổi icon nếu cần
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Đổi mật khẩu",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Black
+                )
+            }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -153,7 +181,8 @@ fun ProfileScreenContentPreview() {
                 totalStudyDay = 30,
             ),
             onSettingUser = { },
-            onPayoutClick = { }
+            onPayoutClick = { },
+            onChangePassword = { }
         )
 
     //}

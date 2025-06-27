@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +46,7 @@ import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import com.example.capyvocab_fe.ui.theme.dimens
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.community.presentation.components.PostCard
 import kotlinx.coroutines.delay
@@ -163,8 +165,11 @@ fun OwnerPostScreen(
             AsyncImage(
                 model = user.avatar,
                 contentDescription = "Avatar",
+                placeholder = painterResource(id = R.drawable.default_avt),
+                fallback = painterResource(id = R.drawable.default_avt),
+                error = painterResource(id = R.drawable.default_avt),
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(MaterialTheme.dimens.medium2)
                     .clip(CircleShape)
             )
 

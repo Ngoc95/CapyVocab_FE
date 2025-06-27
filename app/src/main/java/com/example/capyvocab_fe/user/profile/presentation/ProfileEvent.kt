@@ -12,4 +12,7 @@ sealed class ProfileEvent {
     data class EmailChange(val Email: String) : ProfileEvent()
     data class PasswordChange(val NewPass: String) : ProfileEvent()
 
+    object SendConfirmEmail : ProfileEvent()
+    object ChangePassword : ProfileEvent()
+
 }

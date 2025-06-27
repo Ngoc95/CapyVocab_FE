@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.user.community.presentation.components
 
+import android.R
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -186,11 +187,17 @@ fun SelectImage(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 800)
 @Composable
 fun SelectImagePreview() {
 
-    val imgList = emptyList<Uri>()
+    val imgList = listOf(
+        Uri.parse("fkdf"),
+        Uri.parse("gkfdhg"),
+        Uri.parse("fdsg"),
+        Uri.parse("fdsg"),
+        Uri.parse("fdsg")
+    )
 
     SelectImage(
         imgList = imgList,

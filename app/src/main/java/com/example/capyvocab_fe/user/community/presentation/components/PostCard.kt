@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -26,16 +27,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
 import com.example.capyvocab_fe.ui.theme.Styles.LightBlueTextStyle
 import com.example.capyvocab_fe.ui.theme.Styles.TextButtonModifier
+import com.example.capyvocab_fe.ui.theme.dimens
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -64,8 +68,11 @@ fun PostCard(
                 AsyncImage(
                     model = post.createdBy.avatar,
                     contentDescription = "Avatar",
+                    placeholder = painterResource(id = R.drawable.default_avt),
+                    fallback = painterResource(id = R.drawable.default_avt),
+                    error = painterResource(id = R.drawable.default_avt),
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(MaterialTheme.dimens.medium2)
                         .clip(CircleShape)
                         .clickable{ onClickUserPostsScreen(post.createdBy) }
                 )
@@ -77,7 +84,7 @@ fun PostCard(
                         text = post.createdBy.username,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable{ onClickUserPostsScreen(post.createdBy) },
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.titleMedium
                     )
 
                     Spacer(modifier = Modifier.width(2.dp))
@@ -86,8 +93,7 @@ fun PostCard(
 
                     Text(
                         text = sdf.format(post.createdAt),
-                        fontWeight = FontWeight.Thin,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
 
@@ -95,29 +101,29 @@ fun PostCard(
 
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
 
             Text(
                 text = post.tags?.joinToString("  ") { "#$it" } ?: "",
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.titleMedium,
                 color = MyLightBlue,
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
 
             Text(
                 text = post.content ?: "",
-                fontSize = 14.sp
+                style = MaterialTheme.typography.titleSmall
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
 
             PostThumbsGrid(
                 images = post.thumbnails,
                 onImageClick = onImageClick
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
 
 
             Row(
@@ -127,7 +133,7 @@ fun PostCard(
                     Text(
                         text = "${post.commentCount} trả lời, ${post.voteCount} lượt thích",
                         color = MyLightBlue,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.titleSmall
                     )
 
                     IconToggleButton(

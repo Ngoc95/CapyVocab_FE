@@ -29,6 +29,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -61,6 +62,7 @@ import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
 import com.example.capyvocab_fe.ui.theme.White
+import com.example.capyvocab_fe.ui.theme.dimens
 import com.example.capyvocab_fe.user.community.domain.model.Comment
 import com.example.capyvocab_fe.user.community.domain.model.Post
 import com.example.capyvocab_fe.user.community.domain.model.TargetType
@@ -253,8 +255,11 @@ fun PostScreenContent(
                     AsyncImage(
                         model = post.createdBy.avatar,
                         contentDescription = "Avatar",
+                        placeholder = painterResource(id = R.drawable.default_avt),
+                        fallback = painterResource(id = R.drawable.default_avt),
+                        error = painterResource(id = R.drawable.default_avt),
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(MaterialTheme.dimens.medium2)
                             .clip(CircleShape)
                     )
 

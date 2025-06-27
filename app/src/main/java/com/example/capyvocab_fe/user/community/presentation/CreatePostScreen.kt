@@ -240,7 +240,7 @@ fun CreatePostScreenContent(
                             colors = TextFieldDefaults.colors(
                                 unfocusedContainerColor = Transparent,
                                 focusedContainerColor = Transparent,
-                                cursorColor = Color(0xFF5E4A45),
+                                cursorColor = Black,
                                 focusedIndicatorColor = Black,
                                 unfocusedIndicatorColor = Color.Black,
                             ),

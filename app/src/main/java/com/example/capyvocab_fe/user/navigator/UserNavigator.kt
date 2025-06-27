@@ -48,8 +48,10 @@ import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import com.example.capyvocab_fe.user.notification.presentation.NotificationScreen
 import com.example.capyvocab_fe.user.notification.presentation.NotificationViewModel
 import com.example.capyvocab_fe.user.notification.presentation.handler.NotificationActionHandler
+import com.example.capyvocab_fe.user.profile.presentation.ChangePasswordScreen
 import com.example.capyvocab_fe.user.profile.presentation.ProfileEvent
 import com.example.capyvocab_fe.user.profile.presentation.ProfileScreen
+import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreen
 import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreenContent
 import com.example.capyvocab_fe.user.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
@@ -248,7 +250,10 @@ fun UserNavigator() {
                 CreatePostScreen(
                     viewModel = communityViewModel,
                     navController = navController,
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {
+                        navController.popBackStack();
+                        communityViewModel.onEvent(CommunityEvent.LoadPosts);
+                    }
                 )
             }
 
@@ -539,7 +544,11 @@ fun UserNavigator() {
                     },
                     onPayoutClick = {
                         navController.navigate(Route.UserPayoutScreen.route)
+                    },
+                    onChangePassword = {
+                        navController.navigate(Route.UserChangePasswordScreen.route)
                     }
+
                 )
             }
 
@@ -552,7 +561,25 @@ fun UserNavigator() {
                 }
 
                 profileState.currentUser?.let{user ->
-                    ProfileSettingScreenContent(
+                    ProfileSettingScreen(
+                        user = user,
+                        viewModel = profileViewModel,
+                        navController = navController,
+                        onBackClick = {navController.popBackStack()}
+                    )
+                }
+            }
+
+            composable(
+                route = Route.UserChangePasswordScreen.route,
+            ) { backStackEntry ->
+
+                LaunchedEffect(Unit){
+                    profileViewModel.onEvent(ProfileEvent.GetCurrentUser)
+                }
+
+                profileState.currentUser?.let{user ->
+                    ChangePasswordScreen(
                         user = user,
                         viewModel = profileViewModel,
                         navController = navController,
@@ -583,6 +610,11 @@ fun UserNavigator() {
             }
         }
     }
+}
+
+@Composable
+fun LoadPosts() {
+    TODO("Not yet implemented")
 }
 
 private fun navigateToTab(navController: NavController, route: String) {
