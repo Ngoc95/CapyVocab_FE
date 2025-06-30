@@ -50,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.Black
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
@@ -121,27 +122,29 @@ fun CreatePostScreen(
         }
     }
 
-    CreatePostScreenContent(
-        tagsList = tagsList,
-        content = content,
-        imgList = imageList,
-        onAddTag = {tag -> if(tag !in tagsList) tagsList.add(tag) },
-        onRemoveTag = { tag -> tagsList.remove(tag) },
-        onBackClick = {
-            onBackClick()
-        },
-        onSelectImage = { launcher.launch(arrayOf("image/*")) },
-        onRemoveImage = {img -> imageList.remove(img) },
-        onChangeContent = {str -> content = str},
-        onSavePost = {
-            if (tagsList.isEmpty() && content.isBlank() && imageList.isEmpty())
-                visibleError = "Bài viết không được để trống"
-            else
-            {
-                viewModel.onEvent(CommunityEvent.CreatePost(content, tagsList, imageList))
+    FocusComponent {
+        CreatePostScreenContent(
+            tagsList = tagsList,
+            content = content,
+            imgList = imageList,
+            onAddTag = {tag -> if(tag !in tagsList) tagsList.add(tag) },
+            onRemoveTag = { tag -> tagsList.remove(tag) },
+            onBackClick = {
+                onBackClick()
+            },
+            onSelectImage = { launcher.launch(arrayOf("image/*")) },
+            onRemoveImage = {img -> imageList.remove(img) },
+            onChangeContent = {str -> content = str},
+            onSavePost = {
+                if (tagsList.isEmpty() && content.isBlank() && imageList.isEmpty())
+                    visibleError = "Bài viết không được để trống"
+                else
+                {
+                    viewModel.onEvent(CommunityEvent.CreatePost(content, tagsList, imageList))
+                }
             }
-        }
-    )
+        )
+    }
 
 }
 

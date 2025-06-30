@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
 @Composable
@@ -70,23 +71,25 @@ fun ChangePasswordScreen(
         }
     }
 
-    ChangePasswordContent(
-        oldPassword = oldPassword,
-        newPassword = newPassword,
-        confirmPassword = confirmPassword,
-        onOldPasswordChange = { oldPassword = it },
-        onNewPasswordChange = { newPassword = it },
-        onConfirmPasswordChange = { confirmPassword = it },
-        onBack = { navController.popBackStack() },
-        onSubmit = {
-            if (newPassword != confirmPassword) {
-                Toast.makeText(context, "Mật khẩu xác nhận không khớp", Toast.LENGTH_SHORT).show()
-            } else {
-                viewModel.onEvent(ProfileEvent.ChangePassword(oldPassword, newPassword))
-            }
-        },
-        isLoading = state.isLoading
-    )
+    FocusComponent {
+        ChangePasswordContent(
+            oldPassword = oldPassword,
+            newPassword = newPassword,
+            confirmPassword = confirmPassword,
+            onOldPasswordChange = { oldPassword = it },
+            onNewPasswordChange = { newPassword = it },
+            onConfirmPasswordChange = { confirmPassword = it },
+            onBack = { navController.popBackStack() },
+            onSubmit = {
+                if (newPassword != confirmPassword) {
+                    Toast.makeText(context, "Mật khẩu xác nhận không khớp", Toast.LENGTH_SHORT).show()
+                } else {
+                    viewModel.onEvent(ProfileEvent.ChangePassword(oldPassword, newPassword))
+                }
+            },
+            isLoading = state.isLoading
+        )
+    }
 }
 
 @Preview(showBackground = true)

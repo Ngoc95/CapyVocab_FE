@@ -10,11 +10,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -53,6 +53,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.core.data.model.RoleData
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.profile.domain.model.UserProfile
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
@@ -65,20 +66,22 @@ fun ProfileSettingScreen(
     val state by viewModel.state.collectAsState()
     val user = state.user ?: return
 
-    ProfileSettingContent(
-        user = user,
-        isLoading = state.isLoading,
-        errorMessage = state.errorMessage,
-        onBack = { navController.popBackStack() },
-        onUpdate = { avatar, username, email ->
-            viewModel.onEvent(
-                ProfileEvent.UpdateProfile(avatar, email, username)
-            )
-        },
-        onChangePassword = {
-            navController.navigate(Route.ChangePasswordScreen.route)
-        }
-    )
+    FocusComponent {
+        ProfileSettingContent(
+            user = user,
+            isLoading = state.isLoading,
+            errorMessage = state.errorMessage,
+            onBack = { navController.popBackStack() },
+            onUpdate = { avatar, username, email ->
+                viewModel.onEvent(
+                    ProfileEvent.UpdateProfile(avatar, email, username)
+                )
+            },
+            onChangePassword = {
+                navController.navigate(Route.ChangePasswordScreen.route)
+            }
+        )
+    }
 }
 
 @Preview(showBackground = true)

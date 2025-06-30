@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -70,7 +71,7 @@ import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewMod
 @SuppressLint("StateFlowValueCalledInComposition", "UnrememberedGetBackStackEntry")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun UserNavigator() {
+fun UserNavigator(rootNavController: NavHostController) {
     val bottomNavigationItems = remember {
         listOf(
             BottomNavigationItem(
@@ -217,8 +218,10 @@ fun UserNavigator() {
                     },
                     onMyPost = {
                         navController.navigate("${Route.UserMyPostScreen.route}")
+                    },
+                    onReportClick = {
+                        navController.navigate(Route.UserReportScreen.route)
                     }
-
                 )
             }
             //Post screen in community Screen
@@ -543,7 +546,8 @@ fun UserNavigator() {
                 val viewModel = hiltViewModel<ProfileViewModel>(backStackEntry)
                 ProfileScreen(
                     viewModel = viewModel,
-                    navController = navController
+                    navController = navController,
+                    rootNavController = rootNavController,
                 )
             }
 

@@ -3,7 +3,6 @@ package com.example.capyvocab_fe.profile.presentation
 sealed class ProfileEvent{
     object LoadProfile : ProfileEvent()
     object Logout : ProfileEvent()
-    object Payout : ProfileEvent()
     object DeleteAccount : ProfileEvent()
     data class UpdateProfile(
         val avatar: Any?,

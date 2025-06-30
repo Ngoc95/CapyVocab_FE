@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.domain.model.User
@@ -51,6 +50,7 @@ fun PostCard(
     onVoteClick: () -> Unit,
     onImageClick:(String) -> Unit,
     onClickUserPostsScreen:(User) -> Unit,
+    onReportClick: () -> Unit
 )
 {
     Card(
@@ -163,7 +163,12 @@ fun PostCard(
                 }
 
                 Spacer(modifier = Modifier.width(4.dp))
-
+                TextButton(
+                    onClick = onReportClick,
+                    modifier = TextButtonModifier
+                ) {
+                    Text("BÁO CÁO", style = MaterialTheme.typography.labelLarge.copy(color = Color.Gray))
+                }
             }
         }
     }
@@ -196,7 +201,8 @@ fun TopicCardPreview()
             onPostComment = { },
             onVoteClick = { },
             onImageClick = { },
-            onClickUserPostsScreen = { }
+            onClickUserPostsScreen = { },
+            onReportClick = { }
         )
     }
 }

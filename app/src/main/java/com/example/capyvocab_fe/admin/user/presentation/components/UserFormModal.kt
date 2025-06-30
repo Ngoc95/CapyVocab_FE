@@ -126,6 +126,7 @@ fun UserFormDialog(
                     // Text fields
                     FocusComponent {
                         UserFormFields(
+                            isEditing = user != null,
                             username = username,
                             onUsernameChange = { username = it },
                             password = password,
@@ -199,8 +200,7 @@ fun UserFormHeader(
 ) {
     val roles = listOf(
         1 to "Admin",
-        2 to "Miễn phí",
-        3 to "Premium"
+        2 to "User"
     )
 
     var expanded by remember { mutableStateOf(false) }
@@ -327,6 +327,7 @@ fun UserFormHeader(
 
 @Composable
 fun UserFormFields(
+    isEditing: Boolean,
     username: String,
     onUsernameChange: (String) -> Unit,
     password: String,
@@ -362,45 +363,47 @@ fun UserFormFields(
             textStyle = MaterialTheme.typography.bodyMedium
         )
 
-        Text("Mật khẩu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-        OutlinedTextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = null
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = defaultTextFieldColors(),
-            singleLine = true,
-            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-            textStyle = MaterialTheme.typography.bodyMedium
-        )
+        if (!isEditing) {
+            Text("Mật khẩu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+            OutlinedTextField(
+                value = password,
+                onValueChange = onPasswordChange,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = null
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = defaultTextFieldColors(),
+                singleLine = true,
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
 
-        Text("Xác nhận mật khẩu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = onConfirmPasswordChange,
-            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                    Icon(
-                        imageVector = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = null
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = defaultTextFieldColors(),
-            singleLine = true,
-            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-            textStyle = MaterialTheme.typography.bodyMedium
-        )
+            Text("Xác nhận mật khẩu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = onConfirmPasswordChange,
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(
+                            imageVector = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = null
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = defaultTextFieldColors(),
+                singleLine = true,
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }
 

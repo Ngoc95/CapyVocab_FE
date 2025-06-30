@@ -139,7 +139,7 @@ fun CourseCard(
                         }
 
                         Text(
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                             text = course.title,
                             color = Color(0xFF2B2B2B),
                             textAlign = TextAlign.Center,

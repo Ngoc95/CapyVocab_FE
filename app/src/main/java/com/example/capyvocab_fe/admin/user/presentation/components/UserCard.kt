@@ -163,7 +163,7 @@ fun UserCard(
 
                                 val (bgColor, text, textColor) = when (user.roleId) {
                                     1 -> Triple(Color.Gray, "Admin", Color.White)
-                                    2 -> Triple(Color(0xFF0DFF00), "Miễn phí", Color(0xFF125C00))
+                                    2 -> Triple(Color(0xFF0DFF00), "User", Color(0xFF125C00))
                                     3 -> Triple(Color(0xFFFFE0F0), "Premium", Color(0xFFDF1E71))
                                     else -> Triple(Color.LightGray, "Không rõ", Color.Black)
                                 }

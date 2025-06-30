@@ -4,12 +4,9 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,18 +19,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,13 +38,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.admin.topic.domain.model.Topic
@@ -76,7 +61,7 @@ fun TopicFormDialog(
     var title by remember { mutableStateOf(topic?.title ?: "") }
     var description by remember { mutableStateOf(topic?.description ?: "") }
     var thumbnail by remember { mutableStateOf(topic?.thumbnail ?: "") }
-    var type by remember { mutableStateOf(topic?.type ?: "") }
+    var type by remember { mutableStateOf(topic?.type ?: "Free") }
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -155,80 +140,6 @@ fun TopicFormDialog(
                         Column {
                             if (topic != null) {
                                 Text("ID: ${topic.id}", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                            }
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = "Loại:", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small2))
-                                Box {
-                                    BasicTextField(
-                                        value = topicTypes.find { it == type } ?: "",
-                                        onValueChange = {},
-                                        readOnly = true,
-                                        singleLine = true,
-                                        textStyle = LocalTextStyle.current.copy(
-                                            textAlign = TextAlign.Start,
-                                            lineHeight = 15.sp,
-                                        ),
-                                        modifier = Modifier
-                                            .width(128.dp)
-                                            .zIndex(0f)
-                                            .background(Color.Transparent),
-                                        decorationBox = { innerTextField ->
-                                            OutlinedTextFieldDefaults.DecorationBox(
-                                                value = topicTypes.find { it == type } ?: "",
-                                                innerTextField = innerTextField,
-                                                enabled = true,
-                                                singleLine = true,
-                                                visualTransformation = VisualTransformation.None,
-                                                interactionSource = remember { MutableInteractionSource() },
-                                                contentPadding = PaddingValues(
-                                                    start = 12.dp,
-                                                    top = 10.dp,
-                                                    bottom = 10.dp,
-                                                    end = 0.dp
-                                                ),
-                                                trailingIcon = {
-                                                    Icon(
-                                                        imageVector = Icons.Default.ArrowDropDown,
-                                                        contentDescription = null,
-                                                    )
-                                                },
-                                                colors = defaultTextFieldColors(),
-                                                container = {
-                                                    OutlinedTextFieldDefaults.ContainerBox(
-                                                        enabled = true,
-                                                        isError = false,
-                                                        interactionSource = remember { MutableInteractionSource() },
-                                                        shape = RoundedCornerShape(MaterialTheme.dimens.small2),
-                                                        colors = defaultTextFieldColors()
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    )
-                                    // Lớp trong suốt bắt click
-                                    Spacer(
-                                        modifier = Modifier
-                                            .matchParentSize()
-                                            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
-                                            .zIndex(1f)
-                                            .clickable { expanded = true }
-                                    )
-                                    DropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false }
-                                    ) {
-                                        topicTypes.forEach { topicType ->
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    type = topicType
-                                                    expanded = false
-                                                },
-                                                text = { Text(topicType) }
-                                            )
-                                        }
-                                    }
-                                }
                             }
                         }
                     }

@@ -12,11 +12,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +36,7 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.test.data.remote.model.UpdateFolderRequest
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TestSettingScreen(
     folder: Folder,
@@ -47,17 +50,22 @@ fun TestSettingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
         // Header
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lại")
-            }
-            Text("Cài đặt thư mục", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        }
+        TopAppBar(
+            title = {
+                Text(
+                    text = "Cài đặt thư mục",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = onBackClick) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lại")
+                }
+            },
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -66,14 +74,14 @@ fun TestSettingScreen(
             value = folderName,
             onValueChange = { folderName = it },
             label = { Text("Tên thư mục") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Quyền xem
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -86,7 +94,8 @@ fun TestSettingScreen(
         Text(
             text = if (isPublic) "Mọi người có thể xem" else "Chỉ mình tôi",
             fontSize = 14.sp,
-            color = Color.Gray
+            color = Color.Gray,
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -102,7 +111,7 @@ fun TestSettingScreen(
             label = { Text("Giá (đồng)") },
             placeholder = { Text("Nhập 0 nếu miễn phí") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -118,7 +127,7 @@ fun TestSettingScreen(
                 )
                 onSaveClick(updated)
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         ) {
             Text("Lưu thay đổi")
         }

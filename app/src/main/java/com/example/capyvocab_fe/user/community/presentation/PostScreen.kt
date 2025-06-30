@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -58,6 +59,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.domain.model.User
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
@@ -128,25 +130,27 @@ fun PostScreen(
         }
     }
 
-    PostScreenContent(
-        post = state.selectedPost!!,
-        parentComment = state.selectedPostComment,
-        childComment = state.childComment,
-        selectedComment = state.selectedComment,
-        onImageClick = {imgURL -> selectedImage = imgURL},
-        onVoteClick = { post -> viewModel.onEvent(CommunityEvent.VotePost(post))},
-        onCreateComment = { content -> viewModel.onEvent(CommunityEvent.CreateComment(content))},
-        onBackClick = {
-            viewModel.onEvent(CommunityEvent.ClearScreenPost)
-            onBackClick()
-        },
-        onCreateChildCmt = { comment ->
-            viewModel.onEvent(CommunityEvent.OnCreateChildCommentMode(comment)) },
-        onLoadChildCmt = {comment ->
-            viewModel.onEvent(CommunityEvent.LoadComments(post.id, comment.id))
-        },
-        onCreateParentComment = { viewModel.onEvent(CommunityEvent.OnCreateParentCommentMode) }
-    )
+    FocusComponent {
+        PostScreenContent(
+            post = state.selectedPost!!,
+            parentComment = state.selectedPostComment,
+            childComment = state.childComment,
+            selectedComment = state.selectedComment,
+            onImageClick = {imgURL -> selectedImage = imgURL},
+            onVoteClick = { post -> viewModel.onEvent(CommunityEvent.VotePost(post))},
+            onCreateComment = { content -> viewModel.onEvent(CommunityEvent.CreateComment(content))},
+            onBackClick = {
+                viewModel.onEvent(CommunityEvent.ClearScreenPost)
+                onBackClick()
+            },
+            onCreateChildCmt = { comment ->
+                viewModel.onEvent(CommunityEvent.OnCreateChildCommentMode(comment)) },
+            onLoadChildCmt = {comment ->
+                viewModel.onEvent(CommunityEvent.LoadComments(post.id, comment.id))
+            },
+            onCreateParentComment = { viewModel.onEvent(CommunityEvent.OnCreateParentCommentMode) }
+        )
+    }
 }
 
 
@@ -191,7 +195,7 @@ fun PostScreenContent(
                     }
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
+                Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.imePadding()) {
                     TextField(
                         value = commentText,
                         onValueChange = { newText -> commentText = newText },
@@ -278,8 +282,7 @@ fun PostScreenContent(
 
                         Text(
                             text = sdf.format(post.createdAt),
-                            fontWeight = FontWeight.Thin,
-                            fontSize = 12.sp
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
 

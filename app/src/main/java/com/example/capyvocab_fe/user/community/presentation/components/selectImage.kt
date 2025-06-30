@@ -1,6 +1,5 @@
 package com.example.capyvocab_fe.user.community.presentation.components
 
-import android.R
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

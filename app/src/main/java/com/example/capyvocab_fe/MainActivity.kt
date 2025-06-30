@@ -15,6 +15,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.rememberNavController
 import com.example.capyvocab_fe.navigation.AppNavGraph
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
             CapyVocab_FETheme(dynamicColor = false) {
                 val isSystemInDarkMode = isSystemInDarkTheme()
                 val systemUiColor = rememberSystemUiController()
+                val rootNavController = rememberNavController()
                 //set status bar transparent
                 SideEffect {
                     systemUiColor.setSystemBarsColor(
@@ -44,7 +46,7 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                         .fillMaxSize()
                 ) {
-                    AppNavGraph(startDestination = Route.AuthNavigation.route)
+                    AppNavGraph(navController = rootNavController, startDestination = Route.AuthNavigation.route)
                 }
             }
         }

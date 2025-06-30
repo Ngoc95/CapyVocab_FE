@@ -492,7 +492,7 @@ fun UserInfoHeader(
         )
         Spacer(modifier = Modifier.width(12.dp))
         // Thông tin ID và mô tả
-        InfoRow("ID", user?.username.toString())
+        InfoRow("Username", user?.username.toString())
     }
 }
 
