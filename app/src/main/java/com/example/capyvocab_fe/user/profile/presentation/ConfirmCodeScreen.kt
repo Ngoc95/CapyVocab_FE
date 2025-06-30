@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.user.profile.domain.model.ProfileUser
 
 @Composable

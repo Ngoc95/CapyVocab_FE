@@ -13,12 +13,12 @@ import com.example.capyvocab_fe.auth.data.remote.AuthApi
 import com.example.capyvocab_fe.core.network.AuthInterceptor
 import com.example.capyvocab_fe.core.network.TokenAuthenticator
 import com.example.capyvocab_fe.payout.data.remote.PayoutApi
+import com.example.capyvocab_fe.profile.data.remote.ProfileApi
 import com.example.capyvocab_fe.report.data.remote.ReportApi
 import com.example.capyvocab_fe.user.community.data.remote.UserCommunityApi
 import com.example.capyvocab_fe.user.learn.data.remote.UserLearnApi
 import com.example.capyvocab_fe.user.notification.data.remote.NotificationApi
 import com.example.capyvocab_fe.user.payment.data.remote.PaymentApi
-import com.example.capyvocab_fe.user.profile.data.remote.UserProfileApi
 import com.example.capyvocab_fe.user.review.data.remote.UserReviewApi
 import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi
 import com.example.capyvocab_fe.util.Constant.BASE_URL
@@ -141,6 +141,7 @@ object AppModule {
             .build()
     }
 
+    // ADMIN
     @Provides
     @Singleton
     fun provideAdminDashboardApi(retrofit: Retrofit): DashboardApi {
@@ -191,13 +192,6 @@ object AppModule {
 
     @Provides
     @Singleton
-
-    fun provideUserProfileApi(retrofit: Retrofit): UserProfileApi {
-        return retrofit.create(UserProfileApi::class.java)
-    }
-
-    @Provides
-    @Singleton
     fun providePaymentApi(retrofit: Retrofit): PaymentApi {
         return retrofit.create(PaymentApi::class.java)
     }
@@ -212,6 +206,13 @@ object AppModule {
     @Singleton
     fun provideUserReviewApi(retrofit: Retrofit): UserReviewApi {
         return retrofit.create(UserReviewApi::class.java)
+    }
+
+    // Admin + user
+    @Provides
+    @Singleton
+    fun provideProfileApi(retrofit: Retrofit): ProfileApi {
+        return retrofit.create(ProfileApi::class.java)
     }
 
     @Provides

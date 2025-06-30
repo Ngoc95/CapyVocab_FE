@@ -8,12 +8,14 @@ import com.example.capyvocab_fe.auth.data.remote.AuthApi
 import com.example.capyvocab_fe.auth.data.remote.model.ChangePasswordRequest
 import com.example.capyvocab_fe.auth.data.remote.model.GoogleLoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
+import com.example.capyvocab_fe.auth.data.remote.model.LogoutRequest
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterRequest
 import com.example.capyvocab_fe.auth.domain.error.ApiError
 import com.example.capyvocab_fe.auth.domain.error.AuthFailure
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.data.TokenManager
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -25,7 +27,7 @@ class AuthRepositoryImpl @Inject constructor(
         return Either.catch {
             val response = authApi.login(LoginRequest(username, password))
 
-            // Lưu accessToken, refreshToken, userId vào DataStore
+            // Lưu accessToken, refreshToken vào DataStore
             tokenManager.saveTokens(
                 accessToken = response.metaData.accessToken,
                 refreshToken = response.metaData.refreshToken
@@ -39,9 +41,21 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun logout() {
-        TODO("Not yet implemented")
+    override suspend fun logout(): Either<AuthFailure, Unit> {
+        return Either.catch {
+            val refreshToken = tokenManager.refreshToken.firstOrNull()
+                ?: throw IllegalStateException("No refresh token found")
+
+            authApi.logout(LogoutRequest(refreshToken))
+
+            // Xoá token và userId sau khi logout thành công
+            tokenManager.clearTokens()
+            tokenManager.clearUserId()
+        }.mapLeft {
+            it.toAuthFailure()
+        }
     }
+
 
     override suspend fun getUserInfo(): Either<AuthFailure, User?> {
         return Either.catch {
@@ -84,6 +98,10 @@ class AuthRepositoryImpl @Inject constructor(
             val newRefreshToken = response.metaData["refreshToken"]
 
             if (accessToken != null && newRefreshToken != null) {
+                tokenManager.saveTokens(
+                    accessToken = accessToken,
+                    refreshToken = newRefreshToken
+                )
                 Either.Right(Pair(accessToken, newRefreshToken))
             } else {
                 Either.Left(

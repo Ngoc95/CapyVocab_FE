@@ -14,6 +14,8 @@ import com.example.capyvocab_fe.auth.data.repository.AuthRepositoryImpl
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.payout.data.repository.PayoutRepositoryImpl
 import com.example.capyvocab_fe.payout.domain.repository.PayoutRepository
+import com.example.capyvocab_fe.profile.data.repository.ProfileRepositoryImpl
+import com.example.capyvocab_fe.profile.domain.repository.ProfileRepository
 import com.example.capyvocab_fe.report.data.repository.ReportRepositoryImpl
 import com.example.capyvocab_fe.report.domain.repository.ReportRepository
 import com.example.capyvocab_fe.user.community.data.repository.UserCommunityRepositoryImpl
@@ -24,8 +26,6 @@ import com.example.capyvocab_fe.user.notification.data.repository.NotificationRe
 import com.example.capyvocab_fe.user.notification.domain.repository.NotificationRepository
 import com.example.capyvocab_fe.user.payment.data.repository.PaymentRepositoryImpl
 import com.example.capyvocab_fe.user.payment.domain.repository.PaymentRepository
-import com.example.capyvocab_fe.user.profile.data.repository.UserProfileRepositoryImpl
-import com.example.capyvocab_fe.user.profile.domain.repository.UserProfileRepository
 import com.example.capyvocab_fe.user.review.data.repository.UserReviewRepositoryImpl
 import com.example.capyvocab_fe.user.review.domain.repository.UserReviewRepository
 import com.example.capyvocab_fe.user.test.data.repository.ExerciseRepositoryImpl
@@ -76,11 +76,11 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindUserProfileRepository(impl: UserProfileRepositoryImpl): UserProfileRepository
-  
+    abstract fun bindUserExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
+
     @Binds
     @Singleton
-    abstract fun bindUserExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
+    abstract fun bindProfileRepository(impl: ProfileRepositoryImpl): ProfileRepository
 
     @Binds
     @Singleton

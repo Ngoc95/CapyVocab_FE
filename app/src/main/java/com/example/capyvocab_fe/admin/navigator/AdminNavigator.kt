@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.admin.navigator
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -61,11 +63,16 @@ import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.AdminPayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
+import com.example.capyvocab_fe.profile.presentation.ChangePasswordScreen
+import com.example.capyvocab_fe.profile.presentation.ProfileScreen
+import com.example.capyvocab_fe.profile.presentation.ProfileSettingScreen
+import com.example.capyvocab_fe.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.report.presentation.AdminReportScreen
 import com.example.capyvocab_fe.report.presentation.ReportViewModel
 import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminNavigator() {
@@ -247,102 +254,105 @@ fun AdminNavigator() {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = screenTitle,
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    },
-                    navigationIcon = {
-                        if (shouldShowBackButton) {
-                            // show back button for nested screens or multi-select mode
-                            IconButton(
-                                modifier = Modifier.size(MaterialTheme.dimens.medium3),
-                                onClick = {
-                                    if (isInMultiSelectMode) {
-                                        // handle multi-select back button
-                                        when {
-                                            currentRoute == Route.UsersScreen.route -> userViewModel.onEvent(
-                                                UserListEvent.CancelMultiSelect
-                                            )
+                if(shouldShowTopBar(currentRoute)){
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = screenTitle,
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        },
+                        navigationIcon = {
+                            if (shouldShowBackButton) {
+                                // show back button for nested screens or multi-select mode
+                                IconButton(
+                                    modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                    onClick = {
+                                        if (isInMultiSelectMode) {
+                                            // handle multi-select back button
+                                            when {
+                                                currentRoute == Route.UsersScreen.route -> userViewModel.onEvent(
+                                                    UserListEvent.CancelMultiSelect
+                                                )
 
-                                            currentRoute == Route.CoursesScreen.route -> courseViewModel.onEvent(
-                                                CourseEvent.CancelMultiSelect
-                                            )
+                                                currentRoute == Route.CoursesScreen.route -> courseViewModel.onEvent(
+                                                    CourseEvent.CancelMultiSelect
+                                                )
 
-                                            currentRoute == Route.TopicsScreen.route -> topicViewModel.onEvent(
-                                                TopicEvent.CancelMultiSelect
-                                            )
+                                                currentRoute == Route.TopicsScreen.route -> topicViewModel.onEvent(
+                                                    TopicEvent.CancelMultiSelect
+                                                )
 
-                                            currentRoute == Route.WordsScreen.route -> wordViewModel.onEvent(
-                                                WordEvent.CancelMultiSelect
-                                            )
+                                                currentRoute == Route.WordsScreen.route -> wordViewModel.onEvent(
+                                                    WordEvent.CancelMultiSelect
+                                                )
 
-                                            currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
-                                                topicViewModel.onEvent(TopicEvent.CancelMultiSelect)
+                                                currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
+                                                    topicViewModel.onEvent(TopicEvent.CancelMultiSelect)
 
-                                            currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
-                                                wordViewModel.onEvent(WordEvent.CancelMultiSelect)
+                                                currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
+                                                    wordViewModel.onEvent(WordEvent.CancelMultiSelect)
+                                            }
+                                        } else {
+                                            //regular back navigation
+                                            navController.popBackStack()
                                         }
-                                    } else {
-                                        //regular back navigation
-                                        navController.popBackStack()
-                                    }
-                                }) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "Back",
-                                    modifier = Modifier.size(MaterialTheme.dimens.medium1)
-                                )
-                            }
-                        } // Only show menu button if not in multi-select mode
-                        else if (!isInMultiSelectMode) {
-                            IconButton(
-                                modifier = Modifier.size(MaterialTheme.dimens.medium3),
-                                onClick = {
-                                scope.launch {
-                                    if (drawerState.isClosed) {
-                                        drawerState.open()
-                                    } else {
-                                        drawerState.close()
-                                    }
+                                    }) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                        contentDescription = "Back",
+                                        modifier = Modifier.size(MaterialTheme.dimens.medium1)
+                                    )
                                 }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = "Menu",
-                                    modifier = Modifier.size(MaterialTheme.dimens.medium1)
-                                )
+                            } // Only show menu button if not in multi-select mode
+                            else if (!isInMultiSelectMode) {
+                                IconButton(
+                                    modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                    onClick = {
+                                        scope.launch {
+                                            if (drawerState.isClosed) {
+                                                drawerState.open()
+                                            } else {
+                                                drawerState.close()
+                                            }
+                                        }
+                                    }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = "Menu",
+                                        modifier = Modifier.size(MaterialTheme.dimens.medium1)
+                                    )
+                                }
                             }
-                        }
-                    },
-                    actions = {
-                        //show delete button when in multi-select mode
-                        if (isInMultiSelectMode && selectedItemsCount > 0) {
-                            IconButton(
-                                modifier = Modifier.size(MaterialTheme.dimens.medium3),
-                                onClick = { handleDeleteSelected() }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete selected",
-                                    modifier = Modifier.size(MaterialTheme.dimens.medium1)
-                                )
+                        },
+                        actions = {
+                            //show delete button when in multi-select mode
+                            if (isInMultiSelectMode && selectedItemsCount > 0) {
+                                IconButton(
+                                    modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                    onClick = { handleDeleteSelected() }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete selected",
+                                        modifier = Modifier.size(MaterialTheme.dimens.medium1)
+                                    )
+                                }
                             }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     )
-                )
+                }
             }
         ) { paddingValues ->
             Surface(
-                modifier = Modifier
+                modifier = if(shouldShowTopBar(currentRoute)) Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
+                else Modifier.fillMaxSize().padding(top = 0.dp)
             ) {
                 NavHost(
                     navController = navController,
@@ -447,9 +457,37 @@ fun AdminNavigator() {
                         )
                     }
 
-                    // Setting screen
-                    composable(route = Route.ProfileScreen.route) {
-                        // TODO: Setting screen content here
+                    // Profile screen
+                    composable(route = Route.ProfileScreen.route) { backStackEntry ->
+                        val viewModel = hiltViewModel<ProfileViewModel>(backStackEntry)
+                        ProfileScreen(
+                            viewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+
+                    composable(route = Route.ProfileSettingScreen.route) {
+                        val parentEntry = remember {
+                            navController.getBackStackEntry(Route.ProfileScreen.route)
+                        }
+                        val viewModel = hiltViewModel<ProfileViewModel>(parentEntry)
+
+                        ProfileSettingScreen(
+                            navController = navController,
+                            viewModel = viewModel
+                        )
+                    }
+
+                    composable(route = Route.ChangePasswordScreen.route) {
+                        val parentEntry = remember {
+                            navController.getBackStackEntry(Route.ProfileScreen.route)
+                        }
+                        val viewModel = hiltViewModel<ProfileViewModel>(parentEntry)
+
+                        ChangePasswordScreen(
+                            navController = navController,
+                            viewModel = viewModel
+                        )
                     }
                 }
             }
@@ -477,6 +515,11 @@ fun AdminNavigator() {
             }
         )
     }
+}
+
+fun shouldShowTopBar(currentRoute: String): Boolean {
+    return currentRoute != Route.ProfileSettingScreen.route &&
+            currentRoute != Route.ChangePasswordScreen.route
 }
 
 private fun navigateToTab(navController: NavController, route: String) {

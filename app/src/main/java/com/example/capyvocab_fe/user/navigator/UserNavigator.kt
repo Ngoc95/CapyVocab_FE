@@ -29,6 +29,10 @@ import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.PayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
+import com.example.capyvocab_fe.profile.presentation.ChangePasswordScreen
+import com.example.capyvocab_fe.profile.presentation.ProfileScreen
+import com.example.capyvocab_fe.profile.presentation.ProfileSettingScreen
+import com.example.capyvocab_fe.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.report.presentation.ReportViewModel
 import com.example.capyvocab_fe.report.presentation.UserReportScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
@@ -49,12 +53,6 @@ import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import com.example.capyvocab_fe.user.notification.presentation.NotificationScreen
 import com.example.capyvocab_fe.user.notification.presentation.NotificationViewModel
 import com.example.capyvocab_fe.user.notification.presentation.handler.NotificationActionHandler
-import com.example.capyvocab_fe.user.profile.presentation.ChangePasswordScreen
-import com.example.capyvocab_fe.user.profile.presentation.ProfileEvent
-import com.example.capyvocab_fe.user.profile.presentation.ProfileScreen
-import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreen
-import com.example.capyvocab_fe.user.profile.presentation.ProfileSettingScreenContent
-import com.example.capyvocab_fe.user.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.user.review.presentation.ReviewScreen
 import com.example.capyvocab_fe.user.review.presentation.ReviewViewModel
 import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
@@ -69,7 +67,7 @@ import com.example.capyvocab_fe.user.test.presentation.screens.TestSettingScreen
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "UnrememberedGetBackStackEntry")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserNavigator() {
@@ -116,9 +114,6 @@ fun UserNavigator() {
     val communityViewModel: CommunityViewModel = hiltViewModel()
     val communityState by communityViewModel.state.collectAsState()
 
-    val profileViewModel: ProfileViewModel = hiltViewModel()
-    val profileState by profileViewModel.state.collectAsState()
-
     val exerciseViewModel: ExerciseViewModel = hiltViewModel()
     val exerciseState by exerciseViewModel.state.collectAsState()
     val reviewViewModel: ReviewViewModel = hiltViewModel()
@@ -135,7 +130,7 @@ fun UserNavigator() {
         Route.UserReviewScreen.route -> 1
         Route.UserLearnScreen.route -> 2
         Route.UserTestScreen.route -> 3
-        Route.UserProfileScreen.route -> 4
+        Route.ProfileScreen.route -> 4
         else -> 0
     }
 
@@ -146,7 +141,7 @@ fun UserNavigator() {
             Route.UserCommunityScreen.route,
             Route.UserLearnScreen.route,
             Route.UserTestScreen.route,
-            Route.UserProfileScreen.route -> true
+            Route.ProfileScreen.route -> true
 
             else -> false
         }
@@ -187,7 +182,7 @@ fun UserNavigator() {
 
                             4 -> navigateToTab(
                                 navController = navController,
-                                route = Route.UserProfileScreen.route
+                                route = Route.ProfileScreen.route
                             )
                         }
                     }
@@ -542,57 +537,38 @@ fun UserNavigator() {
                 )
 
             }
-            //user profile screen
-            composable(route = Route.UserProfileScreen.route) {
-                ProfileScreen(
-                    viewModel = profileViewModel,
-                    onSettingUser = { user ->
-                        navController.navigate("${Route.UserAccountSettingScreen}")
-                    },
-                    onPayoutClick = {
-                        navController.navigate(Route.UserPayoutScreen.route)
-                    },
-                    onChangePassword = {
-                        navController.navigate(Route.UserChangePasswordScreen.route)
-                    }
 
+            //user profile screen
+            composable(route = Route.ProfileScreen.route) { backStackEntry ->
+                val viewModel = hiltViewModel<ProfileViewModel>(backStackEntry)
+                ProfileScreen(
+                    viewModel = viewModel,
+                    navController = navController
                 )
             }
 
-            composable(
-                route = "${Route.UserAccountSettingScreen}",
-            ) { backStackEntry ->
-
-                LaunchedEffect(Unit){
-                    profileViewModel.onEvent(ProfileEvent.GetCurrentUser)
+            composable(route = Route.ProfileSettingScreen.route) {
+                val parentEntry = remember {
+                    navController.getBackStackEntry(Route.ProfileScreen.route)
                 }
+                val viewModel = hiltViewModel<ProfileViewModel>(parentEntry)
 
-                profileState.currentUser?.let{user ->
-                    ProfileSettingScreen(
-                        user = user,
-                        viewModel = profileViewModel,
-                        navController = navController,
-                        onBackClick = {navController.popBackStack()}
-                    )
-                }
+                ProfileSettingScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
 
-            composable(
-                route = Route.UserChangePasswordScreen.route,
-            ) { backStackEntry ->
-
-                LaunchedEffect(Unit){
-                    profileViewModel.onEvent(ProfileEvent.GetCurrentUser)
+            composable(route = Route.ChangePasswordScreen.route) {
+                val parentEntry = remember {
+                    navController.getBackStackEntry(Route.ProfileScreen.route)
                 }
+                val viewModel = hiltViewModel<ProfileViewModel>(parentEntry)
 
-                profileState.currentUser?.let{user ->
-                    ChangePasswordScreen(
-                        user = user,
-                        viewModel = profileViewModel,
-                        navController = navController,
-                        onBackClick = {navController.popBackStack()}
-                    )
-                }
+                ChangePasswordScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
 
             composable(route = Route.UserPayoutScreen.route) {

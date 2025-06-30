@@ -57,12 +57,12 @@ class NotificationActionHandler @Inject constructor(
 //            navController.navigate("order/$orderId") //phải trả cái folder id
 //            //navController.navigate("${Route.TestDetailScreen.route}/$folderId")
 //        }
-        navController.navigate("${Route.UserAccountSettingScreen}")
+        navController.navigate("${Route.ProfileSettingScreen}")
     }
 
     private fun handlePasswordNotification(notification: UserNotification) {
         // For password change notifications, you might want to show a dialog
         // or navigate to the security settings
-        navController.navigate("${Route.UserAccountSettingScreen}")
+        navController.navigate("${Route.ProfileSettingScreen}")
     }
 }

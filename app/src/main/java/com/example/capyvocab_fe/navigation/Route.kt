@@ -10,6 +10,9 @@ sealed class Route(
     object OtpScreen: Route(route = "otpScreen")
     object ForgotPasswordEmailScreen : Route(route = "forgotPasswordEmailScreen")
     object ForgotPasswordCodeScreen: Route(route = "forgotPasswordCodeScreen")
+    object ProfileScreen : Route(route = "profileScreen")
+    object ProfileSettingScreen: Route(route = "profileSettingScreen")
+    object ChangePasswordScreen: Route(route = "changePasswordScreen")
 
     //admin navigator
     object AdminNavigation : Route(route = "adminNavigation")
@@ -19,7 +22,6 @@ sealed class Route(
     object TopicsScreen: Route(route = "topicsScreen")
     object WordsScreen: Route(route = "wordsScreen")
     object UsersScreen : Route(route = "usersScreen")
-    object ProfileScreen : Route(route = "profileScreen")
     object AdminPayoutScreen: Route(route = "adminPayoutScreen")
     object AdminReportScreen: Route(route = "adminReportScreen")
 
@@ -42,14 +44,11 @@ sealed class Route(
     object CommentScreen: Route(route = "commentScreen")
     object EditQuestionScreen : Route(route = "editQuestionScreen")
     object DoQuizScreen: Route(route = "doQuizScreen")
-    object UserProfileScreen: Route(route = "userProfileScreen")
     object UserCreatePostScreen: Route(route = "userCreatePostScreen")
     object UserOwnerPostScreen: Route(route = "userOwnerPostScreen")
-    object UserAccountSettingScreen: Route(route = "userAccountSettingScreen")
     object UserMyPostScreen: Route(route = "userMyPostScreen")
     object UserEditPostScreen: Route(route = "userEditPostScreen")
     object UserPayoutScreen: Route(route = "userPayoutScreen")
     object UserReportScreen: Route(route = "userReportScreen")
     object UserNotificationScreen: Route(route = "userNotificationScreen")
-    object UserChangePasswordScreen: Route(route = "userChangePasswordScreen")
 }
