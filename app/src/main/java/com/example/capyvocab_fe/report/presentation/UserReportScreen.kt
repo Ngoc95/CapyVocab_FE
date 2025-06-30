@@ -139,7 +139,7 @@ fun UserReportScreenContent(
                 Text("Gửi báo cáo", style = MaterialTheme.typography.titleMedium)
             }
         }
-
+        Spacer(modifier = Modifier.weight(1f))
         OverlaySnackbar(message = successMessage, type = SnackbarType.Success)
         OverlaySnackbar(message = errorMessage, type = SnackbarType.Error)
     }

@@ -18,9 +18,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +47,7 @@ import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.White
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TestDetailScreen(
     modifier: Modifier = Modifier,
@@ -56,35 +60,33 @@ fun TestDetailScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
             .background(White)
     ) {
         // Nút quay lại
         if (onBack != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                IconButton(onClick = { onBack() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Quay lại"
+            TopAppBar(
+                title = {
+                    Text(
+                        text = folder.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Quay lại"
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                // Test details
-                Text(
-                    text = folder.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-            }
+            )
             Spacer(modifier = Modifier.height(8.dp))
         }
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -104,7 +106,7 @@ fun TestDetailScreen(
 
                 Text(
                     text = folder.createdBy?.email.toString(),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.Gray,
                     modifier = Modifier.padding(start = 8.dp)
                 )
@@ -128,7 +130,8 @@ fun TestDetailScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             CopyCodeRow(folder)
             Spacer(modifier = Modifier.weight(1f))
@@ -161,7 +164,8 @@ fun TestDetailScreen(
 
         // Action buttons
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             ActionButton(
                 icon = R.drawable.ic_remember_card,

@@ -46,6 +46,7 @@ fun CommunityScreen(
     onCreatePost:() -> Unit,
     onMyPost:() -> Unit,
     onClickUserPostsScreen: (User) -> Unit,
+    onReportClick: () -> Unit,
     viewModel: CommunityViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -103,7 +104,8 @@ fun CommunityScreen(
             onClickUserPostsScreen = {user ->
                 onClickUserPostsScreen(user)
             },
-            onMyPosts = { onMyPost() }
+            onMyPosts = { onMyPost() },
+            onReportClick = onReportClick
         )
     }
 }
@@ -120,7 +122,8 @@ fun CommunityScreenContent(
     onCreatePost:() -> Unit,
     onClickUserPostsScreen:(User) -> Unit,
     onMyPosts:() -> Unit,
-    selectedPost: Post?
+    selectedPost: Post?,
+    onReportClick: () -> Unit
 )
 {
     val listState = rememberLazyListState()
@@ -163,7 +166,8 @@ fun CommunityScreenContent(
                             onVoteClick = { onVoteClick(post) },
                             onPostComment = { onPostComment(post) },
                             onImageClick = onImageClick,
-                            onClickUserPostsScreen = {user -> onClickUserPostsScreen(user)}
+                            onClickUserPostsScreen = {user -> onClickUserPostsScreen(user)},
+                            onReportClick = onReportClick,
                         )
                         if (index >= posts.size - 3 && !isLoading && !isEndReached) {
                             onLoadMore()
@@ -240,7 +244,8 @@ fun CommunitycreenPreview() {
             onPostComment = {},
             onCreatePost = {},
             onClickUserPostsScreen = { },
-            onMyPosts = { }
+            onMyPosts = { },
+            onReportClick = {}
         )
 
     }

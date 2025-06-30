@@ -27,7 +27,6 @@ class ProfileViewModel @Inject constructor(
         when (event) {
             is ProfileEvent.LoadProfile -> loadProfile()
             is ProfileEvent.Logout -> logout()
-            is ProfileEvent.Payout -> payout()
             is ProfileEvent.UpdateProfile -> updateProfile(event.avatar, event.email, event.username)
             is ProfileEvent.DeleteAccount -> {}
             is ProfileEvent.ChangePassword -> changePassword(event.oldPassword, event.newPassword)
@@ -104,10 +103,6 @@ class ProfileViewModel @Inject constructor(
                     }
                 }
         }
-    }
-
-    private fun payout() {
-        // TODO: Gọi API hoặc hiển thị dialog rút tiền
     }
 
     fun clearError() {

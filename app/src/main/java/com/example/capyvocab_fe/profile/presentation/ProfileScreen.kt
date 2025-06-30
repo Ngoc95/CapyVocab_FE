@@ -40,6 +40,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun ProfileScreen(
     navController: NavController,
+    rootNavController: NavController,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -53,11 +54,11 @@ fun ProfileScreen(
         isLoading = state.isLoading,
         errorMessage = state.errorMessage,
         onClickAccount = { navController.navigate(Route.ProfileSettingScreen.route) },
-        onClickPayout = { viewModel.onEvent(ProfileEvent.Payout) },
+        onClickPayout = { navController.navigate(Route.UserPayoutScreen.route) },
         onClickLogout = {
             viewModel.onEvent(ProfileEvent.Logout)
 
-            navController.navigate(Route.AuthNavigation.route) {
+            rootNavController.navigate(Route.AuthNavigation.route) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }

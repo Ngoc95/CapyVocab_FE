@@ -4,10 +4,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.capyvocab_fe.admin.navigator.AdminNavigator
@@ -26,10 +26,9 @@ import com.example.capyvocab_fe.user.navigator.UserNavigator
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavGraph(
+    navController: NavHostController,
     startDestination: String
 ) {
-    val navController = rememberNavController()
-
     NavHost(navController = navController, startDestination = startDestination) {
         //auth
         navigation(
@@ -85,7 +84,7 @@ fun AppNavGraph(
             startDestination = Route.AdminNavigator.route
         ) {
             composable(route = Route.AdminNavigator.route) {
-                AdminNavigator()
+                AdminNavigator(rootNavController = navController)
             }
         }
         //user
@@ -94,7 +93,7 @@ fun AppNavGraph(
             startDestination = Route.UserNavigator.route
         ) {
             composable(route = Route.UserNavigator.route) {
-                UserNavigator()
+                UserNavigator(rootNavController = navController)
             }
         }
     }

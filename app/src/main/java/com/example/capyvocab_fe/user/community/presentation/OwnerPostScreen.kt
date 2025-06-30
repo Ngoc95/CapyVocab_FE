@@ -128,6 +128,7 @@ fun OwnerPostScreenContent(
                 viewModel.onEvent(CommunityEvent.ChangeToUserPost)
                 onBackClick()
             },
+            onReportClick = { navController.navigate(Route.UserReportScreen.route) }
         )
     }
 
@@ -145,6 +146,7 @@ fun OwnerPostScreen(
     onVoteClick: (Post) -> Unit,
     onImageClick: (String) -> Unit,
     onPostComment: (Post) -> Unit,
+    onReportClick: () -> Unit
 )
 {
     Column()
@@ -186,8 +188,7 @@ fun OwnerPostScreen(
 
                 Text(
                     text = user.email,
-                    fontWeight = FontWeight.Thin,
-                    fontSize = 12.sp
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }
@@ -206,7 +207,8 @@ fun OwnerPostScreen(
                         onVoteClick = { onVoteClick(post) },
                         onPostComment = { onPostComment(post) },
                         onImageClick = onImageClick,
-                        onClickUserPostsScreen = { }
+                        onClickUserPostsScreen = { },
+                        onReportClick = onReportClick
                     )
                     if (index >= userPosts.size - 3 && !isLoading && !isEndReached) {
                         onLoadMore()
@@ -277,7 +279,8 @@ fun OwnerPreview() {
             onVoteClick = { },
             onImageClick = { },
             onLoadMore = { },
-            selectedPost = null
+            selectedPost = null,
+            onReportClick = { }
         )
 
     }

@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -62,6 +63,7 @@ import com.example.capyvocab_fe.admin.word.presentation.WordsInTopicScreen
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.AdminPayoutScreen
+import com.example.capyvocab_fe.payout.presentation.PayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
 import com.example.capyvocab_fe.profile.presentation.ChangePasswordScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileScreen
@@ -75,7 +77,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnrememberedGetBackStackEntry")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminNavigator() {
+fun AdminNavigator(rootNavController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -448,6 +450,12 @@ fun AdminNavigator() {
                             viewModel = payoutViewModel
                         )
                     }
+                    composable(route = Route.UserPayoutScreen.route) {
+                        PayoutScreen(
+                            navController = navController,
+                            viewModel = payoutViewModel
+                        )
+                    }
 
                     // Report screen
                     composable(route = Route.AdminReportScreen.route) {
@@ -462,7 +470,8 @@ fun AdminNavigator() {
                         val viewModel = hiltViewModel<ProfileViewModel>(backStackEntry)
                         ProfileScreen(
                             viewModel = viewModel,
-                            navController = navController
+                            navController = navController,
+                            rootNavController = rootNavController,
                         )
                     }
 
@@ -519,7 +528,8 @@ fun AdminNavigator() {
 
 fun shouldShowTopBar(currentRoute: String): Boolean {
     return currentRoute != Route.ProfileSettingScreen.route &&
-            currentRoute != Route.ChangePasswordScreen.route
+            currentRoute != Route.ChangePasswordScreen.route &&
+            currentRoute != Route.UserPayoutScreen.route
 }
 
 private fun navigateToTab(navController: NavController, route: String) {

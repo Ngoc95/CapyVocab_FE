@@ -94,8 +94,7 @@ fun MyPostCard(
 
                     Text(
                         text = sdf.format(post.createdAt),
-                        fontWeight = FontWeight.Thin,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
 

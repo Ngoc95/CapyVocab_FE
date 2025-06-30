@@ -176,8 +176,8 @@ fun TopicCard(
                             ) {
                                 Text(
                                     text = topic.title,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = Color(0xFF413B38),
+                                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = Color(0xFF2B2B2B),
                                     modifier = Modifier.weight(1f, fill = false),
                                 )
                             }

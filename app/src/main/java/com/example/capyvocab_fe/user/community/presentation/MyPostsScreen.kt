@@ -187,8 +187,7 @@ fun MyPostsScreenContent(
 
                 Text(
                     text = user.email,
-                    fontWeight = FontWeight.Thin,
-                    fontSize = 12.sp
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
 

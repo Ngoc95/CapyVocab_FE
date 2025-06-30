@@ -120,7 +120,7 @@ fun WordCard(
                     // Meaning
                     Text(
                         text = word.meaning,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
 
                     Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
@@ -128,7 +128,7 @@ fun WordCard(
                     // Example
                     Text(
                         text = word.example,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
                     Spacer(modifier = Modifier.height(MaterialTheme.dimens.extraSmall))
                     Text(
