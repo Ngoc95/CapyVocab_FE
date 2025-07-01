@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -41,12 +42,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.LoadingDialog
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.dimens
@@ -66,17 +69,19 @@ internal fun RegisterScreen(
         }
     }
 
-    RegisterContent(
-        state = state,
-        onEmailChanged = viewModel::onEmailChanged,
-        onUsernameChanged = viewModel::onUsernameChanged,
-        onPasswordChanged = viewModel::onPasswordChanged,
-        onConfirmPasswordChanged = viewModel::onConfirmPasswordChanged,
-        onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
-        onToggleConfirmPasswordVisibility = viewModel::onToggleConfirmPasswordVisibility,
-        onRegisterClick = viewModel::register,
-        onLoginClick = { navController.popBackStack() }
-    )
+    FocusComponent {
+        RegisterContent(
+            state = state,
+            onEmailChanged = viewModel::onEmailChanged,
+            onUsernameChanged = viewModel::onUsernameChanged,
+            onPasswordChanged = viewModel::onPasswordChanged,
+            onConfirmPasswordChanged = viewModel::onConfirmPasswordChanged,
+            onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
+            onToggleConfirmPasswordVisibility = viewModel::onToggleConfirmPasswordVisibility,
+            onRegisterClick = viewModel::register,
+            onLoginClick = { navController.popBackStack() }
+        )
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -128,127 +133,134 @@ fun RegisterContent(
         )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(MaterialTheme.dimens.medium1) //16dp
-                .verticalScroll(rememberScrollState())
         ) {
-            // Username
-            OutlinedTextField(
-                value = state.username,
-                onValueChange = onUsernameChanged,
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                placeholder = { Text("Tên đăng nhập", style = MaterialTheme.typography.titleMedium) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = defaultTextFieldColors(),
-                singleLine = true,
-                shape = RoundedCornerShape(MaterialTheme.dimens.small3), //15dp
-                textStyle = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-
-            // Email
-            OutlinedTextField(
-                value = state.email,
-                onValueChange = onEmailChanged,
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                placeholder = { Text("Email", style = MaterialTheme.typography.titleMedium) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = defaultTextFieldColors(),
-                singleLine = true,
-                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-                textStyle = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-
-            // Password
-            OutlinedTextField(
-                value = state.password,
-                onValueChange = onPasswordChanged,
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                placeholder = { Text("Mật khẩu", style = MaterialTheme.typography.titleMedium) },
-                trailingIcon = {
-                    IconButton(onClick = onTogglePasswordVisibility) {
-                        Icon(
-                            imageVector = if (state.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                },
-                visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                colors = defaultTextFieldColors(),
-                singleLine = true,
-                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-                textStyle = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-
-            // Confirm password
-            OutlinedTextField(
-                value = state.confirmPassword,
-                onValueChange = onConfirmPasswordChanged,
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                placeholder = { Text("Nhập lại mật khẩu", style = MaterialTheme.typography.titleMedium) },
-                trailingIcon = {
-                    IconButton(onClick = onToggleConfirmPasswordVisibility) {
-                        Icon(
-                            imageVector = if (state.isConfirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null
-                        )
-                    }
-                },
-                visualTransformation = if (state.isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                colors = defaultTextFieldColors(),
-                singleLine = true,
-                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-                textStyle = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-
-            // Create account btn
-            Button(
-                onClick = onRegisterClick,
+            Spacer(modifier = Modifier.height(430.dp))
+            Column(
                 modifier = Modifier
-                    .height(MaterialTheme.dimens.buttonHeight)
-                    .width(MaterialTheme.dimens.large * 4),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0866FF))
+                    .imePadding()
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Tạo tài khoản", color = Color.White, style = MaterialTheme.typography.titleMedium)
-            }
+                // Username
+                OutlinedTextField(
+                    value = state.username,
+                    onValueChange = onUsernameChanged,
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    placeholder = { Text("Tên đăng nhập", style = MaterialTheme.typography.titleMedium) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = defaultTextFieldColors(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(MaterialTheme.dimens.small3), //15dp
+                    textStyle = MaterialTheme.typography.titleMedium
+                )
 
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                TextButton(onClick = onLoginClick) {
-                    Text(
-                        "Đã có tài khoản? Đăng nhập",
-                        color = Color.DarkGray,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            textDecoration = TextDecoration.Underline,
-                            letterSpacing = 0.7.sp,
-                            fontWeight = FontWeight.Normal
+                // Email
+                OutlinedTextField(
+                    value = state.email,
+                    onValueChange = onEmailChanged,
+                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                    placeholder = { Text("Email", style = MaterialTheme.typography.titleMedium) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = defaultTextFieldColors(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                    textStyle = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+
+                // Password
+                OutlinedTextField(
+                    value = state.password,
+                    onValueChange = onPasswordChanged,
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    placeholder = { Text("Mật khẩu", style = MaterialTheme.typography.titleMedium) },
+                    trailingIcon = {
+                        IconButton(onClick = onTogglePasswordVisibility) {
+                            Icon(
+                                imageVector = if (state.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = defaultTextFieldColors(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                    textStyle = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+
+                // Confirm password
+                OutlinedTextField(
+                    value = state.confirmPassword,
+                    onValueChange = onConfirmPasswordChanged,
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    placeholder = { Text("Nhập lại mật khẩu", style = MaterialTheme.typography.titleMedium) },
+                    trailingIcon = {
+                        IconButton(onClick = onToggleConfirmPasswordVisibility) {
+                            Icon(
+                                imageVector = if (state.isConfirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    visualTransformation = if (state.isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = defaultTextFieldColors(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                    textStyle = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+
+                // Create account btn
+                Button(
+                    onClick = onRegisterClick,
+                    modifier = Modifier
+                        .height(MaterialTheme.dimens.buttonHeight)
+                        .width(MaterialTheme.dimens.large * 4),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0866FF))
+                ) {
+                    Text("Tạo tài khoản", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                }
+
+                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TextButton(onClick = onLoginClick) {
+                        Text(
+                            "Đã có tài khoản? Đăng nhập",
+                            color = Color.DarkGray,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                textDecoration = TextDecoration.Underline,
+                                letterSpacing = 0.7.sp,
+                                fontWeight = FontWeight.Normal
+                            )
                         )
+                    }
+                }
+                // Error message
+                if (state.errorMessage.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+                    Text(
+                        text = state.errorMessage,
+                        color = Color.Red,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
-            }
-            // Error message
-            if (state.errorMessage.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-                Text(
-                    text = state.errorMessage,
-                    color = Color.Red,
-                    style = MaterialTheme.typography.labelSmall
-                )
             }
         }
     }

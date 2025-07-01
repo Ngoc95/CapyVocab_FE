@@ -6,7 +6,6 @@ import com.example.capyvocab_fe.auth.domain.model.User
 
 interface AuthRepository {
     suspend fun login(username: String, password: String): Either<AuthFailure, User>
-    suspend fun logout(): Either<AuthFailure, Unit>
     suspend fun getUserInfo(): Either<AuthFailure, User?>
     suspend fun register(email: String, username: String, password: String): Either<AuthFailure, User>
     suspend fun refreshToken(refreshToken: String): Either<AuthFailure, Pair<String, String>>

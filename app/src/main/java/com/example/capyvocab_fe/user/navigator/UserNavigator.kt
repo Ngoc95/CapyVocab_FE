@@ -26,7 +26,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
-import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.PayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
@@ -34,6 +33,8 @@ import com.example.capyvocab_fe.profile.presentation.ChangePasswordScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileSettingScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileViewModel
+import com.example.capyvocab_fe.report.domain.model.ReportType
+import com.example.capyvocab_fe.report.presentation.ReportEvent
 import com.example.capyvocab_fe.report.presentation.ReportViewModel
 import com.example.capyvocab_fe.report.presentation.UserReportScreen
 import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
@@ -49,6 +50,7 @@ import com.example.capyvocab_fe.user.learn.presentation.LearnEvent
 import com.example.capyvocab_fe.user.learn.presentation.LearnFlashcardScreen
 import com.example.capyvocab_fe.user.learn.presentation.LearnViewModel
 import com.example.capyvocab_fe.user.learn.presentation.TopicsInCourseScreen
+import com.example.capyvocab_fe.user.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.user.navigator.components.UserBottomNavigation
 import com.example.capyvocab_fe.user.navigator.components.UserTopBar
 import com.example.capyvocab_fe.user.notification.presentation.NotificationScreen
@@ -195,7 +197,7 @@ fun UserNavigator(rootNavController: NavHostController) {
         val topPadding = it.calculateTopPadding()
         NavHost(
             navController = navController,
-            startDestination = Route.UserCommunityScreen.route,
+            startDestination = Route.UserLearnScreen.route,
             modifier = Modifier.padding(
                 bottom = if (isBottomVisible) bottomPadding else 0.dp,
                 top = if (isBottomVisible) topPadding else 0.dp
@@ -219,8 +221,8 @@ fun UserNavigator(rootNavController: NavHostController) {
                     onMyPost = {
                         navController.navigate("${Route.UserMyPostScreen.route}")
                     },
-                    onReportClick = {
-                        navController.navigate(Route.UserReportScreen.route)
+                    onReportClick = { post ->
+                        navController.navigate("${Route.UserReportScreen.route}/${post.id}/POST")
                     }
                 )
             }
@@ -581,7 +583,23 @@ fun UserNavigator(rootNavController: NavHostController) {
                     viewModel = payOutViewModel
                 )
             }
-            composable(route = Route.UserReportScreen.route) {
+            composable(
+                route = "${Route.UserReportScreen.route}/{targetId}/{type}",
+                arguments = listOf(
+                    navArgument("targetId") { type = NavType.IntType },
+                    navArgument("type") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val targetId = backStackEntry.arguments?.getInt("targetId") ?: 0
+                val typeString = backStackEntry.arguments?.getString("type") ?: "EXERCISES"
+                val reportType = try {
+                    ReportType.valueOf(typeString)
+                } catch (e: Exception) {
+                    ReportType.EXERCISES
+                }
+                LaunchedEffect(targetId, reportType) {
+                    reportVM.onEvent(ReportEvent.SetReportData(targetId = targetId, reportType = reportType))
+                }
                 UserReportScreen(
                     state = reportState,
                     onEvent = reportVM::onEvent,

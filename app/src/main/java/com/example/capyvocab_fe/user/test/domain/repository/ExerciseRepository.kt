@@ -2,6 +2,8 @@ package com.example.capyvocab_fe.user.test.domain.repository
 
 import android.net.Uri
 import arrow.core.Either
+import com.example.capyvocab_fe.auth.domain.error.AuthFailure
+import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
 import com.example.capyvocab_fe.user.test.data.remote.model.UpdateFolderRequest
@@ -9,6 +11,7 @@ import com.example.capyvocab_fe.user.test.domain.model.Comment
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
 interface ExerciseRepository {
+    suspend fun getUserInfo(): Either<AuthFailure, User>
     suspend fun getAllFolders(
         page: Int = 1,
         name: String? = null,

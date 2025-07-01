@@ -45,6 +45,8 @@ class CommunityViewModel @Inject constructor(
             is CommunityEvent.GetUserByID -> getUserById(event.id)
             is CommunityEvent.UpdatePost -> updatePost(event.id, event.content, event.tags, event.images)
             is CommunityEvent.LoadMyUser -> loadMyUser()
+            is CommunityEvent.ResetPostCreated -> resetPostCreated()
+            is CommunityEvent.ResetPostUpdated -> resetPostUpdated()
         }
     }
 
@@ -110,7 +112,8 @@ class CommunityViewModel @Inject constructor(
                         }
                         currentState.copy(
                             isLoading = false,
-                            selectUserPosts = updateUserPosts
+                            selectUserPosts = updateUserPosts,
+                            isPostUpdated = true
                         )
                     }
 
@@ -192,6 +195,7 @@ class CommunityViewModel @Inject constructor(
 
     private fun createPost(content: String?, tags: List<String>?, images: List<Uri>?) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
             var thumbnailUrls: List<String>? = emptyList()
             if(!images.isNullOrEmpty()) {
                 val uploadResult = userCommunityRepository.uploadThumbnailImage(images)
@@ -218,7 +222,14 @@ class CommunityViewModel @Inject constructor(
             )
 
             userCommunityRepository.createPost(request)
-                .onRight {
+                .onRight { post ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "",
+                            isPostCreated = true
+                        )
+                    }
                 }
                 .onLeft { failure ->
                     _state.update {
@@ -238,7 +249,21 @@ class CommunityViewModel @Inject constructor(
                 selectedPostComment = emptyList(),
                 selectedComment = null,
                 childComment = emptyMap(),
+                isPostCreated = false,
+                isPostUpdated = false,
             )
+        }
+    }
+
+    private fun resetPostCreated() {
+        _state.update {
+            it.copy(isPostCreated = false)
+        }
+    }
+
+    private fun resetPostUpdated() {
+        _state.update {
+            it.copy(isPostUpdated = false)
         }
     }
 

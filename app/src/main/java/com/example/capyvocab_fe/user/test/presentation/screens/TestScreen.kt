@@ -56,7 +56,6 @@ import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
-import com.example.capyvocab_fe.ui.theme.White
 import com.example.capyvocab_fe.user.payment.presentation.PaymentUiEvent
 import com.example.capyvocab_fe.user.payment.presentation.PaymentUiState
 import com.example.capyvocab_fe.user.payment.presentation.PaymentViewModel
@@ -226,7 +225,6 @@ fun TestScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
     ) {
         // Header với thông tin người dùng
         UserInfoHeader(

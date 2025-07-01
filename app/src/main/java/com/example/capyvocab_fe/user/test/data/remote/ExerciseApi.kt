@@ -1,6 +1,7 @@
 package com.example.capyvocab_fe.user.test.data.remote
 
 import com.example.capyvocab_fe.admin.user.data.remote.model.ImageUploadResponse
+import com.example.capyvocab_fe.auth.data.remote.model.GetAccountResponse
 import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateCommentRequest
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
@@ -23,6 +24,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ExerciseApi {
+    @GET("auth/account")
+    suspend fun getUserInfo(): ApiResponse<GetAccountResponse>
     @GET("exercise")
     suspend fun getAllFolders(
         @Query("page") page: Int = 1,

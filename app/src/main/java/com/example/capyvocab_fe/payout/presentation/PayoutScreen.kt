@@ -2,12 +2,15 @@ package com.example.capyvocab_fe.payout.presentation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -22,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -164,7 +166,7 @@ fun PayoutScreenContent(
             label = { Text("Số tiền", style = MaterialTheme.typography.bodyMedium) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
-            textStyle = MaterialTheme.typography.bodyMedium
+            textStyle = MaterialTheme.typography.bodyMedium,
         )
         Spacer(Modifier.height(MaterialTheme.dimens.small1))
 
@@ -173,7 +175,8 @@ fun PayoutScreenContent(
             onValueChange = { onNumberAccountChange(it) },
             label = { Text("Số tài khoản", style = MaterialTheme.typography.bodyMedium) },
             modifier = Modifier.fillMaxWidth(),
-            textStyle = MaterialTheme.typography.bodyMedium
+            textStyle = MaterialTheme.typography.bodyMedium,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
         Spacer(Modifier.height(MaterialTheme.dimens.small1))
 
@@ -191,12 +194,16 @@ fun PayoutScreenContent(
                 modifier = Modifier
                     .menuAnchor()
                     .fillMaxWidth(),
-                colors = TextFieldDefaults.colors(),
-                textStyle = MaterialTheme.typography.bodyMedium
+                textStyle = MaterialTheme.typography.bodyMedium,
+                singleLine = true
             )
             DropdownMenu(
                 expanded = expanded.value,
-                onDismissRequest = { expanded.value = false }
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .width(IntrinsicSize.Max)
+                    .padding(horizontal = MaterialTheme.dimens.small2)
+                    .heightIn(max = 320.dp)
             ) {
                 banks.forEach { bank ->
                     DropdownMenuItem(

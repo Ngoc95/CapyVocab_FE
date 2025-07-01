@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capyvocab_fe.admin.user.domain.repository.AdminUserRepository
-import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.profile.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,8 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
-    private val adminUserRepository: AdminUserRepository,
-    private val authRepository: AuthRepository
+    private val adminUserRepository: AdminUserRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState())
@@ -91,7 +89,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
 
-            authRepository.logout()
+            profileRepository.logout()
                 .onRight {
                     _state.update {
                         ProfileState() // Reset toàn bộ state sau khi logout

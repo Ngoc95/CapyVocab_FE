@@ -311,7 +311,7 @@ fun UserScreenContent(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = MaterialTheme.dimens.small3),
+                    .padding(horizontal = MaterialTheme.dimens.small1),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium1)
             ) {
                 itemsIndexed(users) { index, user ->

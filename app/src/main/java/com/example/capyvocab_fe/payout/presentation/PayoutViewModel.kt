@@ -2,7 +2,6 @@ package com.example.capyvocab_fe.payout.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.payout.data.model.PayoutRequest
 import com.example.capyvocab_fe.payout.domain.repository.PayoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,8 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PayoutViewModel @Inject constructor(
-    private val payoutRepository: PayoutRepository,
-    private val authRepository: AuthRepository
+    private val payoutRepository: PayoutRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(PayoutState())
     val state: StateFlow<PayoutState> = _state
@@ -26,7 +24,7 @@ class PayoutViewModel @Inject constructor(
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            authRepository.getUserInfo().fold(
+            payoutRepository.getUserInfo().fold(
                 { failure ->
                     _state.update { it.copy(errorMessage = failure.message ?: "Đã xảy ra lỗi") }
                 },

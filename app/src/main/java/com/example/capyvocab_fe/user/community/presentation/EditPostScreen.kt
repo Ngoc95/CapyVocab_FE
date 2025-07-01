@@ -52,6 +52,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.LoadingDialog
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.Black
 import com.example.capyvocab_fe.ui.theme.MyLightBlue
@@ -100,6 +101,14 @@ fun EditPostScreen(
         }
     }
 
+    // Khi post được cập nhật thành công, navigate back
+    LaunchedEffect(state.isPostUpdated) {
+        if (state.isPostUpdated) {
+            viewModel.onEvent(CommunityEvent.ResetPostUpdated)
+            onBackClick()
+        }
+    }
+
     if (selectedImage != null) {
         Dialog( onDismissRequest = { selectedImage = null }) {
             Box(
@@ -128,11 +137,15 @@ fun EditPostScreen(
         }
     }
 
+    LoadingDialog(isLoading = state.isLoading)
+    
     FocusComponent {
         EditPostScreenContent(
             tagsList = tagsList,
             content = content,
             imgList = imageList,
+            errorMessage = visibleError,
+            isLoading = state.isLoading,
             onAddTag = {tag -> if(tag !in tagsList) tagsList.add(tag) },
             onRemoveTag = { tag -> tagsList.remove(tag) },
             onBackClick = {
@@ -142,10 +155,9 @@ fun EditPostScreen(
             onRemoveImage = {img -> imageList.remove(img) },
             onChangeContent = {str -> content = str},
             onSavePost = {
-                if (tagsList.isEmpty() && content.isBlank() && imageList.isEmpty())
+                if (tagsList.isEmpty() && content.isBlank() && imageList.isEmpty()) {
                     visibleError = "Bài viết không được để trống"
-                else
-                {
+                } else {
                     viewModel.onEvent(CommunityEvent.UpdatePost(post.id, content, tagsList, imageList))
                 }
             }
@@ -159,6 +171,8 @@ fun EditPostScreenContent(
     tagsList: List<String>?,
     content: String?,
     imgList:List<Uri>?,
+    errorMessage: String,
+    isLoading: Boolean,
     onSelectImage:() -> Unit,
     onRemoveImage:(Uri) -> Unit,
     onAddTag:(String) -> Unit,
@@ -197,8 +211,8 @@ fun EditPostScreenContent(
                 Button(
                     onClick = {
                         onSavePost()
-                        onBackClick()
                     },
+                    enabled = !isLoading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MyLightBlue,
                         contentColor = Color.Black
@@ -211,7 +225,7 @@ fun EditPostScreenContent(
                     elevation = ButtonDefaults.elevatedButtonElevation()
                 ) {
                     Text(
-                        text = "Xong",
+                        text = if (isLoading) "Đang cập nhật..." else "Xong",
                         fontSize = 20.sp,
                         color = Color.Black
                     )
@@ -264,13 +278,29 @@ fun EditPostScreenContent(
                 }
             }
         }
+        if (errorMessage.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(Color.Red, RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = errorMessage,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun EditPostPreview() {
-    CreatePostScreenContent(
+    EditPostScreenContent(
         tagsList = emptyList(),
         onAddTag = {},
         onRemoveTag = {},
@@ -280,7 +310,9 @@ fun EditPostPreview() {
         onSelectImage = { },
         onRemoveImage = { },
         onChangeContent = { },
-        onSavePost = { }
+        onSavePost = { },
+        errorMessage = "hgege",
+        isLoading = false
     )
 }
 

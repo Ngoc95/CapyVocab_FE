@@ -7,6 +7,7 @@ sealed class ReportEvent {
     object CreateReport : ReportEvent()
     data class ReportContentChanged(val content: String) : ReportEvent()
     data class ReportTypeChanged(val type: ReportType) : ReportEvent()
+    data class SetReportData(val targetId: Int, val reportType: ReportType) : ReportEvent()
     object LoadReports : ReportEvent()
     object LoadMoreReports : ReportEvent()
     data class UpdateReportStatus(

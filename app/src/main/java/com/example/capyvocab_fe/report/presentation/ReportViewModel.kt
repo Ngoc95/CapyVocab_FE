@@ -37,6 +37,14 @@ class ReportViewModel @Inject constructor(
                 loadReports()
             }
             is ReportEvent.UpdateReportStatus -> updateReport(event.reportId, event.status)
+            is ReportEvent.SetReportData -> {
+                _state.update {
+                    it.copy(
+                        targetId = event.targetId,
+                        reportType = event.reportType,
+                    )
+                }
+            }
         }
     }
 
@@ -45,7 +53,8 @@ class ReportViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
             val request = CreateReportRequest(
                 type = _state.value.reportType,
-                content = _state.value.reportContent
+                content = _state.value.reportContent,
+                targetId = _state.value.targetId ?: 1
             )
             reportRepository.createReport(request)
                 .onRight {

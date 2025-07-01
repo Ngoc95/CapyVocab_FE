@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capyvocab_fe.payout.domain.model.Payout
+import com.example.capyvocab_fe.payout.domain.model.PayoutStatus
 import com.example.capyvocab_fe.payout.presentation.components.AdminPayoutCard
 import com.example.capyvocab_fe.ui.theme.dimens
 
@@ -95,8 +96,8 @@ fun AdminPayoutScreenContent(
             items(payouts) { payout ->
                 AdminPayoutCard(
                     payout = payout,
-                    onApprove = { onAcceptClick(payout.id, "SUCCESS") },
-                    onReject = { onRejectClick(payout.id, "FAILED") }
+                    onApprove = { onAcceptClick(payout.id, PayoutStatus.SUCCESS.name) },
+                    onReject = { onRejectClick(payout.id, PayoutStatus.FAILED.name) }
                 )
                 Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
             }

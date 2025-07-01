@@ -19,6 +19,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -66,6 +68,7 @@ import com.example.capyvocab_fe.payout.presentation.AdminPayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
 import com.example.capyvocab_fe.profile.presentation.ChangePasswordScreen
+import com.example.capyvocab_fe.profile.presentation.ProfileEvent
 import com.example.capyvocab_fe.profile.presentation.ProfileScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileSettingScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileViewModel
@@ -102,6 +105,10 @@ fun AdminNavigator(rootNavController: NavHostController) {
     val payoutViewModel: PayoutViewModel = hiltViewModel()
     val reportVM: ReportViewModel = hiltViewModel()
     val reportState by reportVM.state.collectAsState()
+
+    // Add ProfileViewModel for logout functionality
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Check if in multi-select mode to adjust UI behavior
     val isInMultiSelectMode = when {
@@ -146,6 +153,7 @@ fun AdminNavigator(rootNavController: NavHostController) {
 
         currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
             topicListState.selectedTopic?.title ?: "Từ vựng"
+
         currentRoute == Route.AdminPayoutScreen.route -> "Rút tiền"
         currentRoute == Route.AdminReportScreen.route -> "Báo cáo"
         else -> "Admin Panel"
@@ -182,37 +190,46 @@ fun AdminNavigator(rootNavController: NavHostController) {
         showDeleteConfirmDialog = false
     }
 
+    // Function to handle logout
+    val handleLogout = {
+        profileViewModel.onEvent(ProfileEvent.Logout)
+        rootNavController.navigate(Route.AuthNavigation.route) {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
     // List of navigation items for the drawer
     val navigationItems = listOf(
         DrawerNavigationItem(
             title = "Trang chủ",
             route = Route.HomeScreen.route,
-            iconRes = com.example.capyvocab_fe.R.drawable.admin_home,
-            selectedIconRes = com.example.capyvocab_fe.R.drawable.admin_selected_home
+            iconRes = R.drawable.admin_home,
+            selectedIconRes = R.drawable.admin_selected_home
         ),
         DrawerNavigationItem(
             title = "Khoá học",
             route = Route.CoursesScreen.route,
-            iconRes = com.example.capyvocab_fe.R.drawable.admin_course,
-            selectedIconRes = com.example.capyvocab_fe.R.drawable.admin_selected_course
+            iconRes = R.drawable.admin_course,
+            selectedIconRes = R.drawable.admin_selected_course
         ),
         DrawerNavigationItem(
             title = "Chủ đề",
             route = Route.TopicsScreen.route,
-            iconRes = com.example.capyvocab_fe.R.drawable.admin_topic,
-            selectedIconRes = com.example.capyvocab_fe.R.drawable.admin_selected_topic
+            iconRes = R.drawable.admin_topic,
+            selectedIconRes = R.drawable.admin_selected_topic
         ),
         DrawerNavigationItem(
             title = "Từ vựng",
             route = Route.WordsScreen.route,
-            iconRes = com.example.capyvocab_fe.R.drawable.admin_word,
-            selectedIconRes = com.example.capyvocab_fe.R.drawable.admin_selected_word
+            iconRes = R.drawable.admin_word,
+            selectedIconRes = R.drawable.admin_selected_word
         ),
         DrawerNavigationItem(
             title = "Người dùng",
             route = Route.UsersScreen.route,
-            iconRes = com.example.capyvocab_fe.R.drawable.admin_user,
-            selectedIconRes = com.example.capyvocab_fe.R.drawable.admin_selected_user
+            iconRes = R.drawable.admin_user,
+            selectedIconRes = R.drawable.admin_selected_user
         ),
         DrawerNavigationItem(
             title = "Rút tiền",
@@ -223,14 +240,14 @@ fun AdminNavigator(rootNavController: NavHostController) {
         DrawerNavigationItem(
             title = "Báo cáo",
             route = Route.AdminReportScreen.route,
-            iconRes = com.example.capyvocab_fe.R.drawable.ic_report_ad,
-            selectedIconRes = com.example.capyvocab_fe.R.drawable.ic_selected_report_ad
+            iconRes = R.drawable.ic_report_ad,
+            selectedIconRes = R.drawable.ic_selected_report_ad
         ),
         DrawerNavigationItem(
             title = "Hồ sơ",
             route = Route.ProfileScreen.route,
-            iconRes = com.example.capyvocab_fe.R.drawable.user_profile,
-            selectedIconRes = com.example.capyvocab_fe.R.drawable.ic_selected_profile
+            iconRes = R.drawable.user_profile,
+            selectedIconRes = R.drawable.ic_selected_profile
         )
     )
 
@@ -240,12 +257,18 @@ fun AdminNavigator(rootNavController: NavHostController) {
             ModalDrawerSheet(
                 modifier = Modifier.width(MaterialTheme.dimens.large * 4)
             ) {
-                CapyVocab_FETheme(dynamicColor = false)  {
+                CapyVocab_FETheme(dynamicColor = false) {
                     AdminNavigationDrawerContent(
                         items = navigationItems,
                         currentRoute = currentRoute,
                         onItemClick = { route ->
                             navigateToTab(navController, route)
+                            scope.launch {
+                                drawerState.close()
+                            }
+                        },
+                        onLogoutClick = {
+                            showLogoutDialog = true
                             scope.launch {
                                 drawerState.close()
                             }
@@ -260,7 +283,7 @@ fun AdminNavigator(rootNavController: NavHostController) {
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 CapyVocab_FETheme(dynamicColor = false) {
-                    if(shouldShowTopBar(currentRoute)){
+                    if (shouldShowTopBar(currentRoute)) {
                         TopAppBar(
                             title = {
                                 Text(
@@ -359,10 +382,12 @@ fun AdminNavigator(rootNavController: NavHostController) {
             }
         ) { paddingValues ->
             Surface(
-                modifier = if(shouldShowTopBar(currentRoute)) Modifier
+                modifier = if (shouldShowTopBar(currentRoute)) Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                else Modifier.fillMaxSize().padding(top = 0.dp)
+                else Modifier
+                    .fillMaxSize()
+                    .padding(top = 0.dp)
             ) {
                 NavHost(
                     navController = navController,
@@ -532,6 +557,28 @@ fun AdminNavigator(rootNavController: NavHostController) {
             }
         )
     }
+    if (showLogoutDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Xác nhận đăng xuất") },
+            text = { Text("Bạn có chắc chắn muốn đăng xuất không?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        handleLogout()
+                    }
+                ) {
+                    Text("Đăng xuất", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Hủy")
+                }
+            }
+        )
+    }
 }
 
 fun shouldShowTopBar(currentRoute: String): Boolean {
@@ -541,8 +588,6 @@ fun shouldShowTopBar(currentRoute: String): Boolean {
 }
 
 private fun navigateToTab(navController: NavController, route: String) {
-    // Only navigate if it's a top-level destination
-    // We don't want to navigate to routes with parameters from the drawer
     if (route == Route.HomeScreen.route ||
         route == Route.CoursesScreen.route ||
         route == Route.TopicsScreen.route ||

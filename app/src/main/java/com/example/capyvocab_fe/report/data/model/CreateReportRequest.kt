@@ -4,5 +4,6 @@ import com.example.capyvocab_fe.report.domain.model.ReportType
 
 data class CreateReportRequest(
     val type: ReportType,
-    val content: String
+    val content: String,
+    val targetId: Int
 )

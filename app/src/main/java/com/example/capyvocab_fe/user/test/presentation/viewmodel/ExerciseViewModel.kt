@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
-import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.error.AppError
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
@@ -24,8 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ExerciseViewModel @Inject constructor(
-    private val exerciseRepository: ExerciseRepository,
-    private val authRepository: AuthRepository,
+    private val exerciseRepository: ExerciseRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExerciseState())
     val state: StateFlow<ExerciseState> = _state
@@ -35,7 +33,7 @@ class ExerciseViewModel @Inject constructor(
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            authRepository.getUserInfo().fold(
+            exerciseRepository.getUserInfo().fold(
                 {
                     _state.update { it.copy(error = it.error) }
                 },

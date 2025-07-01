@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,12 +41,14 @@ import com.example.capyvocab_fe.ui.theme.dimens
 fun AdminNavigationDrawerContent(
     items: List<DrawerNavigationItem>,
     currentRoute: String,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(vertical = MaterialTheme.dimens.small3)
         ) {
             // App logo and title
@@ -73,7 +78,7 @@ fun AdminNavigationDrawerContent(
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
 
             // Navigation items
             items.forEach { item ->
@@ -92,6 +97,16 @@ fun AdminNavigationDrawerContent(
                     onClick = { onItemClick(item.route) }
                 )
             }
+
+            // Add divider before logout button
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
+            Divider(
+                modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.small1),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
+            // Logout button
+            DrawerLogoutItem(onClick = onLogoutClick)
         }
     }
 }
@@ -156,6 +171,34 @@ fun DrawerNavigationItem(
     }
 }
 
+@Composable
+fun DrawerLogoutItem(onClick: () -> Unit) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(horizontal = MaterialTheme.dimens.small3),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                contentDescription = "Đăng xuất",
+                modifier = Modifier.size(MaterialTheme.dimens.medium2),
+                tint = Color.Red
+            )
+
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+
+            Text(
+                text = "Đăng xuất",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.Red
+            )
+        }
+}
+
+
 data class DrawerNavigationItem(
     val title: String,
     val route: String,
@@ -211,7 +254,8 @@ fun AdminNavigationDrawerPreview() {
                     )
                 ),
                 currentRoute = Route.CoursesScreen.route,
-                onItemClick = {}
+                onItemClick = {},
+                onLogoutClick = {}
             )
         }
     }

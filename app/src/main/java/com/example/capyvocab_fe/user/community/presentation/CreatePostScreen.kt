@@ -89,8 +89,22 @@ fun CreatePostScreen(
     LaunchedEffect(state.errorMessage) {
         if (state.errorMessage.isNotEmpty()) {
             visibleError = state.errorMessage
-            delay(3000) // hiện 3 giây
+            delay(1000) // hiện 3 giây
             visibleError = "" // ẩn sau 3 giây
+        }
+    }
+    LaunchedEffect(visibleError) {
+        if (visibleError.isNotEmpty()) {
+            delay(2000)
+            visibleError = ""
+        }
+    }
+    // Khi post được tạo thành công, navigate back và refresh posts list
+    LaunchedEffect(state.isPostCreated) {
+        if (state.isPostCreated) {
+            viewModel.onEvent(CommunityEvent.LoadPosts)
+            viewModel.onEvent(CommunityEvent.ResetPostCreated)
+            onBackClick()
         }
     }
 
@@ -127,6 +141,8 @@ fun CreatePostScreen(
             tagsList = tagsList,
             content = content,
             imgList = imageList,
+            errorMessage = visibleError,
+            isLoading = state.isLoading,
             onAddTag = {tag -> if(tag !in tagsList) tagsList.add(tag) },
             onRemoveTag = { tag -> tagsList.remove(tag) },
             onBackClick = {
@@ -136,10 +152,9 @@ fun CreatePostScreen(
             onRemoveImage = {img -> imageList.remove(img) },
             onChangeContent = {str -> content = str},
             onSavePost = {
-                if (tagsList.isEmpty() && content.isBlank() && imageList.isEmpty())
+                if (tagsList.isEmpty() && content.isBlank() && imageList.isEmpty()) {
                     visibleError = "Bài viết không được để trống"
-                else
-                {
+                } else {
                     viewModel.onEvent(CommunityEvent.CreatePost(content, tagsList, imageList))
                 }
             }
@@ -153,6 +168,8 @@ fun CreatePostScreenContent(
     tagsList: List<String>?,
     content: String?,
     imgList:List<Uri>?,
+    errorMessage: String,
+    isLoading: Boolean,
     onSelectImage:() -> Unit,
     onRemoveImage:(Uri) -> Unit,
     onAddTag:(String) -> Unit,
@@ -185,14 +202,29 @@ fun CreatePostScreenContent(
                 fontSize = 20.sp
             )
         }
-
+        if (errorMessage.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(Color.Red, RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = errorMessage,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
         Scaffold(
             bottomBar = {
                 Button(
                     onClick = {
                         onSavePost()
-                        onBackClick()
                     },
+                    enabled = !isLoading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MyLightBlue,
                         contentColor = Color.Black
@@ -205,7 +237,7 @@ fun CreatePostScreenContent(
                     elevation = ButtonDefaults.elevatedButtonElevation()
                 ) {
                     Text(
-                        text = "Xong",
+                        text = if (isLoading) "Đang tạo..." else "Xong",
                         fontSize = 20.sp,
                         color = Color.Black
                     )
@@ -268,13 +300,15 @@ fun CreatePostPreview() {
         tagsList = emptyList(),
         onAddTag = {},
         onRemoveTag = {},
-        content = null,
+        content = "XXX",
         imgList = emptyList(),
         onBackClick = { },
         onSelectImage = { },
         onRemoveImage = { },
         onChangeContent = { },
-        onSavePost = { }
+        onSavePost = { },
+        errorMessage = "hehe",
+        isLoading = false
     )
 }
 
