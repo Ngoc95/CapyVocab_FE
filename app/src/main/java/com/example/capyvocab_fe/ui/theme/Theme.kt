@@ -25,15 +25,15 @@ private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF42B3FF),
     error = DarkRed,
     surface = LightBlack,
-    tertiary = Color(0xFFDDDDDD)
+    tertiary = Color(0xFF4B4A4A)
 )
 
 private val LightColorScheme = lightColorScheme(
-    background = White,
-    primary = Color(0xFF00D9FF),
+    background = Color(0xFFF5F8FF ),
+    primary = Color(0xFF1565C0),
     error = LightRed,
     surface = Color.White,
-    tertiary = Color(0xFFCDB9B9)
+    tertiary = Color(0xFFE0ECFF)
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

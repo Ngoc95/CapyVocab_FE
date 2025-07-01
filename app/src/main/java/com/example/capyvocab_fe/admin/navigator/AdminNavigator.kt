@@ -71,6 +71,7 @@ import com.example.capyvocab_fe.profile.presentation.ProfileSettingScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileViewModel
 import com.example.capyvocab_fe.report.presentation.AdminReportScreen
 import com.example.capyvocab_fe.report.presentation.ReportViewModel
+import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.launch
 
@@ -239,16 +240,18 @@ fun AdminNavigator(rootNavController: NavHostController) {
             ModalDrawerSheet(
                 modifier = Modifier.width(MaterialTheme.dimens.large * 4)
             ) {
-                AdminNavigationDrawerContent(
-                    items = navigationItems,
-                    currentRoute = currentRoute,
-                    onItemClick = { route ->
-                        navigateToTab(navController, route)
-                        scope.launch {
-                            drawerState.close()
+                CapyVocab_FETheme(dynamicColor = false)  {
+                    AdminNavigationDrawerContent(
+                        items = navigationItems,
+                        currentRoute = currentRoute,
+                        onItemClick = { route ->
+                            navigateToTab(navController, route)
+                            scope.launch {
+                                drawerState.close()
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         },
         gesturesEnabled = !isInMultiSelectMode && !isNestedScreen
@@ -256,97 +259,102 @@ fun AdminNavigator(rootNavController: NavHostController) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                if(shouldShowTopBar(currentRoute)){
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = screenTitle,
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                        },
-                        navigationIcon = {
-                            if (shouldShowBackButton) {
-                                // show back button for nested screens or multi-select mode
-                                IconButton(
-                                    modifier = Modifier.size(MaterialTheme.dimens.medium3),
-                                    onClick = {
-                                        if (isInMultiSelectMode) {
-                                            // handle multi-select back button
-                                            when {
-                                                currentRoute == Route.UsersScreen.route -> userViewModel.onEvent(
-                                                    UserListEvent.CancelMultiSelect
-                                                )
+                CapyVocab_FETheme(dynamicColor = false) {
+                    if(shouldShowTopBar(currentRoute)){
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = screenTitle,
+                                    style = MaterialTheme.typography.headlineMedium
+                                )
+                            },
+                            navigationIcon = {
+                                if (shouldShowBackButton) {
+                                    // show back button for nested screens or multi-select mode
+                                    IconButton(
+                                        modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                        onClick = {
+                                            if (isInMultiSelectMode) {
+                                                // handle multi-select back button
+                                                when {
+                                                    currentRoute == Route.UsersScreen.route -> userViewModel.onEvent(
+                                                        UserListEvent.CancelMultiSelect
+                                                    )
 
-                                                currentRoute == Route.CoursesScreen.route -> courseViewModel.onEvent(
-                                                    CourseEvent.CancelMultiSelect
-                                                )
+                                                    currentRoute == Route.CoursesScreen.route -> courseViewModel.onEvent(
+                                                        CourseEvent.CancelMultiSelect
+                                                    )
 
-                                                currentRoute == Route.TopicsScreen.route -> topicViewModel.onEvent(
-                                                    TopicEvent.CancelMultiSelect
-                                                )
+                                                    currentRoute == Route.TopicsScreen.route -> topicViewModel.onEvent(
+                                                        TopicEvent.CancelMultiSelect
+                                                    )
 
-                                                currentRoute == Route.WordsScreen.route -> wordViewModel.onEvent(
-                                                    WordEvent.CancelMultiSelect
-                                                )
+                                                    currentRoute == Route.WordsScreen.route -> wordViewModel.onEvent(
+                                                        WordEvent.CancelMultiSelect
+                                                    )
 
-                                                currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
-                                                    topicViewModel.onEvent(TopicEvent.CancelMultiSelect)
+                                                    currentRoute.startsWith("${Route.TopicsScreen.route}/") == true ->
+                                                        topicViewModel.onEvent(TopicEvent.CancelMultiSelect)
 
-                                                currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
-                                                    wordViewModel.onEvent(WordEvent.CancelMultiSelect)
-                                            }
-                                        } else {
-                                            //regular back navigation
-                                            navController.popBackStack()
-                                        }
-                                    }) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                        contentDescription = "Back",
-                                        modifier = Modifier.size(MaterialTheme.dimens.medium1)
-                                    )
-                                }
-                            } // Only show menu button if not in multi-select mode
-                            else if (!isInMultiSelectMode) {
-                                IconButton(
-                                    modifier = Modifier.size(MaterialTheme.dimens.medium3),
-                                    onClick = {
-                                        scope.launch {
-                                            if (drawerState.isClosed) {
-                                                drawerState.open()
+                                                    currentRoute.startsWith("${Route.WordsScreen.route}/") == true ->
+                                                        wordViewModel.onEvent(WordEvent.CancelMultiSelect)
+                                                }
                                             } else {
-                                                drawerState.close()
+                                                //regular back navigation
+                                                navController.popBackStack()
                                             }
-                                        }
-                                    }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Menu,
-                                        contentDescription = "Menu",
-                                        modifier = Modifier.size(MaterialTheme.dimens.medium1)
-                                    )
+                                        }) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                            contentDescription = "Back",
+                                            modifier = Modifier.size(MaterialTheme.dimens.medium1),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                } // Only show menu button if not in multi-select mode
+                                else if (!isInMultiSelectMode) {
+                                    IconButton(
+                                        modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                        onClick = {
+                                            scope.launch {
+                                                if (drawerState.isClosed) {
+                                                    drawerState.open()
+                                                } else {
+                                                    drawerState.close()
+                                                }
+                                            }
+                                        }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Menu,
+                                            contentDescription = "Menu",
+                                            modifier = Modifier.size(MaterialTheme.dimens.medium1),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
-                            }
-                        },
-                        actions = {
-                            //show delete button when in multi-select mode
-                            if (isInMultiSelectMode && selectedItemsCount > 0) {
-                                IconButton(
-                                    modifier = Modifier.size(MaterialTheme.dimens.medium3),
-                                    onClick = { handleDeleteSelected() }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete selected",
-                                        modifier = Modifier.size(MaterialTheme.dimens.medium1)
-                                    )
+                            },
+                            actions = {
+                                //show delete button when in multi-select mode
+                                if (isInMultiSelectMode && selectedItemsCount > 0) {
+                                    IconButton(
+                                        modifier = Modifier.size(MaterialTheme.dimens.medium3),
+                                        onClick = { handleDeleteSelected() }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete selected",
+                                            modifier = Modifier.size(MaterialTheme.dimens.medium1),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                titleContentColor = MaterialTheme.colorScheme.primary
+                            )
                         )
-                    )
+                    }
                 }
             }
         ) { paddingValues ->

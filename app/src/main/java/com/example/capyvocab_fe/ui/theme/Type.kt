@@ -36,12 +36,12 @@ val CompactTypography = Typography(
         fontSize = 32.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Rubik,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Inter,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp
     ),
@@ -59,12 +59,12 @@ val CompactMediumTypography = Typography(
         fontSize = 28.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Rubik,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Bold,
         fontSize = 22.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Inter,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp
     ),
@@ -82,12 +82,12 @@ val CompactSmallTypography = Typography(
         fontSize = 22.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Rubik,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Inter,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Medium,
         fontSize = 10.sp
     ),
@@ -105,12 +105,12 @@ val MediumTypography = Typography(
         fontSize = 38.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Rubik,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Bold,
         fontSize = 30.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Inter,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
     ),
@@ -128,12 +128,12 @@ val ExpandedTypography = Typography(
         fontSize = 42.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Rubik,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Bold,
         fontSize = 34.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Inter,
+        fontFamily = Roboto,
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp
     ),

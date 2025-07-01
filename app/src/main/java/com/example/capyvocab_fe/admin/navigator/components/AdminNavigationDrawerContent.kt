@@ -3,6 +3,7 @@ package com.example.capyvocab_fe.admin.navigator.components
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,56 +40,58 @@ fun AdminNavigationDrawerContent(
     currentRoute: String,
     onItemClick: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = MaterialTheme.dimens.small3)
-    ) {
-        // App logo and title
-        Row(
+    Surface(color = MaterialTheme.colorScheme.background) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.medium2),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(vertical = MaterialTheme.dimens.small3)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.app_icon), // Replace with your app logo
-                contentDescription = "App Logo",
-                modifier = Modifier.size(MaterialTheme.dimens.logoSize),
-                tint = Color.Unspecified
-            )
-            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
-            Text(
-                text = "CapyVocab",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        Divider(
-            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.small1),
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
-
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-
-        // Navigation items
-        items.forEach { item ->
-            val isSelected = when {
-                // Check if this is the exact route
-                currentRoute == item.route -> true
-                // Check if this is a parent route (for topics, words screens)
-                item.route == Route.TopicsScreen.route && currentRoute?.startsWith("${Route.TopicsScreen.route}/") == true -> true
-                item.route == Route.WordsScreen.route && currentRoute?.startsWith("${Route.WordsScreen.route}/") == true -> true
-                else -> false
+            // App logo and title
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.medium2),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.app_icon),
+                    contentDescription = "App Logo",
+                    modifier = Modifier.size(MaterialTheme.dimens.logoSize),
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+                Text(
+                    text = "CapyVocab",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
 
-            DrawerNavigationItem(
-                item = item,
-                isSelected = isSelected,
-                onClick = { onItemClick(item.route) }
+            Divider(
+                modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.small1),
+                color = MaterialTheme.colorScheme.outlineVariant
             )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+
+            // Navigation items
+            items.forEach { item ->
+                val isSelected = when {
+                    // Check if this is the exact route
+                    currentRoute == item.route -> true
+                    // Check if this is a parent route (for topics, words screens)
+                    item.route == Route.TopicsScreen.route && currentRoute?.startsWith("${Route.TopicsScreen.route}/") == true -> true
+                    item.route == Route.WordsScreen.route && currentRoute?.startsWith("${Route.WordsScreen.route}/") == true -> true
+                    else -> false
+                }
+
+                DrawerNavigationItem(
+                    item = item,
+                    isSelected = isSelected,
+                    onClick = { onItemClick(item.route) }
+                )
+            }
         }
     }
 }
@@ -100,7 +103,7 @@ fun DrawerNavigationItem(
     onClick: () -> Unit
 ) {
     val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+        MaterialTheme.colorScheme.tertiary
     } else {
         MaterialTheme.colorScheme.surface
     }
@@ -111,11 +114,22 @@ fun DrawerNavigationItem(
         MaterialTheme.colorScheme.onSurface
     }
 
+    val borderColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MaterialTheme.dimens.small3, vertical = MaterialTheme.dimens.small1)
             .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
+            .border(
+                width = 0.7.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(MaterialTheme.dimens.small2)
+            )
             .background(backgroundColor)
             .clickable { onClick() }
             .padding(MaterialTheme.dimens.small3)
@@ -153,10 +167,9 @@ data class DrawerNavigationItem(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AdminNavigationDrawerPreview() {
-    CapyVocab_FETheme {
+    CapyVocab_FETheme(dynamicColor = false) {
         Surface(
             modifier = Modifier.width(280.dp),
-            color = MaterialTheme.colorScheme.background
         ) {
             AdminNavigationDrawerContent(
                 items = listOf(

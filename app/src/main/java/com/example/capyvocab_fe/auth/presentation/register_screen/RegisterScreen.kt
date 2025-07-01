@@ -173,7 +173,7 @@ fun RegisterContent(
                 trailingIcon = {
                     IconButton(onClick = onTogglePasswordVisibility) {
                         Icon(
-                            imageVector = if (state.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            imageVector = if (state.isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
@@ -197,7 +197,7 @@ fun RegisterContent(
                 trailingIcon = {
                     IconButton(onClick = onToggleConfirmPasswordVisibility) {
                         Icon(
-                            imageVector = if (state.isConfirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            imageVector = if (state.isConfirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null
                         )
                     }
