@@ -83,15 +83,19 @@ fun FolderScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Top folder
-            Text(
-                text = "Top folder phổ biến:",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            if(topFolders.isNotEmpty()){
+                Text(
+                    text = "Top folder phổ biến",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
 
-            topFolders.forEach { folder ->
-                FolderCard(folder)
-                Spacer(modifier = Modifier.height(12.dp))
+                topFolders.forEach { folder ->
+                    FolderCard(folder)
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
     }

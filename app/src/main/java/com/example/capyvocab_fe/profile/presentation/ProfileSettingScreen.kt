@@ -34,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,9 +55,14 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.core.data.model.RoleData
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
+import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
+import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.profile.domain.model.UserProfile
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
+import java.text.NumberFormat
+import java.util.Locale
+import kotlinx.coroutines.delay
 
 @Composable
 fun ProfileSettingScreen(
@@ -67,20 +73,41 @@ fun ProfileSettingScreen(
     val user = state.user ?: return
 
     FocusComponent {
-        ProfileSettingContent(
-            user = user,
-            isLoading = state.isLoading,
-            errorMessage = state.errorMessage,
-            onBack = { navController.popBackStack() },
-            onUpdate = { avatar, username, email ->
-                viewModel.onEvent(
-                    ProfileEvent.UpdateProfile(avatar, email, username)
+        Box(modifier = Modifier.fillMaxSize()) {
+            ProfileSettingContent(
+                user = user,
+                isLoading = state.isLoading,
+                onBack = { navController.popBackStack() },
+                onUpdate = { avatar, username, email ->
+                    viewModel.onEvent(ProfileEvent.UpdateProfile(avatar, email, username))
+                },
+                onChangePassword = {
+                    navController.navigate(Route.ChangePasswordScreen.route)
+                }
+            )
+
+            // Show snackbar overlay (success or error)
+            if (!state.errorMessage.isNullOrEmpty()) {
+                OverlaySnackbar(
+                    message = state.errorMessage!!,
+                    type = SnackbarType.Error
                 )
-            },
-            onChangePassword = {
-                navController.navigate(Route.ChangePasswordScreen.route)
+                // Clear sau thời gian delay
+                LaunchedEffect(state.errorMessage) {
+                    delay(2500)
+                    viewModel.clearMessages()
+                }
+            } else if (!state.successMessage.isNullOrEmpty()) {
+                OverlaySnackbar(
+                    message = state.successMessage!!,
+                    type = SnackbarType.Success
+                )
+                LaunchedEffect(state.successMessage) {
+                    delay(2500)
+                    viewModel.clearMessages()
+                }
             }
-        )
+        }
     }
 }
 
@@ -109,7 +136,6 @@ fun PreviewProfileSettingContent() {
         ProfileSettingContent(
             user = fakeUser,
             isLoading = false,
-            errorMessage = null,
             onBack = {},
             onUpdate = { _, _, _ -> },
             onChangePassword = {}
@@ -122,7 +148,6 @@ fun PreviewProfileSettingContent() {
 fun ProfileSettingContent(
     user: UserProfile,
     isLoading: Boolean,
-    errorMessage: String?,
     onBack: () -> Unit,
     onUpdate: (avatar: Any?, username: String, email: String) -> Unit,
     onChangePassword: () -> Unit
@@ -165,13 +190,15 @@ fun ProfileSettingContent(
             InfoRow(label = "ID:", value = user.id.toString())
             Spacer(modifier = Modifier.height(6.dp))
 
-            InfoRow(label = "Tổng ngày học:", value = "${user.totalStudyDay} ngày")
-            Spacer(modifier = Modifier.height(10.dp))
+            if (user.role.id != 1) {
+                InfoRow(label = "Tổng ngày học:", value = "${user.totalStudyDay} ngày")
+                Spacer(modifier = Modifier.height(10.dp))
 
-            InfoRow(label = "Chuỗi:", value = "${user.streak} ngày")
-            Spacer(modifier = Modifier.height(10.dp))
+                InfoRow(label = "Chuỗi:", value = "${user.streak} ngày")
+                Spacer(modifier = Modifier.height(10.dp))
 
-            InfoRow(label = "Số dư:", value = "${user.balance} VNĐ")
+                InfoRow(label = "Số dư:", value = "${NumberFormat.getNumberInstance(Locale.US).format(user.balance)} VNĐ")
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -213,11 +240,14 @@ fun ProfileSettingContent(
 
             if (isLoading) {
                 Spacer(modifier = Modifier.height(16.dp))
-                CircularProgressIndicator()
-            }
-
-            errorMessage?.let {
-                Text(text = it, color = Color.Red)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }

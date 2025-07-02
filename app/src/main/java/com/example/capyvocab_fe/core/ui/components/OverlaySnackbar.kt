@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -28,7 +29,7 @@ fun OverlaySnackbar(
     if (message.isNotEmpty()) {
         val (containerColor, contentColor) = when (type) {
             SnackbarType.Error -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
-            SnackbarType.Success -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+            SnackbarType.Success -> Color(0xFFC8E6C9) to Color(0xFF2E7D32)
         }
         // Dùng Popup thay vì Dialog để không block interaction
         Popup(

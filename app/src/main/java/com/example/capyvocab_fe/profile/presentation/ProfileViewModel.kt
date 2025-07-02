@@ -62,7 +62,7 @@ class ProfileViewModel @Inject constructor(
 
             profileRepository.updateProfile(userId, avatarUrl, email, username)
                 .onRight { updated ->
-                    _state.update { it.copy(user = updated, isLoading = false) }
+                    _state.update { it.copy(user = updated, isLoading = false, successMessage = "Cập nhật thành công") }
                 }
                 .onLeft { failure ->
                     _state.update { it.copy(errorMessage = failure.message, isLoading = false) }
@@ -103,7 +103,11 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun clearError() {
-        _state.update { it.copy(errorMessage = null) }
+    fun setTempError(message: String) {
+        _state.update { it.copy(errorMessage = message) }
+    }
+
+    fun clearMessages() {
+        _state.update { it.copy(errorMessage = null, successMessage = null) }
     }
 }

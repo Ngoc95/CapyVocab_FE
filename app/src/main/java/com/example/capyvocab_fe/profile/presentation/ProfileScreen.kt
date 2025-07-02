@@ -109,14 +109,16 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = onClickPayout,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Rút tiền")
-            }
+            if (user?.role?.id != 1){
+                Button(
+                    onClick = onClickPayout,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Rút tiền")
+                }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+            }
 
             OutlinedButton(
                 onClick = { showLogoutDialog = true },

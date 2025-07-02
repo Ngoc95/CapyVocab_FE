@@ -14,6 +14,8 @@ import com.example.capyvocab_fe.admin.dashboard.domain.repository.DashboardRepos
 import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
 import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -176,21 +178,25 @@ class DashboardViewModel @Inject constructor(
                 is Either.Right -> {
                     val folderStats = result.value
 
-                    val folderDetails = folderStats.topFolders.mapNotNull { item ->
-                        val res = runCatching { folderApi.getFolderById(item.id).metaData }
-                        res.getOrNull()?.let { folder ->
-                            TopFolderDetail(
-                                id = folder.id,
-                                name = folder.name,
-                                createdBy = folder.createdBy,
-                                price = folder.price,
-                                voteCount = folder.voteCount,
-                                commentCount = folder.commentCount,
-                                questionCount = if(folder.flashCards != null) folder.flashCards.size else 0,
-                                attemptCount = item.attemptCount
-                            )
+                    val folderDetails = folderStats.topFolders.map { item ->
+                        async {
+                            runCatching {
+                                val folder = folderApi.getFolderById(item.id).metaData
+                                folder.let {
+                                    TopFolderDetail(
+                                        id = it.id,
+                                        name = it.name,
+                                        createdBy = it.createdBy,
+                                        price = it.price,
+                                        voteCount = it.voteCount,
+                                        commentCount = it.commentCount,
+                                        questionCount = it.flashCards?.size ?: 0,
+                                        attemptCount = item.attemptCount
+                                    )
+                                }
+                            }.getOrNull()
                         }
-                    }
+                    }.awaitAll().filterNotNull()
 
                     state = state.copy(
                         folderStats = folderStats,

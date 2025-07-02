@@ -1,11 +1,23 @@
 package com.example.capyvocab_fe.admin.dashboard.domain.model
 
-data class RevenuePoint(
+data class RevenueWeekPoint(
     val date: String,
-    val amount: Long
+    val total: Number
 )
+
+data class RevenueMonthPoint(
+    val week: String,
+    val total: Number
+)
+
+data class RevenueYearPoint(
+    val month: String,
+    val total: Number
+)
+
 data class RevenueStats(
-    val weekly: List<RevenuePoint>,
-    val monthly: List<RevenuePoint>,
-    val yearly: List<RevenuePoint>
+    val total: Number,
+    val weekly: List<RevenueWeekPoint>,
+    val monthly: List<RevenueMonthPoint>,
+    val yearly: List<RevenueYearPoint>
 )

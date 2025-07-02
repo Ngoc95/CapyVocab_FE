@@ -46,6 +46,9 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -58,9 +61,9 @@ fun RevenueScreen(revenueStats: RevenueStats) {
         else -> revenueStats.weekly
     }
 
-    val totalRevenue = data.sumOf { it.amount }
-    val todayRevenue = data.lastOrNull()?.amount ?: 0.0
-    val yesterdayRevenue = data.getOrNull(data.size - 2)?.amount ?: 0.0
+    val totalRevenue = revenueStats.total
+    val todayRevenue = revenueStats.weekly.lastOrNull()?.total ?: 0.0
+    val yesterdayRevenue = revenueStats.weekly.getOrNull(data.size - 2)?.total ?: 0.0
 
     Column(
         modifier = Modifier
@@ -89,7 +92,7 @@ fun RevenueScreen(revenueStats: RevenueStats) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = String.format("%.2f", totalRevenue.toDouble()),
+                    text = "${NumberFormat.getNumberInstance(Locale.US).format(totalRevenue)} đ",
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1565C0)
@@ -115,21 +118,21 @@ fun RevenueScreen(revenueStats: RevenueStats) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Hôm nay", color = Color(0xFF1565C0), fontWeight = FontWeight.Bold)
                     Text(
-                        String.format("%.2f", todayRevenue.toDouble()),
+                        "${NumberFormat.getNumberInstance(Locale.US).format(todayRevenue)} đ",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
                 }
                 Divider(
                     modifier = Modifier
-                        .height(32.dp)
+                        .height(50.dp)
                         .width(1.dp)
                         .background(Color.LightGray)
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Ngày trước", color = Color(0xFF1565C0), fontWeight = FontWeight.Bold)
                     Text(
-                        String.format("%.2f", yesterdayRevenue.toDouble()),
+                        "${NumberFormat.getNumberInstance(Locale.US).format(yesterdayRevenue)} đ",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
@@ -171,8 +174,36 @@ fun RevenueScreen(revenueStats: RevenueStats) {
                 }
             },
             update = { chart ->
-                val entries = data.mapIndexed { index, point ->
-                    Entry(index.toFloat(), point.amount.toFloat())
+                val (entries, labels) = when (selectedPeriod) {
+                    "MONTHLY" -> {
+                        val dataPoints = revenueStats.monthly
+                        val entries = dataPoints.mapIndexed { index, point ->
+                            Entry(index.toFloat(), point.total.toFloat() )
+                        }
+                        val labels = dataPoints.map { it.week } // Tuần 1, Tuần 2,...
+                        entries to labels
+                    }
+                    "YEARLY" -> {
+                        val dataPoints = revenueStats.yearly
+                        val entries = dataPoints.mapIndexed { index, point ->
+                            Entry(index.toFloat(), point.total.toFloat())
+                        }
+                        val labels = dataPoints.map { it.month } // T1, T2,...
+                        entries to labels
+                    }
+                    else -> {
+                        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        val outputFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
+                        val dataPoints = revenueStats.weekly
+                        val entries = dataPoints.mapIndexed { index, point ->
+                            Entry(index.toFloat(), point.total.toFloat())
+                        }
+                        val labels = dataPoints.map {
+                            val date = inputFormat.parse(it.date)
+                            outputFormat.format(date!!)
+                        }
+                        entries to labels
+                    }
                 }
 
                 val dataSet = LineDataSet(entries, "Doanh thu").apply {
@@ -185,18 +216,11 @@ fun RevenueScreen(revenueStats: RevenueStats) {
                 }
 
                 chart.data = LineData(dataSet)
-
-                // Label cho trục X
-                val labels = when (selectedPeriod) {
-                    "MONTHLY" -> listOf("Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4")
-                    "YEARLY" -> listOf("T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12")
-                    else -> listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-                }
                 chart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
                 chart.xAxis.granularity = 1f
                 chart.xAxis.labelRotationAngle = 0f
 
-                // Add marker
+                //Add marker
                 val marker = RevenueMarkerView(chart.context, labels)
                 marker.chartView = chart
                 chart.marker = marker
@@ -245,8 +269,9 @@ class RevenueMarkerView(
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
         e?.let {
             val label = labels.getOrNull(e.x.toInt()) ?: ""
-            val value = String.format("%.2f", e.y)
-            tvContent.text = "$label: $value đ"
+            val value = e.y.toLong()
+            val formatted = NumberFormat.getNumberInstance(Locale.US).format(value)
+            tvContent.text = "$label: $formatted đ"
         }
         super.refreshContent(e, highlight)
     }

@@ -34,7 +34,6 @@ private val LightColorScheme = lightColorScheme(
     error = LightRed,
     surface = Color.White,
     tertiary = Color(0xFFE0ECFF)
-
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
