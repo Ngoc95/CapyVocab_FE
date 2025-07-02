@@ -1,6 +1,7 @@
 package com.example.capyvocab_fe.user.navigator.components
 
 import android.content.res.Configuration
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.capyvocab_fe.R
-import com.example.capyvocab_fe.admin.navigator.components.BottomNavigationItem
 import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
@@ -120,6 +120,11 @@ fun UserBottomNavigation(
     }
 }
 
+data class BottomNavigationItem(
+    @DrawableRes val icon: Int,
+    @DrawableRes val selectedIcon: Int,
+    val text: String
+)
 
 // Example usage with preview
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)

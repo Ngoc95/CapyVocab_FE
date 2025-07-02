@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.example.capyvocab_fe.report.domain.model.Report
 import com.example.capyvocab_fe.report.domain.model.ReportStatus
 import com.example.capyvocab_fe.report.domain.model.ReportType
+import com.example.capyvocab_fe.report.domain.model.toDisplayName
 import com.example.capyvocab_fe.ui.theme.dimens
 
 @Composable
@@ -87,7 +88,7 @@ fun AdminReportScreenContent(
                 Tab(
                     selected = reportType == type,
                     onClick = { onReportTypeChanged(type) },
-                    text = { Text(type.name) }
+                    text = { Text(type.toDisplayName()) }
                 )
             }
         }
@@ -109,7 +110,7 @@ fun AdminReportScreenContent(
                     ) {
                         Text(text = "Người tạo: ${report.createdBy.username}")
                         Text(text = "Nội dung: ${report.content}")
-                        Text(text = "Trạng thái: ${report.status}")
+                        Text(text = "Trạng thái: ${report.status.toDisplayName()}")
 
                         Row(modifier = Modifier.padding(top = 8.dp)) {
                             Button(

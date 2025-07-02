@@ -128,7 +128,7 @@ fun OwnerPostScreenContent(
                 viewModel.onEvent(CommunityEvent.ChangeToUserPost)
                 onBackClick()
             },
-            onReportClick = { navController.navigate(Route.UserReportScreen.route) }
+            onReportClick = { post -> navController.navigate("${Route.UserReportScreen.route}/${post.id}/POST") }
         )
     }
 
@@ -146,7 +146,7 @@ fun OwnerPostScreen(
     onVoteClick: (Post) -> Unit,
     onImageClick: (String) -> Unit,
     onPostComment: (Post) -> Unit,
-    onReportClick: () -> Unit
+    onReportClick: (Post) -> Unit
 )
 {
     Column()
@@ -157,7 +157,8 @@ fun OwnerPostScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.backicon),
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
                     .clickable { onBackClick() },
                 contentDescription = null,
             )
@@ -208,7 +209,7 @@ fun OwnerPostScreen(
                         onPostComment = { onPostComment(post) },
                         onImageClick = onImageClick,
                         onClickUserPostsScreen = { },
-                        onReportClick = onReportClick
+                        onReportClick = { onReportClick(post) }
                     )
                     if (index >= userPosts.size - 3 && !isLoading && !isEndReached) {
                         onLoadMore()

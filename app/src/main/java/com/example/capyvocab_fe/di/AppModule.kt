@@ -10,6 +10,8 @@ import com.example.capyvocab_fe.admin.topic.data.remote.AdminTopicApi
 import com.example.capyvocab_fe.admin.user.data.remote.AdminUserApi
 import com.example.capyvocab_fe.admin.word.data.remote.AdminWordApi
 import com.example.capyvocab_fe.auth.data.remote.AuthApi
+import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
+import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.network.AuthInterceptor
 import com.example.capyvocab_fe.core.network.TokenAuthenticator
 import com.example.capyvocab_fe.payout.data.remote.PayoutApi
@@ -117,6 +119,18 @@ object AppModule {
     @Singleton
     fun provideAuthApi(@AuthRetrofit authRetrofit: Retrofit): AuthApi {
         return authRetrofit.create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor {
+        return AuthInterceptor(tokenManager = tokenManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenAuthenticator(tokenManager: TokenManager, authRepository: AuthRepository): TokenAuthenticator {
+        return TokenAuthenticator(tokenManager = tokenManager, authRepository = authRepository)
     }
 
     @Provides

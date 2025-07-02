@@ -44,7 +44,6 @@ import coil.compose.AsyncImage
 import com.example.capyvocab_fe.R
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
-import com.example.capyvocab_fe.ui.theme.White
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +59,6 @@ fun TestDetailScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(White)
     ) {
         // Nút quay lại
         if (onBack != null) {
@@ -143,7 +141,7 @@ fun TestDetailScreen(
                     tint = Color.Unspecified,
                     modifier = Modifier
                         .size(20.dp)
-                        .clickable{
+                        .clickable {
                             if (folder.isAlreadyVote) {
                                 onUnVoteClick(folder.id)
                             } else {
@@ -190,7 +188,7 @@ fun TestDetailScreen(
             ActionButton(
                 icon = R.drawable.ic_report,
                 text = "Báo cáo vi phạm",
-                onClick = { navController.navigate(Route.UserReportScreen.route) }
+                onClick = { navController.navigate("${Route.UserReportScreen.route}/${folder.id}/EXERCISES") }
             )
         }
     }

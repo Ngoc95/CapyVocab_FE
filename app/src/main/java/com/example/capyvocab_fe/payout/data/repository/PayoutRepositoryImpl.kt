@@ -1,6 +1,9 @@
 package com.example.capyvocab_fe.payout.data.repository
 
 import arrow.core.Either
+import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
+import com.example.capyvocab_fe.auth.domain.error.AuthFailure
+import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.payout.data.model.PayoutRequest
@@ -13,6 +16,15 @@ import javax.inject.Inject
 class PayoutRepositoryImpl @Inject constructor(
     private val payoutApi: PayoutApi
 ): PayoutRepository {
+    override suspend fun getUserInfo(): Either<AuthFailure, User> {
+        return Either.catch {
+            val response = payoutApi.getUserInfo()
+            response.metaData.user
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
     override suspend fun createPayout(request: PayoutRequest): Either<AppFailure, Unit> {
         return Either.catch {
             payoutApi.createPayout(request)

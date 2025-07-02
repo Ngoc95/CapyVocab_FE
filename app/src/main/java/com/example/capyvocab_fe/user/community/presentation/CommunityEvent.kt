@@ -26,4 +26,6 @@ sealed class CommunityEvent {
     data class GetUserByID(val id: Int) : CommunityEvent()
     data class UpdatePost(val id: Int, val content: String?, val tags: List<String>?, val images: List<Uri>?) : CommunityEvent()
     object LoadMyUser : CommunityEvent()
+    object ResetPostCreated : CommunityEvent()
+    object ResetPostUpdated : CommunityEvent()
 }

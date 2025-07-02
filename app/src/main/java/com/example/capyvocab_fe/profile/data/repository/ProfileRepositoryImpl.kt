@@ -6,7 +6,9 @@ import arrow.core.Either
 import com.example.capyvocab_fe.admin.user.data.mapper.toDomain
 import com.example.capyvocab_fe.admin.user.domain.model.User
 import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
+import com.example.capyvocab_fe.auth.data.remote.model.LogoutRequest
 import com.example.capyvocab_fe.auth.domain.error.AuthFailure
+import com.example.capyvocab_fe.core.data.TokenManager
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.profile.data.remote.ProfileApi
@@ -14,10 +16,12 @@ import com.example.capyvocab_fe.profile.data.remote.model.UpdatePasswordRequest
 import com.example.capyvocab_fe.profile.data.remote.model.UpdateProfileRequest
 import com.example.capyvocab_fe.profile.domain.model.UserProfile
 import com.example.capyvocab_fe.profile.domain.repository.ProfileRepository
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 class ProfileRepositoryImpl @Inject constructor(
-    private val api: ProfileApi
+    private val api: ProfileApi,
+    private val tokenManager: TokenManager
 ) : ProfileRepository {
     override suspend fun getProfile(): Either<AuthFailure, UserProfile?> {
         return Either.catch {
@@ -28,6 +32,20 @@ class ProfileRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun logout(): Either<AuthFailure, Unit> {
+        return Either.catch {
+            val refreshToken = tokenManager.refreshToken.firstOrNull()
+                ?: throw IllegalStateException("No refresh token found")
+
+            api.logout(LogoutRequest(refreshToken))
+
+            // Xoá token và userId sau khi logout thành công
+            tokenManager.clearTokens()
+            tokenManager.clearUserId()
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
     override suspend fun updateProfile(userId: Int, avatar: String?, email: String, username: String): Either<AuthFailure, UserProfile> {
         return Either.catch {
             val body = UpdateProfileRequest(

@@ -46,7 +46,7 @@ fun CommunityScreen(
     onCreatePost:() -> Unit,
     onMyPost:() -> Unit,
     onClickUserPostsScreen: (User) -> Unit,
-    onReportClick: () -> Unit,
+    onReportClick: (Post) -> Unit,
     viewModel: CommunityViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -105,7 +105,7 @@ fun CommunityScreen(
                 onClickUserPostsScreen(user)
             },
             onMyPosts = { onMyPost() },
-            onReportClick = onReportClick
+            onReportClick = { post -> onReportClick(post) }
         )
     }
 }
@@ -123,7 +123,7 @@ fun CommunityScreenContent(
     onClickUserPostsScreen:(User) -> Unit,
     onMyPosts:() -> Unit,
     selectedPost: Post?,
-    onReportClick: () -> Unit
+    onReportClick: (Post) -> Unit
 )
 {
     val listState = rememberLazyListState()
@@ -149,8 +149,9 @@ fun CommunityScreenContent(
             )
         }
 
-    ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+    ) {
+        val topPadding = it.calculateTopPadding()
+        Box(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
             Column {
                 LazyColumn(
                     modifier = Modifier
@@ -167,7 +168,7 @@ fun CommunityScreenContent(
                             onPostComment = { onPostComment(post) },
                             onImageClick = onImageClick,
                             onClickUserPostsScreen = {user -> onClickUserPostsScreen(user)},
-                            onReportClick = onReportClick,
+                            onReportClick = { onReportClick(post) },
                         )
                         if (index >= posts.size - 3 && !isLoading && !isEndReached) {
                             onLoadMore()

@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -31,7 +30,6 @@ import androidx.navigation.NavController
 import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.SnackbarType
-import com.example.capyvocab_fe.report.domain.model.ReportType
 import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.delay
 
@@ -63,13 +61,11 @@ fun UserReportScreen(
 
     FocusComponent {
         UserReportScreenContent(
-            reportType = state.reportType,
             reportContent = state.reportContent,
             isLoading = state.isLoading,
             successMessage = visibleSuccess,
             errorMessage = visibleError,
             onBack = { navController.popBackStack() },
-            onReportTypeChanged = { onEvent(ReportEvent.ReportTypeChanged(it)) },
             onReportContentChanged = { onEvent(ReportEvent.ReportContentChanged(it)) },
             onCreateReport = { onEvent(ReportEvent.CreateReport) }
         )
@@ -78,13 +74,11 @@ fun UserReportScreen(
 
 @Composable
 fun UserReportScreenContent(
-    reportType: ReportType,
     reportContent: String,
     isLoading: Boolean,
     successMessage: String,
     errorMessage: String,
     onBack: () -> Unit,
-    onReportTypeChanged: (ReportType) -> Unit,
     onReportContentChanged: (String) -> Unit,
     onCreateReport: () -> Unit
 ) {
@@ -100,21 +94,6 @@ fun UserReportScreenContent(
             Spacer(Modifier.width(MaterialTheme.dimens.small1))
             Text("Báo cáo vi phạm", style = MaterialTheme.typography.headlineMedium)
         }
-
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-
-        // Chọn loại báo cáo
-        Row {
-            ReportType.values().forEach { type ->
-                FilterChip(
-                    selected = reportType == type,
-                    onClick = { onReportTypeChanged(type) },
-                    label = { Text(type.name) },
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            }
-        }
-
         Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
         // Nội dung báo cáo

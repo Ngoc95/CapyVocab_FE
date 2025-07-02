@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.payout.presentation.components
 
+import android.icu.util.Calendar
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
@@ -21,9 +22,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.payout.domain.model.Payout
+import com.example.capyvocab_fe.payout.domain.model.PayoutStatus
+import com.example.capyvocab_fe.payout.domain.model.toDisplayName
 import com.example.capyvocab_fe.ui.theme.dimens
+import com.example.capyvocab_fe.util.DateUtils
 import com.example.capyvocab_fe.util.formatCurrency
-import com.example.capyvocab_fe.util.formatDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -44,15 +47,14 @@ fun AdminPayoutCard(
         Text("Số tiền: ${formatCurrency(payout.amount)}")
         Text("Ngân hàng: ${payout.nameBank}")
         Text("Số TK: ${payout.numberAccount}")
-        Text("Ngày yêu cầu: ${formatDate(payout.createdAt)}")
-        Text("Trạng thái: ${payout.status}", color = when (payout.status) {
-            "PENDING" -> Color.Gray
-            "SUCCESS" -> Color.Green
-            "FAILED" -> Color.Red
-            else -> Color.Black
+        Text("Ngày yêu cầu: ${DateUtils.formatDate(payout.createdAt)}")
+        Text("Trạng thái: ${payout.status.toDisplayName()}", color = when (payout.status) {
+            PayoutStatus.PENDING -> Color.Gray
+            PayoutStatus.SUCCESS ->  Color.Green
+            PayoutStatus.FAILED ->  Color.Red
         })
 
-        if (payout.status == "PENDING") {
+        if (payout.status == PayoutStatus.PENDING) {
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 Button(onClick = onApprove, modifier = Modifier.weight(1f)) {
                     Text("Duyệt")
@@ -85,8 +87,8 @@ fun AdminPayoutCardPreview() {
         amount = 1000000.0,
         nameBank = "Ngân hàng ABC",
         numberAccount = "123456789",
-        createdAt = "2023-10-01",
-        status = "2"
+        createdAt = Calendar.getInstance().time,
+        status = PayoutStatus.PENDING
     )
     AdminPayoutCard(
         payout = samplePayout,

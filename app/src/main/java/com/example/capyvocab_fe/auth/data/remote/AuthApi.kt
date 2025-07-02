@@ -5,7 +5,6 @@ import com.example.capyvocab_fe.auth.data.remote.model.GetAccountResponse
 import com.example.capyvocab_fe.auth.data.remote.model.GoogleLoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.LoginResponse
-import com.example.capyvocab_fe.auth.data.remote.model.LogoutRequest
 import com.example.capyvocab_fe.auth.data.remote.model.RefreshResponse
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterRequest
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterResponse
@@ -25,9 +24,6 @@ interface AuthApi {
 
     @POST("auth/refresh")
     suspend fun refreshToken(@Body body: Map<String, String>): RefreshResponse
-
-    @POST("auth/logout")
-    suspend fun logout(@Body body: LogoutRequest): ApiResponse<Unit>
 
     @POST("emails/send-verification")
     suspend fun sendVerificationEmail(): ApiResponse<Unit>

@@ -3,6 +3,9 @@ package com.example.capyvocab_fe.user.test.data.repository
 import android.net.Uri
 import arrow.core.Either
 import com.example.capyvocab_fe.MyApplication
+import com.example.capyvocab_fe.auth.data.mapper.toAuthFailure
+import com.example.capyvocab_fe.auth.domain.error.AuthFailure
+import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.core.error.AppFailure
 import com.example.capyvocab_fe.core.error.toAppFailure
 import com.example.capyvocab_fe.user.test.data.remote.ExerciseApi
@@ -23,6 +26,15 @@ import javax.inject.Inject
 class ExerciseRepositoryImpl @Inject constructor(
     private val api: ExerciseApi
 ) : ExerciseRepository {
+    override suspend fun getUserInfo(): Either<AuthFailure, User> {
+        return Either.catch {
+            val response = api.getUserInfo()
+            response.metaData.user
+        }.mapLeft {
+            it.toAuthFailure()
+        }
+    }
+
     override suspend fun getAllFolders(
         page: Int,
         name: String?,

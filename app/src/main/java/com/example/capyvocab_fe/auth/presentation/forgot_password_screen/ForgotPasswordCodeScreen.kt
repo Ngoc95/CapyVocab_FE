@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 
@@ -56,14 +57,16 @@ fun ForgotPasswordCodeScreen(
         }
     }
 
-    ForgotPasswordCodeContent(
-        state = state,
-        onCodeChanged = viewModel::onCodeChanged,
-        onNewPasswordChanged = viewModel::onNewPasswordChanged,
-        onConfirmPasswordChanged = viewModel::onConfirmPasswordChanged,
-        onResetPasswordClick = { viewModel.resetPassword(email) },
-        onResendCodeClick = { viewModel.resendCode(email) }
-    )
+    FocusComponent {
+        ForgotPasswordCodeContent(
+            state = state,
+            onCodeChanged = viewModel::onCodeChanged,
+            onNewPasswordChanged = viewModel::onNewPasswordChanged,
+            onConfirmPasswordChanged = viewModel::onConfirmPasswordChanged,
+            onResetPasswordClick = { viewModel.resetPassword(email) },
+            onResendCodeClick = { viewModel.resendCode(email) }
+        )
+    }
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.example.capyvocab_fe.payout.data.remote
 
+import com.example.capyvocab_fe.auth.data.remote.model.GetAccountResponse
 import com.example.capyvocab_fe.core.network.ApiResponse
 import com.example.capyvocab_fe.payout.data.model.PayoutListResponse
 import com.example.capyvocab_fe.payout.data.model.PayoutRequest
@@ -13,6 +14,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PayoutApi {
+    @GET("auth/account")
+    suspend fun getUserInfo(): ApiResponse<GetAccountResponse>
     @POST("payout")
     suspend fun createPayout(
         @Body request: PayoutRequest

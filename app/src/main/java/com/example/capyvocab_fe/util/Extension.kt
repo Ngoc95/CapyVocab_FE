@@ -1,12 +1,8 @@
 package com.example.capyvocab_fe.util
 
 import android.icu.text.NumberFormat
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import java.text.SimpleDateFormat
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -16,20 +12,8 @@ fun formatCurrency(amount: Double): String {
     return formatter.format(amount)
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun formatDate(dateString: String?): String {
-    return try {
-        if (dateString.isNullOrBlank()) return "Không rõ"
-        val zonedDateTime = ZonedDateTime.parse(dateString)
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        zonedDateTime.format(formatter)
-    } catch (e: Exception) {
-        "Không rõ"
-    }
-}
-
 object DateUtils {
-    private val defaultDateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+    private val defaultDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     /**
      * Format a date to a readable string

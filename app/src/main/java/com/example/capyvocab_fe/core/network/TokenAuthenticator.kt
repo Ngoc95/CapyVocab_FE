@@ -1,7 +1,8 @@
 package com.example.capyvocab_fe.core.network
 
 import android.util.Log
-import com.example.capyvocab_fe.auth.data.remote.AuthApi
+import arrow.core.Either
+import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.data.TokenManager
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 class TokenAuthenticator @Inject constructor(
     private val tokenManager: TokenManager,
-    private val authApi: AuthApi
+    private val authRepository: AuthRepository
 ): Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -29,29 +30,20 @@ class TokenAuthenticator @Inject constructor(
                 Log.w("TokenAuthenticator", "No refresh token found")
                 return@runBlocking null
             }
-
-            try {
-                val refreshResponse = authApi.refreshToken(mapOf("refreshToken" to refreshToken))
-                val newAccessToken = refreshResponse.metaData["accessToken"]
-                val newRefreshToken = refreshResponse.metaData["refreshToken"]
-
-                if (newAccessToken != null && newRefreshToken != null) {
-                    // Save new tokens
+            when (val result = authRepository.refreshToken(refreshToken)) {
+                is Either.Left -> {
+                    Log.e("TokenAuthenticator", "Failed to refresh token: ${result.value}")
+                    tokenManager.clearTokens()
+                    return@runBlocking null
+                }
+                is Either.Right -> {
+                    val (newAccessToken, newRefreshToken) = result.value
                     tokenManager.saveTokens(newAccessToken, newRefreshToken)
-
-                    // Retry the original request with new access token
+                    Log.i("TokenAuthenticator", "Tokens refreshed successfully")
                     response.request.newBuilder()
                         .header("Authorization", "Bearer $newAccessToken")
                         .build()
-                } else {
-                    Log.e("TokenAuthenticator", "Missing access or refresh token in response")
-                    tokenManager.clearTokens()
-                    null
                 }
-            } catch (e: Exception) {
-                Log.e("TokenAuthenticator", "Refresh token failed: ${e.message}")
-                tokenManager.clearTokens()
-                null
             }
         }
     }

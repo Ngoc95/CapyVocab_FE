@@ -8,14 +8,12 @@ import com.example.capyvocab_fe.auth.data.remote.AuthApi
 import com.example.capyvocab_fe.auth.data.remote.model.ChangePasswordRequest
 import com.example.capyvocab_fe.auth.data.remote.model.GoogleLoginRequest
 import com.example.capyvocab_fe.auth.data.remote.model.LoginRequest
-import com.example.capyvocab_fe.auth.data.remote.model.LogoutRequest
 import com.example.capyvocab_fe.auth.data.remote.model.RegisterRequest
 import com.example.capyvocab_fe.auth.domain.error.ApiError
 import com.example.capyvocab_fe.auth.domain.error.AuthFailure
 import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.domain.repository.AuthRepository
 import com.example.capyvocab_fe.core.data.TokenManager
-import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -39,23 +37,6 @@ class AuthRepositoryImpl @Inject constructor(
             it.toAuthFailure()
         }
     }
-
-
-    override suspend fun logout(): Either<AuthFailure, Unit> {
-        return Either.catch {
-            val refreshToken = tokenManager.refreshToken.firstOrNull()
-                ?: throw IllegalStateException("No refresh token found")
-
-            authApi.logout(LogoutRequest(refreshToken))
-
-            // Xoá token và userId sau khi logout thành công
-            tokenManager.clearTokens()
-            tokenManager.clearUserId()
-        }.mapLeft {
-            it.toAuthFailure()
-        }
-    }
-
 
     override suspend fun getUserInfo(): Either<AuthFailure, User?> {
         return Either.catch {

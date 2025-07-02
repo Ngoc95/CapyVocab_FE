@@ -12,4 +12,5 @@ data class ReportState(
     val successMessage: String = "",
     val reportContent: String = "",
     val reportType: ReportType = ReportType.EXERCISES,
+    val targetId: Int? = null,
 )
