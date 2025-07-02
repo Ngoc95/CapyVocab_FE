@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,7 +44,8 @@ import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.core.ui.components.OverlaySnackbar
 import com.example.capyvocab_fe.core.ui.components.SnackbarType
 import com.example.capyvocab_fe.ui.theme.dimens
-import com.example.capyvocab_fe.util.formatCurrency
+import com.example.capyvocab_fe.util.PriceUtils.formatPrice
+import com.example.capyvocab_fe.util.PriceUtils.unformatPrice
 import kotlinx.coroutines.delay
 
 @Composable
@@ -104,14 +106,14 @@ fun PayoutScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PayoutScreenContent(
-    amountText: String,
+    amountText: TextFieldValue,
     userBalance: String,
     numberAccount: String,
     nameBank: String,
     isLoading: Boolean,
     successMessage: String,
     errorMessage: String,
-    onAmountChange: (String) -> Unit,
+    onAmountChange: (TextFieldValue) -> Unit,
     onNumberAccountChange: (String) -> Unit,
     onNameBankChange: (String) -> Unit,
     onSubmit: () -> Unit,
@@ -157,12 +159,25 @@ fun PayoutScreenContent(
         )
         Spacer(Modifier.height(MaterialTheme.dimens.small2))
 
-        Text(text = "Số dư: ${formatCurrency(userBalance.toDouble())}")
+        Text(text = "Số dư: ${formatPrice(userBalance.toDoubleOrNull() ?: 0.0)}")
 
         Spacer(Modifier.height(MaterialTheme.dimens.small2))
         OutlinedTextField(
             value = amountText,
-            onValueChange = { onAmountChange(it) },
+            onValueChange = { newValue ->
+                val oldUnformatted = amountText.text.replace(",", "")
+                val newUnformatted = newValue.text.replace(",", "")
+                val formatted = if (newUnformatted.isNotEmpty()) formatPrice(newUnformatted.toDouble()) else ""
+                // Calculate new cursor position
+                val diff = formatted.length - newValue.text.length
+                val newCursor = (newValue.selection.end + diff).coerceIn(0, formatted.length)
+                onAmountChange(
+                    TextFieldValue(
+                        text = formatted,
+                        selection = androidx.compose.ui.text.TextRange(newCursor)
+                    )
+                )
+            },
             label = { Text("Số tiền", style = MaterialTheme.typography.bodyMedium) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
@@ -239,7 +254,7 @@ fun PayoutScreenContent(
 @Composable
 private fun PayoutScreenPreview() {
     PayoutScreenContent(
-        amountText = "1000000",
+        amountText = TextFieldValue("1000000"),
         userBalance = "5000000",
         numberAccount = "123456789",
         nameBank = "Vietcombank",

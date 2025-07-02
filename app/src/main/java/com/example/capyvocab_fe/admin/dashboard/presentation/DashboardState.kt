@@ -24,7 +24,7 @@ data class DashboardState(
 )
 
 enum class DashboardTab(val title: String) {
-    REVENUE("Doanh thu"),
+    REVENUE("Tiền lời"),
     USERS("Người dùng"),
     COURSES("Khóa học"),
     TOPICS("Chủ đề"),

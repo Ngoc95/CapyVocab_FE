@@ -7,9 +7,14 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-fun formatCurrency(amount: Double): String {
-    val formatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
-    return formatter.format(amount)
+object PriceUtils {
+    fun formatPrice(amount: Double): String {
+        if (amount == 0.0) return "0"
+        return java.text.NumberFormat.getNumberInstance(Locale.US).format(amount)
+    }
+    fun unformatPrice(formatted: String): Double {
+        return formatted.replace(",", "").toDoubleOrNull() ?: 0.0
+    }
 }
 
 object DateUtils {

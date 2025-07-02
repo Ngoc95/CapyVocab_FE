@@ -14,4 +14,5 @@ sealed class ReportEvent {
         val reportId: Int,
         val status: ReportStatus
     ) : ReportEvent()
+    data class ReportStatusChanged(val status: ReportStatus) : ReportEvent()
 }

@@ -28,4 +28,5 @@ sealed class CommunityEvent {
     object LoadMyUser : CommunityEvent()
     object ResetPostCreated : CommunityEvent()
     object ResetPostUpdated : CommunityEvent()
+    data class DeletePost(val postId: Int) : CommunityEvent()
 }

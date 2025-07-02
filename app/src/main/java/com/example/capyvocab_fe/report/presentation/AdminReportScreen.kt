@@ -14,15 +14,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,11 +57,13 @@ fun AdminReportScreen(
         reportType = state.reportType,
         isLoading = state.isLoading,
         isEndReached = state.isEndReached,
+        selectedStatus = state.selectedStatus,
         onReportTypeChanged = { onEvent(ReportEvent.ReportTypeChanged(it)) },
         onUpdateReportStatus = { reportId, status ->
             onEvent(ReportEvent.UpdateReportStatus(reportId, status))
         },
-        onLoadMoreReports = { onEvent(ReportEvent.LoadMoreReports) }
+        onLoadMoreReports = { onEvent(ReportEvent.LoadMoreReports) },
+        onStatusFilterChanged = { onEvent(ReportEvent.ReportStatusChanged(it)) }
     )
 }
 
@@ -61,11 +73,15 @@ fun AdminReportScreenContent(
     reportType: ReportType,
     isLoading: Boolean,
     isEndReached: Boolean,
+    selectedStatus: ReportStatus,
     onReportTypeChanged: (ReportType) -> Unit,
     onUpdateReportStatus: (Int, ReportStatus) -> Unit,
-    onLoadMoreReports: () -> Unit
+    onLoadMoreReports: () -> Unit,
+    onStatusFilterChanged: (ReportStatus) -> Unit
 ) {
     val listState = rememberLazyListState()
+    var filterMenuExpanded by remember { mutableStateOf(false) }
+    val statusOptions = ReportStatus.values()
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -90,6 +106,49 @@ fun AdminReportScreenContent(
                     onClick = { onReportTypeChanged(type) },
                     text = { Text(type.toDisplayName()) }
                 )
+            }
+        }
+
+        // Status filter row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { filterMenuExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = "Lọc trạng thái"
+                )
+            }
+            Text(
+                text = selectedStatus.toDisplayName(),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+            DropdownMenu(
+                expanded = filterMenuExpanded,
+                onDismissRequest = { filterMenuExpanded = false }
+            ) {
+                statusOptions.forEach { status ->
+                    DropdownMenuItem(
+                        text = { Text(status.toDisplayName()) },
+                        onClick = {
+                            onStatusFilterChanged(status)
+                            filterMenuExpanded = false
+                        },
+                        leadingIcon = {
+                            if (selectedStatus == status) {
+                                Icon(
+                                    imageVector = Icons.Default.FilterList,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
 

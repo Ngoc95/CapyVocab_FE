@@ -32,8 +32,9 @@ data class LearnState(
     val showCompletionDialog: Boolean = false,
 
     //search
-    val searchQuery: String = ""
+    val searchQuery: String = "",
 
+    val selectedLevel: String? = null
 ) {
     val currentWord: Word?
         get() = words.getOrNull(currentIndex)

@@ -6,6 +6,7 @@ import com.example.capyvocab_fe.report.data.model.ReportListResponse
 import com.example.capyvocab_fe.report.data.model.UpdateReportRequest
 import com.example.capyvocab_fe.report.domain.model.Report
 import com.example.capyvocab_fe.report.domain.model.ReportType
+import com.example.capyvocab_fe.report.domain.model.ReportStatus
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -24,6 +25,7 @@ interface ReportApi {
         @Query("page") page: Int,
         @Query("limit") limit: Int,
         @Query("type") type: ReportType? = null,
+        @Query("status") status: ReportStatus? = null
     ): ApiResponse<ReportListResponse>
 
     @PUT("reports/{id}")

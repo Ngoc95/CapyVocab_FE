@@ -84,7 +84,7 @@ fun RevenueScreen(revenueStats: RevenueStats) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Tổng doanh thu",
+                    text = "Tổng tiền lời",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp)

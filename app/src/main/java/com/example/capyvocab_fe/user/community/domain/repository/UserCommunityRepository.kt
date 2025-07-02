@@ -24,4 +24,5 @@ interface UserCommunityRepository {
 
     suspend fun createComment(createCommentRequest: CreateCommentRequest, postId: Int): Either<AppFailure, Comment>
     suspend fun getUserById(id: Int): Either<AppFailure, User>
+    suspend fun deletePost(id: Int): Either<AppFailure, Unit>
 }

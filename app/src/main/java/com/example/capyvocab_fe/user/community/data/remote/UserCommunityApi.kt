@@ -102,4 +102,8 @@ interface UserCommunityApi {
         @Path("id") userId: Int,
     ): ApiResponse<User>
 
+    @DELETE("/posts/{id}")
+    suspend fun deletePost(
+        @Path("id") postId: Int,
+    ): ApiResponse<Unit>
 }

@@ -15,9 +15,9 @@ import javax.inject.Inject
 class UserLearnRepositoryImpl @Inject constructor(
     private val api: UserLearnApi
 ) : UserLearnRepository {
-    override suspend fun getAllCourses(page: Int, title: String?): Either<AppFailure, List<Course>> {
+    override suspend fun getAllCourses(page: Int, title: String?, level: String?): Either<AppFailure, List<Course>> {
         return Either.catch {
-            val response = api.getAllCourses(page, title = title)
+            val response = api.getAllCourses(page, title = title, level = level)
             response.metaData.courses
         }.mapLeft { it.toAppFailure() }
     }

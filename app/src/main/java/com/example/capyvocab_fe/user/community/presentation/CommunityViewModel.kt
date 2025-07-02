@@ -27,6 +27,13 @@ class CommunityViewModel @Inject constructor(
     private val _state = MutableStateFlow(CommunityState())
     val state: StateFlow<CommunityState> = _state
 
+    init {
+        viewModelScope.launch {
+            val id = tokenManager.userId.first()
+            _state.update { it.copy(currentUserId = id) }
+        }
+    }
+
     fun onEvent(event: CommunityEvent) {
         when (event){
             is CommunityEvent.LoadPosts -> loadPosts()
@@ -47,6 +54,7 @@ class CommunityViewModel @Inject constructor(
             is CommunityEvent.LoadMyUser -> loadMyUser()
             is CommunityEvent.ResetPostCreated -> resetPostCreated()
             is CommunityEvent.ResetPostUpdated -> resetPostUpdated()
+            is CommunityEvent.DeletePost -> deletePost(event.postId)
         }
     }
 
@@ -589,6 +597,28 @@ class CommunityViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun deletePost(postId: Int) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
+            val result = userCommunityRepository.deletePost(postId)
+            result.fold(
+                ifLeft = { failure ->
+                    _state.update { it.copy(isLoading = false, errorMessage = failure.message ?: "Xoá bài viết thất bại") }
+                },
+                ifRight = {
+                    _state.update { currentState ->
+                        currentState.copy(
+                            isLoading = false,
+                            posts = currentState.posts.filter { it.id != postId },
+                            selectUserPosts = currentState.selectUserPosts.filter { it.id != postId },
+                            errorMessage = ""
+                        )
+                    }
+                }
+            )
         }
     }
 }

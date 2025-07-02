@@ -63,6 +63,10 @@ class LearnViewModel @Inject constructor(
                 }
             }
             is LearnEvent.OnSearchQueryChange -> { _state.update { it.copy(searchQuery = event.query) } }
+            is LearnEvent.OnLevelFilterChange -> {
+                _state.update { it.copy(selectedLevel = event.level) }
+                loadCourses(level = event.level)
+            }
         }
     }
 
@@ -90,11 +94,15 @@ class LearnViewModel @Inject constructor(
         }
     }
 
-    private fun loadCourses(loadMore: Boolean = false, query: String? = null) {
+    private fun loadCourses(loadMore: Boolean = false, query: String? = null, level: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentCoursePage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-            userLearnRepository.getAllCourses(nextPage, title = if (query?.isNotEmpty() == true) query else null)
+            userLearnRepository.getAllCourses(
+                nextPage,
+                title = if (query?.isNotEmpty() == true) query else null,
+                level = level ?: state.value.selectedLevel
+            )
                 .onRight { newCourses ->
                     _state.update {
                         val allCourses = if (loadMore) it.courses + newCourses else newCourses

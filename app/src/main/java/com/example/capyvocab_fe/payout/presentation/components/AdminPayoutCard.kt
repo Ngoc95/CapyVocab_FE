@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,7 +27,7 @@ import com.example.capyvocab_fe.payout.domain.model.PayoutStatus
 import com.example.capyvocab_fe.payout.domain.model.toDisplayName
 import com.example.capyvocab_fe.ui.theme.dimens
 import com.example.capyvocab_fe.util.DateUtils
-import com.example.capyvocab_fe.util.formatCurrency
+import com.example.capyvocab_fe.util.PriceUtils.formatPrice
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -44,7 +45,7 @@ fun AdminPayoutCard(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small1)
     ) {
         Text("Người dùng: ${payout.createdBy.username} (${payout.createdBy.email})", style = MaterialTheme.typography.titleMedium)
-        Text("Số tiền: ${formatCurrency(payout.amount)}")
+        Text("Số tiền: ${formatPrice(payout.amount)}")
         Text("Ngân hàng: ${payout.nameBank}")
         Text("Số TK: ${payout.numberAccount}")
         Text("Ngày yêu cầu: ${DateUtils.formatDate(payout.createdAt)}")
@@ -60,10 +61,10 @@ fun AdminPayoutCard(
                     Text("Duyệt")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(
+                OutlinedButton(
                     onClick = onReject,
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
                 ) {
                     Text("Từ chối")
                 }

@@ -13,5 +13,6 @@ data class CourseListState(
     val isMultiSelecting: Boolean = false,
     val isSelectAll: Boolean = false,
     val selectedCourse: Course? = null,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val selectedLevel: String? = null
 )

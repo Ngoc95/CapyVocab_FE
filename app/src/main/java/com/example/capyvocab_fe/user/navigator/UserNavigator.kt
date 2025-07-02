@@ -229,6 +229,9 @@ fun UserNavigator(rootNavController: NavHostController) {
                     },
                     onReportClick = { post ->
                         navController.navigate("${Route.UserReportScreen.route}/${post.id}/POST")
+                    },
+                    onEditPost = { post ->
+                        navController.navigate("${Route.UserEditPostScreen.route}/${post.id}")
                     }
                 )
             }
@@ -444,7 +447,11 @@ fun UserNavigator(rootNavController: NavHostController) {
                             exerciseViewModel.onEvent(ExerciseEvent.UpdateFolder(it.id, updated))
                             navController.popBackStack()
                         },
-                        onBackClick = { navController.popBackStack() }
+                        onBackClick = { navController.popBackStack() },
+                        onDelete = { id ->
+                            exerciseViewModel.onEvent(ExerciseEvent.DeleteFolder(id))
+                            navController.popBackStack(Route.UserTestScreen.route, inclusive = false)
+                        }
                     )
                 }
             }

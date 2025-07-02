@@ -36,6 +36,10 @@ class CourseListViewModel @Inject constructor(
             is CourseEvent.GetCourseById -> getCourseById(event.courseId)
             is CourseEvent.OnSearch -> loadCourses(query = state.value.searchQuery)
             is CourseEvent.OnSearchQueryChange -> {_state.update { it.copy(searchQuery = event.query) }}
+            is CourseEvent.OnLevelFilterChange -> {
+                _state.update { it.copy(selectedLevel = event.level) }
+                loadCourses(level = event.level)
+            }
         }
     }
 
@@ -62,11 +66,15 @@ class CourseListViewModel @Inject constructor(
         }
     }
 
-    private fun loadCourses(loadMore: Boolean = false, query: String? = null) {
+    private fun loadCourses(loadMore: Boolean = false, query: String? = null, level: String? = null) {
         viewModelScope.launch {
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
             _state.update { it.copy(isLoading = true, errorMessage = "") }
-            courseRepository.getAllCourses(nextPage, title = if (query?.isNotEmpty() == true) query else null)
+            courseRepository.getAllCourses(
+                nextPage,
+                title = if (query?.isNotEmpty() == true) query else null,
+                level = level ?: state.value.selectedLevel
+            )
                 .onRight { newCourses ->
                     _state.update {
                         val allCourses = if (loadMore) it.courses + newCourses else newCourses

@@ -21,4 +21,5 @@ data class CommunityState (
     val selectUserPosts: List<Post> = emptyList(),
     val isPostCreated: Boolean = false,
     val isPostUpdated: Boolean = false,
+    val currentUserId: Int? = null,
 )

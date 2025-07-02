@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextFieldColors
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 import com.example.capyvocab_fe.user.test.presentation.screens.components.TestFolderCard
@@ -62,6 +63,7 @@ fun SearchBar(
 
 @Composable
 fun DoTestContent(
+    currentUser: User?,
     folders: List<Folder>,
     isLoading: Boolean,
     isEndReached: Boolean,
@@ -69,7 +71,8 @@ fun DoTestContent(
     onSearchFolders: (String) -> Unit,
     onLoadMoreFolders: () -> Unit,
     onVoteClick: (Int) -> Unit,
-    onUnVoteClick: (Int) -> Unit
+    onUnVoteClick: (Int) -> Unit,
+    onSettingClick: (Folder) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
@@ -122,11 +125,11 @@ fun DoTestContent(
                     itemsIndexed(folders) { index, folder ->
                         TestFolderCard(
                             folder = folder,
-                            isOwner = false,
+                            isOwner = currentUser != null && currentUser.id == folder.createdBy?.id,
                             onClick = { onFolderClick(folder) },
                             onVoteClick = onVoteClick,
                             onUnVoteClick = onUnVoteClick,
-                            onSettingClick = {}
+                            onSettingClick = { onSettingClick(folder) }
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         // Load thêm nếu gần cuối

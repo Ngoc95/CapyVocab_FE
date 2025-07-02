@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.compose.ui.text.input.TextFieldValue
+import com.example.capyvocab_fe.payout.domain.model.PayoutStatus
 
 @HiltViewModel
 class PayoutViewModel @Inject constructor(
@@ -24,6 +26,7 @@ class PayoutViewModel @Inject constructor(
 
     private fun getCurrentUser() {
         viewModelScope.launch {
+            _state.update { it.copy(errorMessage = "", successMessage = "") }
             payoutRepository.getUserInfo().fold(
                 { failure ->
                     _state.update { it.copy(errorMessage = failure.message ?: "Đã xảy ra lỗi") }
@@ -31,9 +34,7 @@ class PayoutViewModel @Inject constructor(
                 { user ->
                     _state.update {
                         it.copy(
-                            currentUser = user,
-                            successMessage = "",
-                            errorMessage = ""
+                            currentUser = user
                         )
                     }
                 }
@@ -50,14 +51,19 @@ class PayoutViewModel @Inject constructor(
             is PayoutEvent.LoadMorePayouts -> loadPayouts(loadMore = true)
             is PayoutEvent.LoadPayouts -> loadPayouts()
             is PayoutEvent.UpdatePayout -> updatePayout(event.payoutId, event.status)
+            is PayoutEvent.PayoutStatusChanged -> {
+                _state.update { it.copy(selectedStatus = event.status, payouts = emptyList(), currentPage = 1, isEndReached = false) }
+                loadPayouts(status = event.status)
+            }
         }
     }
 
-    private fun loadPayouts(loadMore: Boolean = false) {
+    private fun loadPayouts(loadMore: Boolean = false, status: PayoutStatus? = null) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
             val nextPage = if (loadMore) _state.value.currentPage + 1 else 1
-            payoutRepository.getPayouts(nextPage)
+            val currentStatus = status ?: _state.value.selectedStatus
+            payoutRepository.getPayouts(nextPage, status = currentStatus.name)
                 .onRight { newPayouts ->
                     _state.update {
                         val allPayouts = if (loadMore) it.payouts + newPayouts else newPayouts
@@ -84,7 +90,7 @@ class PayoutViewModel @Inject constructor(
     private fun createPayout() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
-            val amountDouble = _state.value.amount.toDoubleOrNull()
+            val amountDouble = _state.value.amount.text.replace(",", "").toDoubleOrNull()
             if (amountDouble == null || amountDouble <= 0.0) {
                 _state.update { it.copy(isLoading = false, errorMessage = "Số tiền không hợp lệ") }
                 return@launch
@@ -100,7 +106,7 @@ class PayoutViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             successMessage = "Yêu cầu rút tiền thành công",
-                            amount = "",
+                            amount = TextFieldValue(""),
                             numberAccount = "",
                             nameBank = "",
                         )

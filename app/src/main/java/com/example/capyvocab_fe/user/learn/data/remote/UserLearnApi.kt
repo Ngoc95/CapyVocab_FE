@@ -19,7 +19,8 @@ interface UserLearnApi {
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
         @Query("title") title: String? = null,
-        @Query("sort") sort: String = "-id,+title"
+        @Query("sort") sort: String = "-id,+title",
+        @Query("level") level: String? = null
     ): CourseListResponse
 
     @GET("/courses/{id}/topics")

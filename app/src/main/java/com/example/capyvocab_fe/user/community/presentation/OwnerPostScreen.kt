@@ -116,6 +116,7 @@ fun OwnerPostScreenContent(
     FocusComponent {
         OwnerPostScreen (
             user = user,
+            currentUserId = state.currentUserId,
             userPosts = state.selectUserPosts,
             isLoading = state.isLoading,
             isEndReached = state.isEndReachedPost,
@@ -128,7 +129,13 @@ fun OwnerPostScreenContent(
                 viewModel.onEvent(CommunityEvent.ChangeToUserPost)
                 onBackClick()
             },
-            onReportClick = { post -> navController.navigate("${Route.UserReportScreen.route}/${post.id}/POST") }
+            onReportClick = { post -> navController.navigate("${Route.UserReportScreen.route}/${post.id}/POST") },
+            onEditPost = { post ->
+                navController.navigate("${Route.UserEditPostScreen.route}/${post.id}")
+            },
+            onDeletePost = { post ->
+                viewModel.onEvent(CommunityEvent.DeletePost(post.id))
+            }
         )
     }
 
@@ -137,6 +144,7 @@ fun OwnerPostScreenContent(
 @Composable
 fun OwnerPostScreen(
     user: User,
+    currentUserId: Int?,
     userPosts: List<Post>?,
     isLoading: Boolean,
     isEndReached: Boolean,
@@ -146,7 +154,9 @@ fun OwnerPostScreen(
     onVoteClick: (Post) -> Unit,
     onImageClick: (String) -> Unit,
     onPostComment: (Post) -> Unit,
-    onReportClick: (Post) -> Unit
+    onReportClick: (Post) -> Unit,
+    onEditPost: (Post) -> Unit,
+    onDeletePost: (Post) -> Unit
 )
 {
     Column()
@@ -202,14 +212,16 @@ fun OwnerPostScreen(
                 verticalArrangement = Arrangement.spacedBy(30.dp)
             ) {
                 itemsIndexed(userPosts) { index, post ->
-
                     PostCard(
                         post = post,
                         onVoteClick = { onVoteClick(post) },
                         onPostComment = { onPostComment(post) },
                         onImageClick = onImageClick,
                         onClickUserPostsScreen = { },
-                        onReportClick = { onReportClick(post) }
+                        onReportClick = { onReportClick(post) },
+                        currentUserId = currentUserId,
+                        onEdit = { onEditPost(post) },
+                        onDelete = { onDeletePost(post) },
                     )
                     if (index >= userPosts.size - 3 && !isLoading && !isEndReached) {
                         onLoadMore()
@@ -281,7 +293,10 @@ fun OwnerPreview() {
             onImageClick = { },
             onLoadMore = { },
             selectedPost = null,
-            onReportClick = { }
+            onReportClick = { },
+            currentUserId = null,
+            onEditPost = { },
+            onDeletePost = { }
         )
 
     }

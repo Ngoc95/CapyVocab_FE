@@ -45,6 +45,10 @@ class ReportViewModel @Inject constructor(
                     )
                 }
             }
+            is ReportEvent.ReportStatusChanged -> {
+                _state.update { it.copy(selectedStatus = event.status, reports = emptyList(), currentPage = 1, isEndReached = false) }
+                loadReports(status = event.status)
+            }
         }
     }
 
@@ -78,12 +82,13 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    private fun loadReports(loadMore: Boolean = false) {
+    private fun loadReports(loadMore: Boolean = false, status: ReportStatus? = null) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "", successMessage = "") }
             val nextPage = if (loadMore) state.value.currentPage + 1 else 1
             val currentType = state.value.reportType
-            reportRepository.getReports(page = nextPage, type = currentType)
+            val currentStatus = status ?: state.value.selectedStatus
+            reportRepository.getReports(page = nextPage, type = currentType, status = currentStatus)
                 .onRight { newReports ->
                     _state.update { state ->
                         val allReports = if (loadMore) state.reports + newReports else newReports
@@ -121,6 +126,7 @@ class ReportViewModel @Inject constructor(
                             }
                         )
                     }
+                    loadReports(status = _state.value.selectedStatus)
                 }
                 .onLeft { failure ->
                     _state.update {

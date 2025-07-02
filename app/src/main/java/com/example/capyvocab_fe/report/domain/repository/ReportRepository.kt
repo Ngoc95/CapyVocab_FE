@@ -12,7 +12,8 @@ interface ReportRepository {
     suspend fun getReports(
         page: Int = 1,
         limit: Int = 10,
-        type: ReportType? = null
+        type: ReportType? = null,
+        status: ReportStatus? = null
     ): Either<AppFailure, List<Report>>
     suspend fun updateReport(
         reportId: Int,

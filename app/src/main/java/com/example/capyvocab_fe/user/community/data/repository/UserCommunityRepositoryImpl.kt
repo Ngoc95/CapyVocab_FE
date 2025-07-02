@@ -150,4 +150,12 @@ class UserCommunityRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deletePost(id: Int): Either<AppFailure, Unit> {
+        return catch {
+            api.deletePost(id).metaData
+        }.mapLeft {
+            it.toAppFailure()
+        }
+    }
+
 }

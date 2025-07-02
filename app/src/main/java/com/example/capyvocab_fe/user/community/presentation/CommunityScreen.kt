@@ -38,6 +38,8 @@ import com.example.capyvocab_fe.user.community.presentation.components.Expandabl
 import com.example.capyvocab_fe.user.community.presentation.components.PostCard
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
+import androidx.navigation.NavController
+import com.example.capyvocab_fe.navigation.Route
 
 
 @Composable
@@ -47,16 +49,15 @@ fun CommunityScreen(
     onMyPost:() -> Unit,
     onClickUserPostsScreen: (User) -> Unit,
     onReportClick: (Post) -> Unit,
+    onEditPost: (Post) -> Unit,
     viewModel: CommunityViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
     var selectedPost by remember { mutableStateOf<Course?>(null) }
-
     var visibleError by remember { mutableStateOf("") }
-
     var selectedImage by remember { mutableStateOf<String?>(null) }
-
+    var postToDelete by remember { mutableStateOf<Post?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(CommunityEvent.LoadPosts)
@@ -90,6 +91,27 @@ fun CommunityScreen(
         }
     }
 
+    if (postToDelete != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { postToDelete = null },
+            title = { androidx.compose.material3.Text("Xác nhận xoá bài viết") },
+            text = { androidx.compose.material3.Text("Bạn có chắc chắn muốn xoá bài viết này không?") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    viewModel.onEvent(CommunityEvent.DeletePost(postToDelete!!.id))
+                    postToDelete = null
+                }) {
+                    androidx.compose.material3.Text("Xoá")
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { postToDelete = null }) {
+                    androidx.compose.material3.Text("Huỷ")
+                }
+            }
+        )
+    }
+
     FocusComponent {
         CommunityScreenContent(
             posts = state.posts,
@@ -105,7 +127,10 @@ fun CommunityScreen(
                 onClickUserPostsScreen(user)
             },
             onMyPosts = { onMyPost() },
-            onReportClick = { post -> onReportClick(post) }
+            onReportClick = { post -> onReportClick(post) },
+            currentUserId = state.currentUserId,
+            onEditPost = { post -> onEditPost(post) },
+            onDeletePost = { post -> postToDelete = post }
         )
     }
 }
@@ -123,7 +148,10 @@ fun CommunityScreenContent(
     onClickUserPostsScreen:(User) -> Unit,
     onMyPosts:() -> Unit,
     selectedPost: Post?,
-    onReportClick: (Post) -> Unit
+    onReportClick: (Post) -> Unit,
+    currentUserId: Int?,
+    onEditPost: (Post) -> Unit,
+    onDeletePost: (Post) -> Unit
 )
 {
     val listState = rememberLazyListState()
@@ -169,6 +197,9 @@ fun CommunityScreenContent(
                             onImageClick = onImageClick,
                             onClickUserPostsScreen = {user -> onClickUserPostsScreen(user)},
                             onReportClick = { onReportClick(post) },
+                            currentUserId = currentUserId,
+                            onEdit = { onEditPost(post) },
+                            onDelete = { onDeletePost(post) }
                         )
                         if (index >= posts.size - 3 && !isLoading && !isEndReached) {
                             onLoadMore()
@@ -246,7 +277,10 @@ fun CommunitycreenPreview() {
             onCreatePost = {},
             onClickUserPostsScreen = { },
             onMyPosts = { },
-            onReportClick = {}
+            onReportClick = {},
+            currentUserId = null,
+            onEditPost = { },
+            onDeletePost = { }
         )
 
     }

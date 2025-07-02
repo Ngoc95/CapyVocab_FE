@@ -19,4 +19,5 @@ sealed class CourseEvent {
     object CancelMultiSelect : CourseEvent()
     data class OnSearchQueryChange(val query: String) : CourseEvent()
     object OnSearch : CourseEvent()
+    data class OnLevelFilterChange(val level: String?) : CourseEvent()
 }

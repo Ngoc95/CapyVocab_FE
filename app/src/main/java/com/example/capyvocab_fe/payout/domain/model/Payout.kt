@@ -4,9 +4,9 @@ import com.example.capyvocab_fe.auth.domain.model.User
 import java.util.Date
 
 enum class PayoutStatus {
+    PENDING,
     SUCCESS,
-    FAILED,
-    PENDING
+    FAILED
 }
 
 fun PayoutStatus.toDisplayName(): String {

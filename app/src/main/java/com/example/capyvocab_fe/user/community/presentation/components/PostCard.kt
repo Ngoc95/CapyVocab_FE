@@ -2,6 +2,7 @@ package com.example.capyvocab_fe.user.community.presentation.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,20 +15,29 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,14 +55,17 @@ import java.util.Locale
 
 @Composable
 fun PostCard(
-    post:Post,
+    post: Post,
     onPostComment: () -> Unit,
     onVoteClick: () -> Unit,
-    onImageClick:(String) -> Unit,
-    onClickUserPostsScreen:(User) -> Unit,
-    onReportClick: () -> Unit
-)
-{
+    onImageClick: (String) -> Unit,
+    onClickUserPostsScreen: (User) -> Unit,
+    onReportClick: () -> Unit,
+    currentUserId: Int?,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,7 +111,43 @@ fun PostCard(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
-
+                Box {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "More options",
+                            tint = Color.Gray
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        if (currentUserId != null && currentUserId == post.createdBy.id) {
+                            DropdownMenuItem(
+                                text = { Text("Chỉnh sửa") },
+                                onClick = {
+                                    showMenu = false
+                                    onEdit()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Xoá") },
+                                onClick = {
+                                    showMenu = false
+                                    onDelete()
+                                }
+                            )
+                        }
+                        DropdownMenuItem(
+                            text = { Text("Báo cáo vi phạm") },
+                            onClick = {
+                                showMenu = false
+                                onReportClick()
+                            }
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
@@ -152,22 +201,12 @@ fun PostCard(
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.weight(1f))
-
                 TextButton(
                     onClick = onPostComment,
                     modifier = TextButtonModifier,
                 ) {
                     Text("TRẢ LỜI", style = LightBlueTextStyle)
-                }
-
-                Spacer(modifier = Modifier.width(4.dp))
-                TextButton(
-                    onClick = onReportClick,
-                    modifier = TextButtonModifier
-                ) {
-                    Text("BÁO CÁO", style = MaterialTheme.typography.labelLarge.copy(color = Color.Gray))
                 }
             }
         }
@@ -202,7 +241,10 @@ fun TopicCardPreview()
             onVoteClick = { },
             onImageClick = { },
             onClickUserPostsScreen = { },
-            onReportClick = { }
+            onReportClick = { },
+            currentUserId = 1,
+            onEdit = {},
+            onDelete = {}
         )
     }
 }

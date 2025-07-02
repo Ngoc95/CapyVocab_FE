@@ -128,7 +128,10 @@ fun MyPostScreen(
                 viewModel.onEvent(CommunityEvent.ChangeToUserPost)
                 onBackClick()
             },
-            onEditPost = {post -> onEditPost(post)}
+            onEditPost = {post -> onEditPost(post)},
+            onDeletePost = { post ->
+                viewModel.onEvent(CommunityEvent.DeletePost(post.id))
+            }
         )
     }
 
@@ -145,9 +148,9 @@ fun MyPostsScreenContent(
     onVoteClick: (Post) -> Unit,
     onImageClick: (String) -> Unit,
     onPostComment: (Post) -> Unit,
-    onEditPost: (Post) -> Unit
-)
-{
+    onEditPost: (Post) -> Unit,
+    onDeletePost: (Post) -> Unit
+) {
     Column()
     {
         Row(
@@ -201,15 +204,14 @@ fun MyPostsScreenContent(
                 verticalArrangement = Arrangement.spacedBy(30.dp)
             ) {
                 itemsIndexed(userPosts) { index, post ->
-
-
                     MyPostCard(
                         post = post,
                         onVoteClick = { onVoteClick(post) },
                         onPostComment = { onPostComment(post) },
                         onImageClick = onImageClick,
                         onClickUserPostsScreen = { },
-                        onEditClick = { onEditPost(post) }
+                        onEdit = { onEditPost(post) },
+                        onDelete = { onDeletePost(post) }
                     )
                     if (index >= userPosts.size - 3 && !isLoading && !isEndReached) {
                         onLoadMore()
@@ -280,7 +282,8 @@ fun MyPostScreenPreview() {
             onVoteClick = { },
             onImageClick = { },
             onLoadMore = { },
-            onEditPost = { }
+            onEditPost = { },
+            onDeletePost = {}
         )
 
     }

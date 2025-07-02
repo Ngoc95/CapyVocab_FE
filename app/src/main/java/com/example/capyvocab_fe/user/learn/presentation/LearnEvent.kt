@@ -25,4 +25,5 @@ sealed class LearnEvent {
     object ClearError : LearnEvent()
     data class OnSearchQueryChange(val query: String) : LearnEvent()
     object OnSearch : LearnEvent()
+    data class OnLevelFilterChange(val level: String?) : LearnEvent()
 }

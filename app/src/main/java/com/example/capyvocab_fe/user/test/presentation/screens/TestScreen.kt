@@ -305,6 +305,7 @@ fun TestScreenContent(
         Box(modifier = Modifier.fillMaxHeight()) {
             when (currentTab) {
                 0 -> DoTestContent(
+                    currentUser = user,
                     folders = folders,
                     onFolderClick = onFolderClick,
                     onSearchFolders = { query ->
@@ -315,6 +316,9 @@ fun TestScreenContent(
                     isEndReached = isEndReached,
                     onVoteClick = onVoteFolder,
                     onUnVoteClick = onUnvoteFolder,
+                    onSettingClick = { folder ->
+                        navController.navigate("${Route.TestSettingScreen.route}/${folder.id}")
+                    }
                 )
 
                 1 -> EnterCodeContent(

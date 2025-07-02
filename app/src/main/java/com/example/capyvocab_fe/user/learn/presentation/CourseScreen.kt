@@ -17,9 +17,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -91,7 +95,11 @@ fun CourseScreen(
             },
             selectedCourse = selectedCourse,
             searchBarText = searchBarText,
-            onSearchBarTextChange = { searchBarText = it}
+            onSearchBarTextChange = { searchBarText = it},
+            selectedLevel = state.selectedLevel,
+            onLevelFilterChange = { level ->
+                viewModel.onEvent(LearnEvent.OnLevelFilterChange(level))
+            }
         )
     }
 }
@@ -105,9 +113,18 @@ fun CoursesScreenContent(
     onLoadMore: () -> Unit,
     selectedCourse: Course?,
     searchBarText: String,
-    onSearchBarTextChange: (String) -> Unit
+    onSearchBarTextChange: (String) -> Unit,
+    selectedLevel: String?,
+    onLevelFilterChange: (String?) -> Unit
 ) {
     val listState = rememberLazyListState()
+    var filterMenuExpanded by remember { mutableStateOf(false) }
+    val levels = listOf(
+        null to "Tất cả",
+        CourseLevel.BEGINNER.value to "Sơ cấp",
+        CourseLevel.INTERMEDIATE.value to "Trung cấp",
+        CourseLevel.ADVANCE.value to "Cao cấp"
+    )
 
     // Detect khi cuộn đến gần cuối
     LaunchedEffect(listState) {
@@ -158,6 +175,49 @@ fun CoursesScreenContent(
                     },
                     colors = defaultTextFieldColors(),
                 )
+            }
+
+            // Filter icon and dropdown menu
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.dimens.small2),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { filterMenuExpanded = true }) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = "Lọc trình độ"
+                    )
+                }
+                Text(
+                    text = levels.find { it.first == selectedLevel }?.second ?: "Tất cả",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+                DropdownMenu(
+                    expanded = filterMenuExpanded,
+                    onDismissRequest = { filterMenuExpanded = false }
+                ) {
+                    levels.forEach { (value, label) ->
+                        DropdownMenuItem(
+                            text = { Text(label) },
+                            onClick = {
+                                onLevelFilterChange(value)
+                                filterMenuExpanded = false
+                            },
+                            leadingIcon = {
+                                if (selectedLevel == value) {
+                                    Icon(
+                                        imageVector = Icons.Default.FilterList,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
@@ -244,7 +304,9 @@ fun CoursesScreenContentPreview() {
             isEndReached = false,
             selectedCourse = sampleCourses[1],
             searchBarText = "",
-            onSearchBarTextChange = {}
+            onSearchBarTextChange = {},
+            selectedLevel = null,
+            onLevelFilterChange = {}
         )
     }
 }

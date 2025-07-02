@@ -24,10 +24,11 @@ class ReportRepositoryImpl @Inject constructor(
     override suspend fun getReports(
         page: Int,
         limit: Int,
-        type: ReportType?
+        type: ReportType?,
+        status: ReportStatus?
     ): Either<AppFailure, List<Report>> {
         return Either.catch {
-            reportApi.getReports(page, limit, type).metaData.reports
+            reportApi.getReports(page, limit, type, status).metaData.reports
         }.mapLeft { it.toAppFailure() }
     }
 

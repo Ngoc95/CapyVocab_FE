@@ -221,7 +221,7 @@ class ExerciseViewModel @Inject constructor(
                             isLoading = false,
                             folders = state.folders.filter { it.id != id },
                             currentFolder = if (state.currentFolder?.id == id) null else state.currentFolder,
-                            successMessage = "Folder deleted successfully"
+                            successMessage = "Xoá folder thành công"
                         )
                     }
                 }
