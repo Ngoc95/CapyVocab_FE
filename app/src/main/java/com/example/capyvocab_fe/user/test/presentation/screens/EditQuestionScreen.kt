@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -204,7 +205,8 @@ fun EditQuestionScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
-                .fillMaxSize(),
+                .fillMaxSize()
+                .imePadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Chọn thời gian
@@ -290,7 +292,18 @@ fun EditQuestionScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Button(
-                        onClick = { answerMode = 0 },
+                        onClick = { 
+                            // Khi chuyển từ multiple sang single, chỉ giữ đáp án đúng đầu tiên
+                            if (answerMode == 1 && correctAnswers.size > 1) {
+                                val firstCorrectAnswer = correctAnswers.minOrNull()
+                                correctAnswers = if (firstCorrectAnswer != null) {
+                                    mutableSetOf(firstCorrectAnswer)
+                                } else {
+                                    mutableSetOf()
+                                }
+                            }
+                            answerMode = 0 
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (answerMode == 0) Color(0xFF42B3FF) else Color.LightGray
                         )

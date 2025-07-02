@@ -75,6 +75,22 @@ fun OtpScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.navigateToAdmin.collect {
+            navController.navigate(Route.AdminNavigation.route) {
+                popUpTo(0) // Xoá toàn bộ backstack
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.navigateToUser.collect {
+            navController.navigate(Route.UserNavigation.route) {
+                popUpTo(0) // Xoá toàn bộ backstack
+            }
+        }
+    }
+
     LaunchedEffect(state.errorMessage) {
         if (state.errorMessage.isNotEmpty()) {
             visibleError = state.errorMessage

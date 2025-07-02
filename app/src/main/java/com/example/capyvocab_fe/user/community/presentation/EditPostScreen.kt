@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -61,6 +62,26 @@ import com.example.capyvocab_fe.user.community.presentation.components.SelectIma
 import com.example.capyvocab_fe.user.community.presentation.components.TagsList
 import kotlinx.coroutines.delay
 
+// Wrapper class to handle both local Uri and remote URLs
+sealed class ImageItem {
+    data class LocalImage(val uri: Uri) : ImageItem()
+    data class RemoteImage(val url: String) : ImageItem()
+    
+    fun getDisplayUri(): Uri {
+        return when (this) {
+            is LocalImage -> uri
+            is RemoteImage -> Uri.parse(url)
+        }
+    }
+    
+    fun getUrlString(): String {
+        return when (this) {
+            is LocalImage -> uri.toString()
+            is RemoteImage -> url
+        }
+    }
+}
+
 @Composable
 fun EditPostScreen(
     post: Post,
@@ -87,8 +108,10 @@ fun EditPostScreen(
     val tagsList = remember { mutableStateListOf<String>().apply { addAll(post.tags ?: emptyList()) } }
     var content by remember { mutableStateOf(post.content ?: "") }
     val imageList = remember {
-        mutableStateListOf<Uri>().apply {
-            addAll((post.thumbnails ?: emptyList()).map { Uri.parse(it) })
+        mutableStateListOf<ImageItem>().apply {
+            addAll((post.thumbnails ?: emptyList()).map { 
+                ImageItem.RemoteImage(it)
+            })
         }
     }
 
@@ -133,7 +156,7 @@ fun EditPostScreen(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris: List<Uri> ->
         uris.forEach { uri ->
-            imageList.add(uri)
+            imageList.add(ImageItem.LocalImage(uri))
         }
     }
 
@@ -158,7 +181,10 @@ fun EditPostScreen(
                 if (tagsList.isEmpty() && content.isBlank() && imageList.isEmpty()) {
                     visibleError = "Bài viết không được để trống"
                 } else {
-                    viewModel.onEvent(CommunityEvent.UpdatePost(post.id, content, tagsList, imageList))
+                    // Convert ImageItems to Uri list for upload
+                    val localImages = imageList.filterIsInstance<ImageItem.LocalImage>().map { it.uri }
+                    val existingThumbnails = imageList.filterIsInstance<ImageItem.RemoteImage>().map { it.url }
+                    viewModel.onEvent(CommunityEvent.UpdatePost(post.id, content, tagsList, localImages, existingThumbnails))
                 }
             }
         )
@@ -170,11 +196,11 @@ fun EditPostScreen(
 fun EditPostScreenContent(
     tagsList: List<String>?,
     content: String?,
-    imgList:List<Uri>?,
+    imgList:List<ImageItem>?,
     errorMessage: String,
     isLoading: Boolean,
     onSelectImage:() -> Unit,
-    onRemoveImage:(Uri) -> Unit,
+    onRemoveImage:(ImageItem) -> Unit,
     onAddTag:(String) -> Unit,
     onRemoveTag:(String) -> Unit,
     onBackClick:() -> Unit,
@@ -187,7 +213,7 @@ fun EditPostScreenContent(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(Color.White)
+            .imePadding()
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -270,9 +296,11 @@ fun EditPostScreenContent(
                         )
                     }
                     SelectImage(
-                        imgList = imgList,
+                        imgList = imgList?.map { it.getDisplayUri() },
                         onAddImage = onSelectImage,
-                        onDeleteImage = {image -> onRemoveImage(image)}
+                        onDeleteImage = {image -> 
+                            imgList?.find { it.getDisplayUri().toString() == image.toString() }?.let { onRemoveImage(it) }
+                        }
                     )
 
                 }

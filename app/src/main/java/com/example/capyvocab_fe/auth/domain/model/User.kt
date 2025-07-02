@@ -6,5 +6,6 @@ data class User(
     val email: String,
     val avatar: String?,
     val balance: Double? = null,
-    val roleId: Int
+    val roleId: Int,
+    val status: String? = null
 )

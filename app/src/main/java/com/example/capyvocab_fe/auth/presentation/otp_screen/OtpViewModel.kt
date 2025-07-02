@@ -22,6 +22,12 @@ class OtpViewModel @Inject constructor(
     private val _navigateToLogin = MutableSharedFlow<Unit>()
     val navigateToLogin = _navigateToLogin.asSharedFlow()
 
+    private val _navigateToAdmin = MutableSharedFlow<Unit>()
+    val navigateToAdmin = _navigateToAdmin.asSharedFlow()
+
+    private val _navigateToUser = MutableSharedFlow<Unit>()
+    val navigateToUser = _navigateToUser.asSharedFlow()
+
     fun onOtpChanged(newOtp: String) {
         _state.update { it.copy(otp = newOtp) }
     }
@@ -60,7 +66,22 @@ class OtpViewModel @Inject constructor(
                             successMessage = "Xác thực thành công"
                         )
                     }
-                        _navigateToLogin.emit(Unit)  // Gửi tín hiệu
+                    // Sau khi verify thành công, lấy thông tin user để kiểm tra role
+                    authRepository.getUserInfo()
+                        .onRight { user ->
+                            user?.let {
+                                if (it.roleId == 1) {
+                                    _navigateToAdmin.emit(Unit)
+                                } else {
+                                    _navigateToUser.emit(Unit)
+                                }
+                            } ?: run {
+                                _navigateToUser.emit(Unit) // Default to user navigation
+                            }
+                        }
+                        .onLeft {
+                            _navigateToUser.emit(Unit) // Default to user navigation on error
+                        }
                 }.onLeft { failure ->
                     _state.update {
                         it.copy(

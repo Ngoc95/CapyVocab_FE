@@ -1,7 +1,12 @@
 package com.example.capyvocab_fe.admin.navigator
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -79,7 +85,7 @@ import com.example.capyvocab_fe.ui.theme.dimens
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnrememberedGetBackStackEntry")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AdminNavigator(rootNavController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -250,7 +256,7 @@ fun AdminNavigator(rootNavController: NavHostController) {
             selectedIconRes = R.drawable.ic_selected_profile
         )
     )
-
+    val isKeyBoardOpen = WindowInsets.isImeVisible
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -384,7 +390,12 @@ fun AdminNavigator(rootNavController: NavHostController) {
             Surface(
                 modifier = if (shouldShowTopBar(currentRoute)) Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        bottom = if (!isKeyBoardOpen) paddingValues.calculateBottomPadding() else 0.dp,
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr)
+                    )
                 else Modifier
                     .fillMaxSize()
                     .padding(top = 0.dp)
