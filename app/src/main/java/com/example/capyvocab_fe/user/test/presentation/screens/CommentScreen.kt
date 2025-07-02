@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -156,6 +157,22 @@ fun CommentScreen(
                     }
                 )
             )
+            IconButton(
+                onClick = {
+                    if (commentText.isNotBlank()) {
+                        onEvent(ExerciseEvent.CreateComment(folderId, commentText.trim()))
+                        commentText = ""
+                    }
+                    focusManager.clearFocus()
+                },
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send Comment",
+                    tint = Color(0xFF42B3FF)
+                )
+            }
         }
     }
 }

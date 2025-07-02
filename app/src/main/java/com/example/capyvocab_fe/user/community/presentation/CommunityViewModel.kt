@@ -43,7 +43,7 @@ class CommunityViewModel @Inject constructor(
             is CommunityEvent.LoadMorePostsByOwner -> loadPostByOwner(event.user, loadMore = true)
             is CommunityEvent.ChangeToUserPost -> changeToUserPost()
             is CommunityEvent.GetUserByID -> getUserById(event.id)
-            is CommunityEvent.UpdatePost -> updatePost(event.id, event.content, event.tags, event.images)
+            is CommunityEvent.UpdatePost -> updatePost(event.id, event.content, event.tags, event.images, event.existingThumbnailUrls)
             is CommunityEvent.LoadMyUser -> loadMyUser()
             is CommunityEvent.ResetPostCreated -> resetPostCreated()
             is CommunityEvent.ResetPostUpdated -> resetPostUpdated()
@@ -70,11 +70,25 @@ class CommunityViewModel @Inject constructor(
         id: Int,
         content: String?,
         tags: List<String>?,
-        thumbs: List<Uri>?
+        thumbs: List<Uri>?,
+        existingThumbnailUrls: List<String>? = null
     ) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
+            
+            // Lấy post hiện tại để có thumbnails cũ
+            val currentPost = state.value.selectUserPosts.find { it.id == id }
+            val existingThumbnails = currentPost?.thumbnails ?: emptyList()
+            
             var thumbnailUrls: List<String>? = emptyList()
+            
+            // Kết hợp existing thumbnails với new thumbnails
+            val finalThumbnails = mutableListOf<String>()
+            
+            // Thêm existing thumbnails (nếu có)
+            existingThumbnailUrls?.let { finalThumbnails.addAll(it) }
+            
+            // Nếu có images mới được chọn, upload chúng và thêm vào
             if (!thumbs.isNullOrEmpty()) {
                 val uploadResult = userCommunityRepository.uploadThumbnailImage(thumbs)
                 thumbnailUrls = uploadResult.fold(
@@ -85,12 +99,16 @@ class CommunityViewModel @Inject constructor(
                                 errorMessage = failure.message ?: "Có lỗi xảy ra"
                             )
                         }
-                        emptyList()
+                        return@launch
                     },
-                    ifRight = { urls -> urls }
+                    ifRight = { urls -> 
+                        finalThumbnails.addAll(urls)
+                        finalThumbnails
+                    }
                 )
-            } else
-                thumbnailUrls = emptyList()
+            } else {
+                thumbnailUrls = finalThumbnails
+            }
 
             val request = UpdatePostRequest(
                 content = content,
@@ -101,7 +119,7 @@ class CommunityViewModel @Inject constructor(
             userCommunityRepository.updatePost(id, request)
                 .onRight {post ->
                     _state.update { currentState ->
-                            val updateUserPosts = currentState.selectUserPosts.map {
+                        val updateUserPosts = currentState.selectUserPosts.map {
                             if (it.id == post.id) {
                                 it.copy(
                                     content = post.content,
@@ -110,13 +128,25 @@ class CommunityViewModel @Inject constructor(
                                 )
                             } else it
                         }
+                        
+                        // Cập nhật selectedPost nếu đang edit post này
+                        val updatedSelectedPost = currentState.selectedPost?.let {
+                            if (it.id == post.id) {
+                                it.copy(
+                                    content = post.content,
+                                    tags = post.tags,
+                                    thumbnails = post.thumbnails
+                                )
+                            } else it
+                        }
+                        
                         currentState.copy(
                             isLoading = false,
                             selectUserPosts = updateUserPosts,
+                            selectedPost = updatedSelectedPost,
                             isPostUpdated = true
                         )
                     }
-
                 }
                 .onLeft { failure ->
                     _state.update {

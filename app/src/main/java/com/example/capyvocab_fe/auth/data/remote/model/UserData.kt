@@ -7,5 +7,6 @@ data class UserData(
     val email: String,
     val username: String,
     val avatar: String?,
+    val status: String,
     val role: RoleData
 )

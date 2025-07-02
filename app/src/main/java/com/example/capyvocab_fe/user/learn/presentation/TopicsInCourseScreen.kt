@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -201,7 +202,7 @@ fun TopicsInCourseScreenContent(
 
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxSize().imePadding()
                     .padding(horizontal = MaterialTheme.dimens.small3),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.medium1)
             ) {

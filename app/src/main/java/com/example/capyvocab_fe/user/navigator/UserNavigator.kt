@@ -3,7 +3,10 @@ package com.example.capyvocab_fe.user.navigator
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -26,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.capyvocab_fe.R
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.PayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutViewModel
@@ -70,6 +74,7 @@ import com.example.capyvocab_fe.user.test.presentation.screens.TestSettingScreen
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
 import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 
+@OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("StateFlowValueCalledInComposition", "UnrememberedGetBackStackEntry")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -137,6 +142,7 @@ fun UserNavigator(rootNavController: NavHostController) {
         else -> 0
     }
 
+    val isKeyBoardOpen = WindowInsets.isImeVisible
     //hide navbar when in topic, word
     val isBottomVisible = remember(backStackState, reviewState.hasStarted) {
         when (backStackState?.destination?.route) {
@@ -199,7 +205,7 @@ fun UserNavigator(rootNavController: NavHostController) {
             navController = navController,
             startDestination = Route.UserLearnScreen.route,
             modifier = Modifier.padding(
-                bottom = if (isBottomVisible) bottomPadding else 0.dp,
+                bottom = if (isBottomVisible && !isKeyBoardOpen) bottomPadding else 0.dp,
                 top = if (isBottomVisible) topPadding else 0.dp
             )
         ) {
@@ -215,7 +221,7 @@ fun UserNavigator(rootNavController: NavHostController) {
                     onCreatePost = {
                         navController.navigate("${Route.UserCreatePostScreen.route}")
                     },
-                    onClickUserPostsScreen = {user ->
+                    onClickUserPostsScreen = { user ->
                         navController.navigate("${Route.UserOwnerPostScreen.route}/${user.id}")
                     },
                     onMyPost = {
@@ -242,7 +248,10 @@ fun UserNavigator(rootNavController: NavHostController) {
                         post = post,
                         viewModel = communityViewModel,
                         navController = navController,
-                        onBackClick = { navController.popBackStack() },
+                        onBackClick = {
+                            communityViewModel.onEvent(CommunityEvent.ClearScreenPost)
+                            navController.popBackStack()
+                        },
                     )
                 }
             }
@@ -255,6 +264,7 @@ fun UserNavigator(rootNavController: NavHostController) {
                     viewModel = communityViewModel,
                     navController = navController,
                     onBackClick = {
+                        communityViewModel.onEvent(CommunityEvent.ClearScreenPost)
                         navController.popBackStack();
                         communityViewModel.onEvent(CommunityEvent.LoadPosts);
                     }
@@ -272,12 +282,15 @@ fun UserNavigator(rootNavController: NavHostController) {
                     communityViewModel.onEvent(CommunityEvent.GetUserByID(userId!!.toInt()))
                 }
 
-                communityState.selectUser?.let{user ->
+                communityState.selectUser?.let { user ->
                     OwnerPostScreenContent(
                         user = user,
                         viewModel = communityViewModel,
                         navController = navController,
-                        onBackClick = {navController.popBackStack()},
+                        onBackClick = {
+                            communityViewModel.onEvent(CommunityEvent.ClearScreenPost)
+                            navController.popBackStack()
+                        },
                         onPostComment = { post ->
                             navController.navigate("${Route.UserPostScreen.route}/${post.id}")
                         }
@@ -293,16 +306,19 @@ fun UserNavigator(rootNavController: NavHostController) {
                 LaunchedEffect(true) {
                     communityViewModel.onEvent(CommunityEvent.LoadMyUser)
                 }
-                communityState.selectUser?.let{user ->
-                    MyPostScreen (
+                communityState.selectUser?.let { user ->
+                    MyPostScreen(
                         user = user,
                         viewModel = communityViewModel,
                         navController = navController,
-                        onBackClick = {navController.popBackStack()},
+                        onBackClick = {
+                            communityViewModel.onEvent(CommunityEvent.ClearScreenPost)
+                            navController.popBackStack()
+                        },
                         onPostComment = { post ->
                             navController.navigate("${Route.UserPostScreen.route}/${post.id}")
                         },
-                        onEditPost = {post ->
+                        onEditPost = { post ->
                             navController.navigate("${Route.UserEditPostScreen.route}/${post.id}")
                         }
                     )
@@ -319,7 +335,9 @@ fun UserNavigator(rootNavController: NavHostController) {
                 val postId = backStackEntry.arguments?.getInt("postId")
 
                 LaunchedEffect(postId) {
-                    communityViewModel.onEvent(CommunityEvent.GetPostById(postId!!.toInt()))
+                    if (postId != null) {
+                        communityViewModel.onEvent(CommunityEvent.GetPostById(postId))
+                    }
                 }
 
                 communityState.selectedPost?.let { post ->
@@ -327,7 +345,10 @@ fun UserNavigator(rootNavController: NavHostController) {
                         post = post,
                         viewModel = communityViewModel,
                         navController = navController,
-                        onBackClick = { navController.popBackStack() },
+                        onBackClick = {
+                            communityViewModel.onEvent(CommunityEvent.ClearScreenPost)
+                            navController.popBackStack()
+                        },
                     )
                 }
 
@@ -509,12 +530,14 @@ fun UserNavigator(rootNavController: NavHostController) {
                 arguments = listOf(navArgument("folderId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
-                FlashcardScreen(
-                    navController = navController,
-                    folderId = folderId,
-                    state = exerciseState,
-                    onEvent = exerciseViewModel::onEvent
-                )
+                FocusComponent {
+                    FlashcardScreen(
+                        navController = navController,
+                        folderId = folderId,
+                        state = exerciseState,
+                        onEvent = exerciseViewModel::onEvent
+                    )
+                }
             }
             composable(
                 route = "${Route.FlashCardLearningScreen}/{folderId}",

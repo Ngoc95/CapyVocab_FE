@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
-): ViewModel() {
+) : ViewModel() {
     private val _state = MutableStateFlow(LoginViewState())
     val state = _state.asStateFlow()
 
@@ -24,6 +24,9 @@ class LoginViewModel @Inject constructor(
 
     private val _navigateToUser = MutableSharedFlow<Unit>()
     val navigateToUser = _navigateToUser.asSharedFlow()
+
+    private val _navigateToOtp = MutableSharedFlow<Unit>()
+    val navigateToOtp = _navigateToOtp.asSharedFlow()
 
     fun onUsernameChanged(newUsername: String) {
         _state.update { it.copy(username = newUsername) }
@@ -39,28 +42,33 @@ class LoginViewModel @Inject constructor(
 
     fun login() {
         viewModelScope.launch {
-                _state.update { it.copy(isLoading = true, errorMessage = "") }
+            _state.update { it.copy(isLoading = true, errorMessage = "") }
 
-                authRepository.login(_state.value.username, _state.value.password)
-                    .onRight {
-                            user ->
+            authRepository.login(_state.value.username, _state.value.password)
+                .onRight { user ->
+                    // Kiểm tra status trước khi chuyển hướng
+                    if (user.status == "NOT_VERIFIED") {
+                        authRepository.sendVerificationEmail()
+                        _navigateToOtp.emit(Unit)  // Chuyển đến OTP screen nếu chưa verify
+                    } else {
                         // Kiểm tra roleId và chuyển hướng
                         if (user.roleId == 1) {
                             _navigateToAdmin.emit(Unit)  // Gửi tín hiệu điều hướng đến Admin
                         } else {
                             _navigateToUser.emit(Unit)   // Gửi tín hiệu điều hướng đến User
                         }
+                    }
 
-                        _state.update { it.copy(isLoading = false, isLoggedIn = true) }
+                    _state.update { it.copy(isLoading = false, isLoggedIn = true) }
+                }
+                .onLeft { failure ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = failure.message ?: "Đã xảy ra lỗi"
+                        )
                     }
-                    .onLeft { failure ->
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                errorMessage = failure.message ?: "Đã xảy ra lỗi"
-                            )
-                        }
-                    }
+                }
         }
     }
 
@@ -73,6 +81,7 @@ class LoginViewModel @Inject constructor(
             )
         }
     }
+
     fun googleLogin(token: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = "") }
@@ -85,6 +94,7 @@ class LoginViewModel @Inject constructor(
                     } else {
                         _navigateToUser.emit(Unit)   // Gửi tín hiệu điều hướng đến User
                     }
+
 
                     _state.update { it.copy(isLoading = false, isLoggedIn = true) }
                 }

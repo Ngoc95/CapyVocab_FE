@@ -110,6 +110,15 @@ internal fun LoginScreen(
             }
         }
     }
+
+    // Điều hướng đến OTP screen nếu user chưa verify
+    LaunchedEffect(Unit) {
+        viewModel.navigateToOtp.collect {
+            navController.navigate(Route.OtpScreen.route) {
+                popUpTo(Route.LoginScreen.route) { inclusive = true }
+            }
+        }
+    }
     // Clear form mỗi lần LoginScreen hiển thị
     LaunchedEffect(Unit) {
         viewModel.clearForm()
@@ -134,7 +143,11 @@ internal fun LoginScreen(
                     .requestEmail()
                     .build()
                 val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                // Sign out first to force account selection dialog
+                googleSignInClient.signOut().addOnCompleteListener {
+                    // After signing out, launch the sign-in intent to show account selection
+                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                }
             }
         )
     }

@@ -9,6 +9,7 @@ fun UserData.toDomain(): User {
         email = this.email,
         username = this.username,
         avatar = this.avatar ?: "",
-        roleId = role.id
+        roleId = role.id,
+        status = this.status
     )
 }

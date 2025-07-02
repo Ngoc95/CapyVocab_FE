@@ -140,9 +140,9 @@ fun RegisterContent(
             Spacer(modifier = Modifier.height(430.dp))
             Column(
                 modifier = Modifier
-                    .imePadding()
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .imePadding(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Username
