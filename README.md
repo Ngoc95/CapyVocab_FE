@@ -34,7 +34,8 @@ CapyVocab là ứng dụng học từ vựng tiếng Anh dành cho người dùn
 - 📝 **Tạo & Làm bài kiểm tra, học flashcard**
   - Người dùng có thể tạo folder học tập chứa các **bài kiểm tra** hoặc **bộ flashcard**.
   - Mỗi folder có thể đặt ở chế độ **công khai** hoặc **riêng tư**, và có thể **miễn phí hoặc trả phí** (giá do người tạo tự thiết lập).
-  - Tạo bài kiểm tra với nhiều dạng câu hỏi: điền từ, chọn 1 đáp án, chọn nhiều đáp án. Mỗi câu hỏi có thể thêm giải thích nếu muốn.
+  - Tạo bài kiểm tra với nhiều dạng câu hỏi: điền từ, chọn 1 đáp án, chọn nhiều đáp án. Mỗi câu hỏi có thể thêm giải thích nếu muốn. Có thể thiết lập thời gian trả lời riêng cho từng câu hỏi (giới hạn thời gian).
+  - Có thể thêm giải thích sau mỗi câu để người học hiểu rõ hơn.
   - Tạo bộ flashcard với từ vựng, định nghĩa và hình ảnh minh họa.
   - Làm bài kiểm tra hoặc học bộ flashcard từ folder của người khác (miễn phí hoặc trả phí tùy folder).
   - Xem kết quả chi tiết sau khi làm bài, có thể đánh giá chất lượng bằng cách **vote** và **bình luận** folder đó.
