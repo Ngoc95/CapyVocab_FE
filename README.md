@@ -1,7 +1,7 @@
 # CapyVocab_FE
 
 ## Thông tin đồ án
-Đây là đồ án môn **Nhập môn ứng dụng di động SE114** do thầy **Nguyễn Tấn Toàn** hướng dẫn.
+Đồ án môn **Nhập môn ứng dụng di động SE114**
 
 **Nhóm thực hiện:**
 | MSSV  | Họ tên |
