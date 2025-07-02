@@ -65,13 +65,7 @@ fun MyPostScreen(
     BackHandler(enabled = true) {
         Log.d("CreatePostScreen", "clearScreenPost called")
         viewModel.onEvent(CommunityEvent.ClearScreenPost)
-        navController.navigate(Route.UserCoursesScreen.route) {
-            popUpTo(Route.UserCoursesScreen.route) {
-                inclusive = false
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
+        navController.popBackStack()
     }
 
     LaunchedEffect(Unit) {

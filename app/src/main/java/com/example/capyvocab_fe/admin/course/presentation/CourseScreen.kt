@@ -195,7 +195,6 @@ fun CourseScreen(
             },
             onSave = { course ->
                 viewModel.onEvent(CourseEvent.SaveCourse(course))
-                isDialogOpen = false
             },
             onDelete = {
                 selectedCourse?.let {

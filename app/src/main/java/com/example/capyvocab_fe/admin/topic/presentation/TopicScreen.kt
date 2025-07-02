@@ -188,7 +188,6 @@ fun TopicScreen(
                 } else {
                     viewModel.onEvent(TopicEvent.UpdateTopic(topic, uri))
                 }
-                isDialogOpen = false
             },
             onDelete = {
                 selectedTopic?.let {

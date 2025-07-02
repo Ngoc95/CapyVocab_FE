@@ -31,7 +31,7 @@ class AdminCourseRepositoryImpl @Inject constructor(
     override suspend fun createCourse(courseRequest: CreateCourseRequest): Either<AppFailure, Course> {
         return Either.catch {
             val response = api.createCourse(courseRequest)
-            response.metaData
+            response.metaData.first()
         }.mapLeft { it.toAppFailure() }
     }
 

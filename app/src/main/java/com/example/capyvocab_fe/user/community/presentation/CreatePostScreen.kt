@@ -69,13 +69,7 @@ fun CreatePostScreen(
     BackHandler(enabled = true) {
         Log.d("CreatePostScreen", "clearScreenPost called")
         viewModel.onEvent(CommunityEvent.ClearScreenPost)
-        navController.navigate(Route.UserCoursesScreen.route) {
-            popUpTo(Route.UserCoursesScreen.route) {
-                inclusive = false
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
+        navController.popBackStack()
     }
     val state by viewModel.state.collectAsState()
     var visibleError by remember { mutableStateOf("") }
@@ -225,7 +219,7 @@ fun CreatePostScreenContent(
                     onClick = {
                         onSavePost()
                     },
-                    enabled = !isLoading,
+
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MyLightBlue,
                         contentColor = Color.Black
@@ -238,7 +232,7 @@ fun CreatePostScreenContent(
                     elevation = ButtonDefaults.elevatedButtonElevation()
                 ) {
                     Text(
-                        text = if (isLoading) "Đang tạo..." else "Xong",
+                        text = "Xong",
                         fontSize = 20.sp,
                         color = Color.Black
                     )

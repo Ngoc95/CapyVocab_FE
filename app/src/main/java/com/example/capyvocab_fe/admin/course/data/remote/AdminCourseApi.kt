@@ -33,7 +33,7 @@ interface AdminCourseApi {
     ): ApiResponse<CourseTopicsResponse>
 
     @POST("/courses")
-    suspend fun createCourse(@Body courseRequest: CreateCourseRequest): ApiResponse<Course>
+    suspend fun createCourse(@Body courseRequest: CreateCourseRequest): ApiResponse<List<Course>>
 
     @PATCH("/courses/{id}")
     suspend fun updateCourse(

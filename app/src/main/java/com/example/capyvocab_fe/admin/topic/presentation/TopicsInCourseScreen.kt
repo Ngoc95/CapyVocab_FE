@@ -189,7 +189,6 @@ fun TopicsInCourseScreen(
                 } else {
                     viewModel.onEvent(TopicEvent.UpdateTopic(topic, imageUri))
                 }
-                isDialogOpen = false
             },
             onDelete = {
                 selectedTopic?.let {

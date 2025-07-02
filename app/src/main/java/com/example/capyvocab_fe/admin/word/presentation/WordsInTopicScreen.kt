@@ -187,7 +187,6 @@ fun WordsInTopicScreen(
                 } else {
                     viewModel.onEvent(WordEvent.UpdateWord(word, imageUri, audioUri))
                 }
-                isDialogOpen = false
             },
             onDelete = {
                 selectedWord?.let {

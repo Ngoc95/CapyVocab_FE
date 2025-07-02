@@ -84,13 +84,7 @@ fun PostScreen(
     BackHandler(enabled = true) {
         Log.d("PostScreen", "clearScreenPost called")
         viewModel.onEvent(CommunityEvent.ClearScreenPost)
-        navController.navigate(Route.UserCoursesScreen.route) {
-            popUpTo(Route.UserCoursesScreen.route) {
-                inclusive = false
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
+        navController.popBackStack()
     }
     val state by viewModel.state.collectAsState()
     var visibleError by remember { mutableStateOf("") }
