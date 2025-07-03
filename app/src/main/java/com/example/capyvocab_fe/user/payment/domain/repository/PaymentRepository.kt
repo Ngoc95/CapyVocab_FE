@@ -8,4 +8,6 @@ import com.example.capyvocab_fe.user.payment.domain.model.Order
 interface PaymentRepository {
     suspend fun createOrder(folderId: Int): Either<AppFailure, CreateOrderResponse>
     suspend fun handleVnpayReturn(params: Map<String, String>): Either<AppFailure, Order>
+    suspend fun checkOrderStatus(folderId: Int): Either<AppFailure, Order?>
+    suspend fun cancelOrder(orderId: String): Either<AppFailure, Unit>
 }

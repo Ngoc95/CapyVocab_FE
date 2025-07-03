@@ -6,6 +6,8 @@ import arrow.core.Either
 import com.example.capyvocab_fe.user.payment.domain.usecase.PaymentResult
 import com.example.capyvocab_fe.user.payment.domain.usecase.ProcessPaymentUseCase
 import com.example.capyvocab_fe.user.payment.domain.usecase.VerifyPaymentUseCase
+import com.example.capyvocab_fe.user.payment.domain.usecase.CheckOrderStatusUseCase
+import com.example.capyvocab_fe.user.payment.domain.usecase.CancelOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,9 @@ import javax.inject.Inject
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
     private val processPaymentUseCase: ProcessPaymentUseCase,
-    private val verifyPaymentUseCase: VerifyPaymentUseCase
+    private val verifyPaymentUseCase: VerifyPaymentUseCase,
+    private val checkOrderStatusUseCase: CheckOrderStatusUseCase,
+    private val cancelOrderUseCase: CancelOrderUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(PaymentUiState())
@@ -51,8 +55,17 @@ class PaymentViewModel @Inject constructor(
             is PaymentUiEvent.DismissSuccess -> {
                 _uiState.value = _uiState.value.copy(showSuccessDialog = false)
             }
+            
             is PaymentUiEvent.ClearPaymentUrl -> {
                 _uiState.update { it.copy(paymentUrl = null) }
+            }
+
+            is PaymentUiEvent.CheckOrderStatus -> {
+                checkOrderStatus(event.folderId)
+            }
+
+            is PaymentUiEvent.CancelOrder -> {
+                cancelOrder(event.orderId)
             }
         }
     }
@@ -120,6 +133,58 @@ class PaymentViewModel @Inject constructor(
                         isLoading = false,
                         isProcessingPayment = false,
                         paymentUrl = null,
+                        error = result.value.message ?: result.value.error.defaultMessage
+                    )
+                }
+            }
+        }
+    }
+
+    private fun checkOrderStatus(folderId: Int) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isCheckingOrderStatus = true,
+                error = null
+            )
+
+            when (val result = checkOrderStatusUseCase(folderId)) {
+                is Either.Right -> {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingOrderStatus = false,
+                        existingOrder = result.value
+                    )
+
+                }
+
+                is Either.Left -> {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingOrderStatus = false,
+                        error = result.value.message ?: result.value.error.defaultMessage
+                    )
+                }
+            }
+        }
+    }
+
+    private fun cancelOrder(orderId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                error = null
+            )
+
+            when (val result = cancelOrderUseCase(orderId)) {
+                is Either.Right -> {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        existingOrder = null,
+                        order = null
+                    )
+                }
+
+                is Either.Left -> {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
                         error = result.value.message ?: result.value.error.defaultMessage
                     )
                 }

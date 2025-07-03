@@ -91,12 +91,30 @@ fun TestScreen(
             val vnpParams = listOf(
                 "vnp_Amount", "vnp_BankCode", "vnp_BankTranNo", "vnp_CardType",
                 "vnp_OrderInfo", "vnp_PayDate", "vnp_ResponseCode", "vnp_TmnCode", "vnp_TransactionNo",
-                "vnp_TransactionStatus", "vnp_TxnRef", "vnp_SecureHash", "isSuccess", "orderId"
+                "vnp_TransactionStatus", "vnp_TxnRef", "vnp_SecureHash", "isSuccess"
             )
             val paramMap = vnpParams.associateWith { data?.getStringExtra(it) ?: "" }
+            // if isSuccess is false call CancelOrder
+            if (paramMap["isSuccess"] == "false") {
+                val orderId = paramMap["vnp_TxnRef"]
+                if (orderId != null) {
+                    paymentViewModel.onEvent(PaymentUiEvent.CancelOrder(orderId))
+                }
+                return@rememberLauncherForActivityResult
+            }
             paymentViewModel.onEvent(
                 PaymentUiEvent.PaymentCompleted(paramMap)
             )
+        } else if (result.resultCode == Activity.RESULT_CANCELED) {
+            // Handle order cancellation
+            val data = result.data
+            val action = data?.getStringExtra("action")
+            if (action == "cancel_order") {
+                val orderId = data.getStringExtra("orderId")
+                if (orderId != null) {
+                    paymentViewModel.onEvent(PaymentUiEvent.CancelOrder(orderId))
+                }
+            }
         }
     }
 
@@ -127,6 +145,10 @@ fun TestScreen(
         paymentState.paymentUrl?.let { url ->
             val intent = Intent(context, com.example.capyvocab_fe.user.payment.presentation.PaymentWebViewActivity::class.java)
             intent.putExtra("orderUrl", url)
+            // Pass orderId for cancellation
+            paymentState.order?.let { order ->
+                intent.putExtra("orderId", order.id)
+            }
             paymentLauncher.launch(intent)
             paymentViewModel.onEvent(PaymentUiEvent.ClearPaymentUrl)
         }

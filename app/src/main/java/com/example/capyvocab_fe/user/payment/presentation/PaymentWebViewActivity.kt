@@ -8,12 +8,14 @@ import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
+import com.example.capyvocab_fe.R
 
 class PaymentWebViewActivity : ComponentActivity() {
+    private lateinit var webView: WebView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val orderUrl = intent.getStringExtra("orderUrl") ?: ""
-        val webView = WebView(this)
+        webView = WebView(this)
         setContentView(webView)
 
         webView.settings.javaScriptEnabled = true
@@ -25,7 +27,7 @@ class PaymentWebViewActivity : ComponentActivity() {
                         val vnpParams = listOf(
                             "vnp_Amount", "vnp_BankCode", "vnp_BankTranNo", "vnp_BankTranNo", "vnp_CardType",
                             "vnp_OrderInfo", "vnp_PayDate", "vnp_ResponseCode", "vnp_TmnCode", "vnp_TransactionNo",
-                            "vnp_TransactionStatus", "vnp_TxnRef", "vnp_SecureHash"
+                            "vnp_TransactionStatus", "vnp_TxnRef", "vnp_SecureHash", "isSuccess", "orderId"
                         )
                         val resultIntent = Intent().apply {
                             for (param in vnpParams) {
@@ -33,7 +35,6 @@ class PaymentWebViewActivity : ComponentActivity() {
                             }
                             // Also keep isSuccess and orderId for compatibility if needed
                             putExtra("isSuccess", uri.getQueryParameter("isSuccess") ?: "false")
-                            putExtra("orderId", uri.getQueryParameter("orderId"))
                         }
                         setResult(Activity.RESULT_OK, resultIntent)
                         finish()
@@ -46,16 +47,28 @@ class PaymentWebViewActivity : ComponentActivity() {
         webView.loadUrl(orderUrl)
     }
 
-    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        AlertDialog.Builder(this)
-            .setTitle("Xác nhận")
-            .setMessage("Bạn có chắc chắn muốn hủy thanh toán?")
-            .setPositiveButton("Có") { _, _ ->
-                setResult(Activity.RESULT_CANCELED)
-                finish()
-            }
-            .setNegativeButton("Không", null)
-            .show()
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle("Xác nhận")
+                .setMessage("Bạn có chắc chắn muốn hủy thanh toán?")
+                .setPositiveButton("Có") { _, _ ->
+                    val orderId = intent.getStringExtra("orderId")
+                    if (orderId != null) {
+                        val resultIntent = Intent().apply {
+                            putExtra("action", "cancel_order")
+                            putExtra("orderId", orderId)
+                        }
+                        setResult(Activity.RESULT_CANCELED, resultIntent)
+                    } else {
+                        setResult(Activity.RESULT_CANCELED)
+                    }
+                    finish()
+                }
+                .setNegativeButton("Không", null)
+                .show()
+        }
     }
 } 

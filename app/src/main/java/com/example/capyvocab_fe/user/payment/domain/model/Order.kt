@@ -4,7 +4,7 @@ import com.example.capyvocab_fe.auth.domain.model.User
 import com.example.capyvocab_fe.user.test.domain.model.Folder
 
 data class Order(
-    val id: Int,
+    val id: String,
     val amount: Double,
     val status: OrderStatus,
     val createdAt: String,

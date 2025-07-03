@@ -11,4 +11,6 @@ sealed class PaymentUiEvent {
     object DismissError : PaymentUiEvent()
     object DismissSuccess : PaymentUiEvent()
     object ClearPaymentUrl : PaymentUiEvent()
+    data class CheckOrderStatus(val folderId: Int) : PaymentUiEvent()
+    data class CancelOrder(val orderId: String) : PaymentUiEvent()
 }

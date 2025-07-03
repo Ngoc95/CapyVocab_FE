@@ -4,6 +4,9 @@ import com.example.capyvocab_fe.user.review.domain.repository.UserReviewReposito
 import com.example.capyvocab_fe.user.review.domain.usecase.GetProgressSummaryUseCase
 import com.example.capyvocab_fe.user.review.domain.usecase.GetReviewWordsUseCase
 import com.example.capyvocab_fe.user.review.domain.usecase.UpdateWordProgressUseCase
+import com.example.capyvocab_fe.user.payment.domain.repository.PaymentRepository
+import com.example.capyvocab_fe.user.payment.domain.usecase.CheckOrderStatusUseCase
+import com.example.capyvocab_fe.user.payment.domain.usecase.CancelOrderUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +30,19 @@ object ReviewUseCaseModule {
     fun provideGetProgressSummaryUseCase(
         repository: UserReviewRepository
     ): GetProgressSummaryUseCase = GetProgressSummaryUseCase(repository)
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object PaymentUseCaseModule {
+
+    @Provides
+    fun provideCheckOrderStatusUseCase(
+        repository: PaymentRepository
+    ): CheckOrderStatusUseCase = CheckOrderStatusUseCase(repository)
+
+    @Provides
+    fun provideCancelOrderUseCase(
+        repository: PaymentRepository
+    ): CancelOrderUseCase = CancelOrderUseCase(repository)
 }

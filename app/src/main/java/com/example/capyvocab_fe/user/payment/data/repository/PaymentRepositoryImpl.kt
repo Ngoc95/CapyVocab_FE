@@ -27,4 +27,21 @@ class PaymentRepositoryImpl @Inject constructor(
             it.toAppFailure()
         }
     }
+
+    override suspend fun checkOrderStatus(folderId: Int): Either<AppFailure, Order?> {
+        return Either.catch {
+            api.checkOrderStatus(folderId).metaData
+        }.mapLeft {
+            it.toAppFailure()
+        }
+    }
+
+    override suspend fun cancelOrder(orderId: String): Either<AppFailure, Unit> {
+        return Either.catch {
+            api.cancelOrder(orderId)
+            Unit
+        }.mapLeft {
+            it.toAppFailure()
+        }
+    }
 }
