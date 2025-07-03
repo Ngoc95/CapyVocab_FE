@@ -69,6 +69,7 @@ import com.example.capyvocab_fe.admin.word.presentation.WordListViewModel
 import com.example.capyvocab_fe.admin.word.presentation.WordScreen
 import com.example.capyvocab_fe.admin.word.presentation.WordsInTopicScreen
 import com.example.capyvocab_fe.core.ui.components.ConfirmDeleteDialog
+import com.example.capyvocab_fe.core.ui.components.FocusComponent
 import com.example.capyvocab_fe.navigation.Route
 import com.example.capyvocab_fe.payout.presentation.AdminPayoutScreen
 import com.example.capyvocab_fe.payout.presentation.PayoutScreen
@@ -78,10 +79,24 @@ import com.example.capyvocab_fe.profile.presentation.ProfileEvent
 import com.example.capyvocab_fe.profile.presentation.ProfileScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileSettingScreen
 import com.example.capyvocab_fe.profile.presentation.ProfileViewModel
+import com.example.capyvocab_fe.report.domain.model.ReportType
 import com.example.capyvocab_fe.report.presentation.AdminReportScreen
+import com.example.capyvocab_fe.report.presentation.ReportEvent
 import com.example.capyvocab_fe.report.presentation.ReportViewModel
+import com.example.capyvocab_fe.report.presentation.UserReportScreen
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.ui.theme.dimens
+import com.example.capyvocab_fe.user.community.presentation.CommunityEvent
+import com.example.capyvocab_fe.user.community.presentation.CommunityViewModel
+import com.example.capyvocab_fe.user.community.presentation.PostScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.CommentScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.DoQuizScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardLearningScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.FlashcardScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.QuizScreen
+import com.example.capyvocab_fe.user.test.presentation.screens.TestDetailScreen
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseEvent
+import com.example.capyvocab_fe.user.test.presentation.viewmodel.ExerciseViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -111,7 +126,10 @@ fun AdminNavigator(rootNavController: NavHostController) {
     val payoutViewModel: PayoutViewModel = hiltViewModel()
     val reportVM: ReportViewModel = hiltViewModel()
     val reportState by reportVM.state.collectAsState()
-
+    val communityViewModel: CommunityViewModel = hiltViewModel()
+    val communityState by communityViewModel.state.collectAsState()
+    val exerciseViewModel: ExerciseViewModel = hiltViewModel()
+    val exerciseState by exerciseViewModel.state.collectAsState()
     // Add ProfileViewModel for logout functionality
     val profileViewModel: ProfileViewModel = hiltViewModel()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -505,7 +523,13 @@ fun AdminNavigator(rootNavController: NavHostController) {
                     composable(route = Route.AdminReportScreen.route) {
                         AdminReportScreen(
                             state = reportState,
-                            onEvent = reportVM::onEvent
+                            onEvent = reportVM::onEvent,
+                            onReportClick = { report ->
+                                when (report.type) {
+                                    ReportType.POST -> navController.navigate("${Route.UserPostScreen.route}/${report.targetId}")
+                                    ReportType.EXERCISES -> navController.navigate("${Route.TestDetailScreen.route}/${report.targetId}")
+                                }
+                            }
                         )
                     }
 
@@ -540,6 +564,146 @@ fun AdminNavigator(rootNavController: NavHostController) {
                         ChangePasswordScreen(
                             navController = navController,
                             viewModel = viewModel
+                        )
+                    }
+                    composable(
+                        route = "${Route.UserPostScreen.route}/{postId}",
+                        arguments = listOf(navArgument("postId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val postId = backStackEntry.arguments?.getInt("postId")
+
+                        LaunchedEffect(postId) {
+                            communityViewModel.onEvent(CommunityEvent.GetPostById(postId!!.toInt()))
+                        }
+
+                        communityState.selectedPost?.let { post ->
+                            PostScreen(
+                                post = post,
+                                viewModel = communityViewModel,
+                                navController = navController,
+                                onBackClick = {
+                                    communityViewModel.onEvent(CommunityEvent.ClearScreenPost)
+                                    navController.popBackStack()
+                                },
+                            )
+                        }
+                    }
+                    composable(
+                        route = "${Route.TestDetailScreen.route}/{folderId}",
+                        arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val folderId = backStackEntry.arguments?.getInt("folderId")
+                        LaunchedEffect(folderId) {
+                            exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId!!))
+                        }
+                        exerciseState.currentFolder?.let { folder ->
+                            TestDetailScreen(
+                                folder = folder,
+                                onBack = {
+                                    exerciseViewModel.onEvent(ExerciseEvent.ClearCurrentFolder)
+                                    navController.popBackStack()
+                                },
+                                onVoteClick = { exerciseViewModel.onEvent(ExerciseEvent.VoteFolder(folder.id)) },
+                                onUnVoteClick = { exerciseViewModel.onEvent(ExerciseEvent.UnvoteFolder(folder.id)) },
+                                navController = navController
+                            )
+                        }
+                    }
+                    // Thêm các route cho TestDetailContent
+                    composable(
+                        route = "${Route.QuizScreen.route}/{folderId}",
+                        arguments = listOf(
+                            navArgument("folderId") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val folderId = backStackEntry.arguments?.getInt("folderId") ?: -1
+                        exerciseState.currentQuiz?.let {
+                            QuizScreen(
+                                navController = navController,
+                                quizId = it.id,
+                                folderId = folderId,
+                                state = exerciseState,
+                                onEvent = exerciseViewModel::onEvent
+                            )
+                        }
+                    }
+                    composable(
+                        route = "${Route.DoQuizScreen.route}/{quizId}/{folderId}",
+                        arguments = listOf(
+                            navArgument("quizId") { type = NavType.IntType },
+                            navArgument("folderId") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val quizId = backStackEntry.arguments?.getInt("quizId") ?: 0
+                        val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                        DoQuizScreen(
+                            navController = navController,
+                            quizId = quizId,
+                            folderId = folderId,
+                            state = exerciseState,
+                            onEvent = exerciseViewModel::onEvent
+                        )
+                    }
+                    composable(
+                        route = "${Route.FlashCardScreen.route}/{folderId}",
+                        arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                        FocusComponent {
+                            FlashcardScreen(
+                                navController = navController,
+                                folderId = folderId,
+                                state = exerciseState,
+                                onEvent = exerciseViewModel::onEvent
+                            )
+                        }
+                    }
+                    composable(
+                        route = "${Route.FlashCardLearningScreen}/{folderId}",
+                        arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                        FlashcardLearningScreen(
+                            folderId = folderId,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable(
+                        route = "${Route.CommentScreen.route}/{folderId}",
+                        arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val folderId = backStackEntry.arguments?.getInt("folderId") ?: 0
+                        LaunchedEffect(folderId) {
+                            exerciseViewModel.onEvent(ExerciseEvent.GetFolderById(folderId!!))
+                        }
+                        CommentScreen(
+                            navController = navController,
+                            folderId = folderId,
+                            state = exerciseState,
+                            onEvent = exerciseViewModel::onEvent
+                        )
+                    }
+                    composable(
+                        route = "${Route.UserReportScreen.route}/{targetId}/{type}",
+                        arguments = listOf(
+                            navArgument("targetId") { type = NavType.IntType },
+                            navArgument("type") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val targetId = backStackEntry.arguments?.getInt("targetId") ?: 0
+                        val typeString = backStackEntry.arguments?.getString("type") ?: "EXERCISES"
+                        val reportType = try {
+                            ReportType.valueOf(typeString)
+                        } catch (e: Exception) {
+                            ReportType.EXERCISES
+                        }
+                        LaunchedEffect(targetId, reportType) {
+                            reportVM.onEvent(ReportEvent.SetReportData(targetId = targetId, reportType = reportType))
+                        }
+                        UserReportScreen(
+                            state = reportState,
+                            onEvent = reportVM::onEvent,
+                            navController = navController
                         )
                     }
                 }
@@ -595,7 +759,15 @@ fun AdminNavigator(rootNavController: NavHostController) {
 fun shouldShowTopBar(currentRoute: String): Boolean {
     return currentRoute != Route.ProfileSettingScreen.route &&
             currentRoute != Route.ChangePasswordScreen.route &&
-            currentRoute != Route.UserPayoutScreen.route
+            currentRoute != Route.UserPayoutScreen.route &&
+            !currentRoute.startsWith("${Route.UserPostScreen.route}/") &&
+            !currentRoute.startsWith("${Route.TestDetailScreen.route}/") &&
+            !currentRoute.startsWith("${Route.QuizScreen.route}/") &&
+            !currentRoute.startsWith("${Route.DoQuizScreen.route}/") &&
+            !currentRoute.startsWith("${Route.FlashCardScreen.route}/") &&
+            !currentRoute.startsWith("${Route.FlashCardLearningScreen}/") &&
+            !currentRoute.startsWith("${Route.CommentScreen.route}/") &&
+            !currentRoute.startsWith("${Route.UserReportScreen.route}/")
 }
 
 private fun navigateToTab(navController: NavController, route: String) {

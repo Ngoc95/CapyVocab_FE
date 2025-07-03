@@ -1,6 +1,7 @@
 package com.example.capyvocab_fe.report.presentation
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +47,8 @@ import com.example.capyvocab_fe.ui.theme.dimens
 @Composable
 fun AdminReportScreen(
     state: ReportState,
-    onEvent: (ReportEvent) -> Unit
+    onEvent: (ReportEvent) -> Unit,
+    onReportClick: (Report) -> Unit
 ) {
     LaunchedEffect(Unit) {
         onEvent(ReportEvent.LoadReports)
@@ -58,6 +60,7 @@ fun AdminReportScreen(
         isLoading = state.isLoading,
         isEndReached = state.isEndReached,
         selectedStatus = state.selectedStatus,
+        onReportClick = { report -> onReportClick(report) },
         onReportTypeChanged = { onEvent(ReportEvent.ReportTypeChanged(it)) },
         onUpdateReportStatus = { reportId, status ->
             onEvent(ReportEvent.UpdateReportStatus(reportId, status))
@@ -74,6 +77,7 @@ fun AdminReportScreenContent(
     isLoading: Boolean,
     isEndReached: Boolean,
     selectedStatus: ReportStatus,
+    onReportClick: (Report) -> Unit,
     onReportTypeChanged: (ReportType) -> Unit,
     onUpdateReportStatus: (Int, ReportStatus) -> Unit,
     onLoadMoreReports: () -> Unit,
@@ -162,6 +166,7 @@ fun AdminReportScreenContent(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+                        .clickable{ onReportClick(report) },
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
