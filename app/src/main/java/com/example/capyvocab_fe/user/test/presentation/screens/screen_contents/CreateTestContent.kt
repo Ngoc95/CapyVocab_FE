@@ -26,8 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +37,8 @@ import com.example.capyvocab_fe.auth.presentation.ui.components.defaultTextField
 import com.example.capyvocab_fe.ui.theme.CapyVocab_FETheme
 import com.example.capyvocab_fe.user.test.data.remote.model.CreateFolderRequest
 import com.example.capyvocab_fe.user.test.domain.model.Folder
+import com.example.capyvocab_fe.util.PriceUtils.formatPrice
+import com.example.capyvocab_fe.util.PriceUtils.unformatPrice
 
 @Composable
 fun CreateTestContent(
@@ -44,7 +48,7 @@ fun CreateTestContent(
     onFolderCreated: (Folder) -> Unit = {}
 ) {
     var testTitle by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("0") }
+    var priceText by remember { mutableStateOf(TextFieldValue(formatPrice(0.0))) }
     var isPublic by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -74,9 +78,18 @@ fun CreateTestContent(
         )
 
         OutlinedTextField(
-            value = price,
-            onValueChange = { price = it },
-            label = { Text("Giá tiền") },
+            value = priceText,
+            onValueChange = { newValue ->
+                val newUnformatted = newValue.text.replace(",", "")
+                val formatted = if (newUnformatted.isNotEmpty()) formatPrice(newUnformatted.toDoubleOrNull() ?: 0.0) else ""
+                // Calculate new cursor position
+                val diff = formatted.length - newValue.text.length
+                val newCursor = (newValue.selection.end + diff).coerceIn(0, formatted.length)
+                priceText = TextFieldValue(
+                    text = formatted,
+                    selection = TextRange(newCursor)
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -117,10 +130,10 @@ fun CreateTestContent(
                 }
                 errorMessage = null
                 onCreateFolder(
-                    CreateFolderRequest(testTitle, price.toDouble(), isPublic),
+                    CreateFolderRequest(testTitle, unformatPrice(priceText.text), isPublic),
                     { folder ->
                         testTitle = ""
-                        price = "0"
+                        priceText = TextFieldValue(formatPrice(0.0))
                         isPublic = false
                         onFolderCreated(folder)
                     },

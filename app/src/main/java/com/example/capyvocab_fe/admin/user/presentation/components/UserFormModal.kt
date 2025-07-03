@@ -463,38 +463,6 @@ fun UserInfoStats(
                 }
             }
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
-        Text(
-            buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Black
-                    )
-                ) {
-                    append("Tổng thẻ đã học: ")
-                }
-                withStyle(style = SpanStyle(color = Color.DarkGray)) {
-                    append("$totalLearnedCard")
-                }
-            }
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small1))
-        Text(
-            buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Black
-                    )
-                ) {
-                    append("Tổng thẻ thành thạo: ")
-                }
-                withStyle(style = SpanStyle(color = Color.DarkGray)) {
-                    append("$totalMasteredCard")
-                }
-            }
-        )
     }
 }
 
