@@ -78,6 +78,8 @@ fun CreateTestContent(
         )
 
         OutlinedTextField(
+            label = { Text("Giá (đồng)") },
+            placeholder = { Text("Nhập 0 nếu miễn phí") },
             value = priceText,
             onValueChange = { newValue ->
                 val newUnformatted = newValue.text.replace(",", "")
