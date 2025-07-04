@@ -57,12 +57,23 @@ class NotificationActionHandler @Inject constructor(
 //            navController.navigate("order/$orderId") //phải trả cái folder id
 //            //navController.navigate("${Route.TestDetailScreen.route}/$folderId")
 //        }
-        navController.navigate(Route.ProfileScreen.route)
+        navController.navigate(Route.UserTestScreen.route) {
+            // Reset back stack but keep the start destination
+            popUpTo(navController.graph.startDestinationRoute ?: Route.UserLearnScreen.route) {
+                saveState = false // Don't save state
+            }
+            launchSingleTop = true
+        }
     }
 
     private fun handlePasswordNotification(notification: UserNotification) {
         // For password change notifications, you might want to show a dialog
         // or navigate to the security settings
-        navController.navigate(Route.ProfileScreen.route)
+        navController.navigate(Route.ProfileScreen.route) {
+            popUpTo(navController.graph.startDestinationRoute ?: Route.UserLearnScreen.route) {
+                saveState = false // Don't save state
+            }
+            launchSingleTop = true
+        }
     }
 }
