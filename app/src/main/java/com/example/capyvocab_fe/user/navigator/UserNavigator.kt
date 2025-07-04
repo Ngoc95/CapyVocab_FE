@@ -447,7 +447,10 @@ fun UserNavigator(rootNavController: NavHostController) {
                             exerciseViewModel.onEvent(ExerciseEvent.UpdateFolder(it.id, updated))
                             navController.popBackStack()
                         },
-                        onBackClick = { navController.popBackStack() },
+                        onBackClick = {
+                            exerciseViewModel.onEvent(ExerciseEvent.ClearCurrentFolder)
+                            navController.popBackStack()
+                                      },
                         onDelete = { id ->
                             exerciseViewModel.onEvent(ExerciseEvent.DeleteFolder(id))
                             navController.popBackStack(Route.UserTestScreen.route, inclusive = false)

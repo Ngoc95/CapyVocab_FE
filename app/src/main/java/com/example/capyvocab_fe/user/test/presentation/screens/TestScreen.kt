@@ -95,7 +95,7 @@ fun TestScreen(
             )
             val paramMap = vnpParams.associateWith { data?.getStringExtra(it) ?: "" }
             // if isSuccess is false call CancelOrder
-            if (paramMap["isSuccess"] == "false") {
+            if (paramMap["vnp_ResponseCode"] != "00") {
                 val orderId = paramMap["vnp_TxnRef"]
                 if (orderId != null) {
                     paymentViewModel.onEvent(PaymentUiEvent.CancelOrder(orderId))
