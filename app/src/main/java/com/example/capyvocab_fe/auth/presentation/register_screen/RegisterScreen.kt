@@ -226,6 +226,7 @@ fun RegisterContent(
                 // Create account btn
                 Button(
                     onClick = onRegisterClick,
+                    enabled = state.password.isNotEmpty() && state.password == state.confirmPassword,
                     modifier = Modifier
                         .height(MaterialTheme.dimens.buttonHeight)
                         .width(MaterialTheme.dimens.large * 4),
